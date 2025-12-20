@@ -1,17 +1,17 @@
 #pragma once
 
-#include <algorithm>  // std::ranges::all_of
-#include <chrono>     // std::chrono::system_clock
-#include <filesystem> // std::filesystem::path
-#include <fstream>    // std::ofstream, std::ifstream
-#include <initializer_list>
-#include <nlohmann/json.hpp>
+#include <algorithm>        // std::ranges::all_of
+#include <chrono>           // std::chrono::system_clock
+#include <initializer_list> // std::initializer_list
+#include <latermacro.hpp>
+#include <latertime.h>
+#include <optional>  // std::optional
 #include <stdexcept> // std::out_of_range, std::invalid_argument
 #include <string>    // std::string
 #include <utility>   // std::move
 #include <vector>    // std::vector
 
-using TimePoint = std::chrono::system_clock::time_point;
+using Time = std::chrono::system_clock::time_point;
 using namespace std::chrono_literals;
 using namespace std::chrono;
 using uint = unsigned int;
@@ -30,14 +30,26 @@ struct Progress {
 
 class Task {
     std::string _title;
-    std::string _description;
-    std::string _category;
+    std::optional<std::string> _description = std::nullopt;
+    std::optional<std::string> _category = std::nullopt;
     bool _completed = false;
 
   public:
     Task(std::string title, std::string description, std::string category)
-        : _title(std::move(title)), _description(std::move(description)),
-          _category(std::move(category)) {}
+        : _title(std::move(title)) { // NOLINT
+
+        if (description == "") {
+            _description = std::nullopt;
+        } else {
+            _description = std::move(description);
+        }
+        if (category == "") {
+            _category = std::nullopt;
+        } else {
+            _category = std::move(category);
+        }
+    }
+    Task() = default;
     Task(const Task &) = default;
     Task(Task &&) = default;
     auto operator=(const Task &) -> Task & = default;
@@ -51,8 +63,23 @@ class Task {
     [[nodiscard]] auto completed() const -> bool { return _completed; }
 
     [[nodiscard]] auto title() const -> std::string { return _title; }
-    [[nodiscard]] auto description() const -> std::string { return _description; }
-    [[nodiscard]] auto category() const -> std::string { return _category; }
+    [[nodiscard]] auto description() const -> std::optional<std::string> { return _description; }
+    [[nodiscard]] auto category() const -> std::optional<std::string> { return _category; }
+    void set_title(const std::string &title) { _title = title; }
+    void set_description(const std::string &description) {
+        if (description == "") {
+            _description = std::nullopt;
+        } else {
+            _description = description;
+        }
+    }
+    void set_category(const std::string &category) {
+        if (category == "") {
+            _category = std::nullopt;
+        } else {
+            _category = category;
+        }
+    }
 };
 
 class TaskList {
@@ -81,6 +108,15 @@ class TaskList {
     auto at(const std::size_t index) -> Task & { return _tasks.at(index); }
     [[nodiscard]] auto at(const std::size_t index) const -> const Task & {
         return _tasks.at(index);
+    }
+
+    void erase(const std::size_t index) {
+        if (index >= _tasks.size()) {
+            throw std::out_of_range("TaskList::erase: index out of range");
+        }
+        auto iterator = _tasks.begin();
+        std::advance(iterator, index);
+        _tasks.erase(iterator);
     }
 
     auto begin() noexcept { return _tasks.begin(); }
@@ -112,21 +148,25 @@ class TaskList {
 
 class Tasks {
     TaskList _daily_tasks;
+    Time _update_time = Time(0);
 
   public:
     Tasks() = default;
 
+    Tasks(TaskList daily_tasks, Time update_time)
+        : _daily_tasks(std::move(daily_tasks)), _update_time(update_time) {}
     Tasks(const Tasks &) = default;
     Tasks(Tasks &&) = default;
     auto operator=(const Tasks &) -> Tasks & = default;
     auto operator=(Tasks &&) -> Tasks & = default;
-    explicit Tasks(TaskList daily_tasks) : _daily_tasks(std::move(daily_tasks)) {}
     ~Tasks() = default;
 
     void add_task(const Task &task) { _daily_tasks.add(task); }
     void add_task(Task &&task) { _daily_tasks.add(std::move(task)); }
 
-    auto get_daily_task(uint index) -> Task & { return _daily_tasks.at(index); }
+    void delete_task(const std::size_t index) { _daily_tasks.erase(index); }
+
+    auto get_daily_task(uint index) -> Task * { return &_daily_tasks.at(index); }
     [[nodiscard]] auto get_daily_task(uint index) const -> const Task & {
         return _daily_tasks.at(index);
     }
@@ -137,45 +177,9 @@ class Tasks {
 
     void update() noexcept { _daily_tasks.reset(); }
 
-    void save(const std::filesystem::path &path) const {
-        nlohmann::json tasks_config;
-
-        for (const auto &task : _daily_tasks) {
-            nlohmann::json task_json = {{"title", task.title()},
-                                        {"description", task.description()},
-                                        {"category", task.category()},
-                                        {"completed", task.completed()}};
-
-            tasks_config["daily_tasks"].push_back(std::move(task_json));
-        }
-
-        std::ofstream file(path);
-        file << tasks_config.dump(4);
-    }
-
-    void load(const std::filesystem::path &path) {
-        if (!std::filesystem::exists(path)) {
-            throw std::invalid_argument("Tasks::load: config not found at given path");
-        }
-
-        std::ifstream file(path);
-
-        if (file.peek() == std::ifstream::traits_type::eof()) {
-            throw std::invalid_argument("Tasks::load: config file is empty");
-        }
-
-        nlohmann::json tasks_config;
-        file >> tasks_config;
-
-        _daily_tasks = {};
-
-        for (const auto &task_config : tasks_config["daily_tasks"]) {
-            Task task(task_config.value("title", ""), task_config.value("description", ""),
-                      task_config.value("category", ""));
-            if (task_config.value("completed", false)) {
-                task.complete();
-            }
-            _daily_tasks.add(task);
+    void safe_update() noexcept {
+        if (Time::now() >= _update_time) {
+            _daily_tasks.reset();
         }
     }
 };

@@ -5,19 +5,16 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(FetchContent)
-
-FetchContent_Declare(
-    nlohmann_json
-    GIT_REPOSITORY https://github.com/nlohmann/json.git
-    GIT_TAG v3.11.3
-)
-FetchContent_MakeAvailable(nlohmann_json)
 
 add_library(tasks INTERFACE)
+add_library(macro INTERFACE)
+add_library(time INTERFACE)
 
 target_include_directories(tasks INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/tasks)
+target_include_directories(macro INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/macro)
+target_include_directories(time INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/time)
 
-target_link_libraries(tasks INTERFACE nlohmann_json::nlohmann_json)
+target_link_libraries(tasks INTERFACE macro time)
 
-add_library(Later::tasks ALIAS tasks)
+add_library(Later::Tasks ALIAS tasks)
+add_library(Later::Time ALIAS time)
