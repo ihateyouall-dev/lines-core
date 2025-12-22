@@ -6,7 +6,8 @@
 #include <sstream>
 #include <string>
 
-namespace Later {
+namespace Later::Temporal {
+class Duration {};
 class Time {
     using uint = std::uint32_t;
     uint _time;
@@ -98,4 +99,4 @@ class Date {
     [[nodiscard]] auto month() const -> unsigned { return unsigned(ymd().month()); }
     [[nodiscard]] auto day() const -> unsigned { return unsigned(ymd().day()); }
 };
-} // namespace Later
+} // namespace Later::Temporal
