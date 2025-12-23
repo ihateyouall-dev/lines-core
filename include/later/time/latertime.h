@@ -7,7 +7,21 @@
 #include <string>
 
 namespace Later::Temporal {
-class Duration {};
+namespace detail {
+struct TemporalTag {};
+
+struct LinearTimeTag : TemporalTag {};
+struct CalendarTimeTag : TemporalTag {};
+
+struct SecondsTag : LinearTimeTag {};
+struct MinutesTag : LinearTimeTag {};
+struct HoursTag : LinearTimeTag {};
+
+struct DaysTag : CalendarTimeTag {};
+struct MonthsTag : CalendarTimeTag {};
+struct YearsTag : CalendarTimeTag {};
+}; // namespace detail
+
 class Time {
     using uint = std::uint32_t;
     uint _time;
