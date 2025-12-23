@@ -22,6 +22,7 @@ struct MinutesTag : LinearTimeTag {};
 struct HoursTag : LinearTimeTag {};
 
 struct DaysTag : CalendarTimeTag {};
+struct WeeksTag : CalendarTimeTag {};
 struct MonthsTag : CalendarTimeTag {};
 struct YearsTag : CalendarTimeTag {};
 }; // namespace detail
@@ -36,12 +37,15 @@ template <typename Rep, detail::TemporalUnit Unit> class Duration {
     auto operator=(Duration &&) -> Duration & = delete;
     explicit Duration(Rep rep) : _rep(std::move(rep)) {}
     ~Duration() = default;
+
+    auto operator<=>(const Duration &) const = default;
 };
 
 using Seconds = Duration<uint64_t, detail::SecondsTag>;
 using Minutes = Duration<uint64_t, detail::MinutesTag>;
 using Hours = Duration<uint64_t, detail::HoursTag>;
 using Days = Duration<int64_t, detail::DaysTag>;
+using Weeks = Duration<int64_t, detail::WeeksTag>;
 using Months = Duration<int64_t, detail::MonthsTag>;
 using Years = Duration<int64_t, detail::YearsTag>;
 
