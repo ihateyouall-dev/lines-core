@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <concepts>
 #include <cstdint>
 #include <iomanip>
 #include <sstream>
@@ -9,6 +10,9 @@
 namespace Later::Temporal {
 namespace detail {
 struct TemporalTag {};
+
+template <typename Unit>
+concept TemporalUnit = std::derived_from<Unit, TemporalTag>;
 
 struct LinearTimeTag : TemporalTag {};
 struct CalendarTimeTag : TemporalTag {};
@@ -21,6 +25,25 @@ struct DaysTag : CalendarTimeTag {};
 struct MonthsTag : CalendarTimeTag {};
 struct YearsTag : CalendarTimeTag {};
 }; // namespace detail
+
+template <typename Rep, detail::TemporalUnit Unit> class Duration {
+    Rep _rep;
+
+  public:
+    Duration(const Duration &) = delete;
+    Duration(Duration &&) = delete;
+    auto operator=(const Duration &) -> Duration & = delete;
+    auto operator=(Duration &&) -> Duration & = delete;
+    explicit Duration(Rep rep) : _rep(std::move(rep)) {}
+    ~Duration() = default;
+};
+
+using Seconds = Duration<uint64_t, detail::SecondsTag>;
+using Minutes = Duration<uint64_t, detail::MinutesTag>;
+using Hours = Duration<uint64_t, detail::HoursTag>;
+using Days = Duration<int64_t, detail::DaysTag>;
+using Months = Duration<int64_t, detail::MonthsTag>;
+using Years = Duration<int64_t, detail::YearsTag>;
 
 class Time {
     using uint = std::uint32_t;
