@@ -34,62 +34,112 @@ struct YearsTag : CalendarTimeTag {};
 }; // namespace detail
 
 template <std::integral Rep, detail::TemporalUnit Unit> class Duration {
-    using unit_type = Unit;
     Rep _value;
 
   public:
-    Duration(const Duration &) = delete;
-    Duration(Duration &&) = delete;
-    auto operator=(const Duration &) -> Duration & = delete;
-    auto operator=(Duration &&) -> Duration & = delete;
+    using unit_type = Unit;
+    Duration(const Duration &) = default;
+    Duration(Duration &&) = default;
+    auto operator=(const Duration &) -> Duration & = default;
+    auto operator=(Duration &&) -> Duration & = default;
     explicit Duration(Rep value) : _value(std::move(value)) {}
     ~Duration() = default;
 
     auto operator<=>(const Duration &) const = default;
 
-    auto operator++() noexcept -> Duration & {
+    auto operator++() -> Duration & {
         ++_value;
         return *this;
     }
 
-    auto operator++(int) noexcept -> Duration {
+    auto operator++(int) -> Duration {
         auto temp = *this;
         ++*this;
         return temp;
     }
 
-    auto operator--() noexcept -> Duration & {
+    auto operator--() -> Duration & {
         --_value;
         return *this;
     }
 
-    auto operator--(int) noexcept -> Duration {
+    auto operator--(int) -> Duration {
         auto temp = *this;
         --*this;
         return temp;
     }
 
-    auto operator+(const Duration &dur) const noexcept -> Duration {
+    auto operator+(const Duration &dur) const -> Duration {
         auto temp = *this;
         temp += dur;
         return temp;
     }
 
-    auto operator+=(const Duration &dur) noexcept -> Duration & {
+    auto operator+=(const Duration &dur) -> Duration & {
         _value += dur._value;
         return *this;
     }
 
-    auto operator-(const Duration &dur) noexcept -> Duration {
+    auto operator-(const Duration &dur) const -> Duration {
         auto temp = *this;
         temp -= dur;
         return temp;
     }
 
-    auto operator-=(const Duration &dur) noexcept -> Duration & {
+    auto operator-=(const Duration &dur) -> Duration & {
         _value -= dur._value;
         return *this;
     }
+
+    template <std::integral T> auto operator*(T num) const -> Duration {
+        auto temp = *this;
+        temp *= num;
+        return temp;
+    }
+
+    template <std::integral T> auto operator*=(T num) -> Duration & {
+        _value *= num;
+        return *this;
+    }
+
+    template <std::integral T> friend auto operator*(T num, Duration dur) -> Duration {
+        return dur * num;
+    }
+
+    template <std::integral T> auto operator/(T num) const -> Duration {
+        auto temp = *this;
+        temp /= num;
+        return temp;
+    }
+
+    template <std::integral T> auto operator/=(T num) -> Duration & {
+        _value /= num;
+        return *this;
+    }
+
+    template <std::integral T> auto operator%(T num) const -> Duration {
+        auto temp = *this;
+        temp %= num;
+        return temp;
+    }
+
+    template <std::integral T> auto operator%=(T num) -> Duration & {
+        _value %= num;
+        return *this;
+    }
+
+    auto operator%(const Duration &dur) const -> Duration {
+        auto temp = *this;
+        temp %= dur;
+        return temp;
+    }
+
+    auto operator%=(const Duration &dur) -> Duration & {
+        _value %= dur;
+        return *this;
+    }
+
+    auto count() const noexcept -> Rep { return _value; }
 };
 
 template <typename T>
