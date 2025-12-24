@@ -4,15 +4,17 @@
 #include <concepts>
 #include <cstdint>
 #include <iomanip>
-#include <ios>
 #include <sstream>
 #include <string>
 
 namespace Later::Temporal {
+
 template <uint32_t Period, std::integral Rep = uint64_t> class Duration {
     Rep _value;
+    uint32_t _period = Period;
 
   public:
+    static constexpr uint32_t period = Period;
     Duration(const Duration &) = default;
     Duration(Duration &&) = default;
     auto operator=(const Duration &) -> Duration & = default;
@@ -124,6 +126,11 @@ using Days = Duration<86400, int64_t>;     // NOLINT
 using Weeks = Duration<604800, int64_t>;   // NOLINT
 using Months = Duration<2629746, int64_t>; // NOLINT
 using Years = Duration<31556952, int64_t>; // NOLINT
+
+template <typename To, uint32_t Period, typename Rep>
+constexpr auto duration_cast(const Duration<Period, Rep> &dur) -> To {
+    return dur.count() * Period / To::period;
+}
 
 class Time {
     using uint = std::uint32_t;
