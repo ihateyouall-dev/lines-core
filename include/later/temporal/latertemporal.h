@@ -48,6 +48,13 @@ template <typename Rep, detail::TemporalUnit Unit> class Duration {
     auto operator<=>(const Duration &) const = default;
 };
 
+template <typename T>
+concept LinearDuration = requires { T::unit_type; } && detail::LinearUnit<typename T::unit_type>;
+
+template <typename T>
+concept CalendarDuration =
+    requires { T::unit_type; } && detail::CalendarUnit<typename T::unit_type>;
+
 using Seconds = Duration<uint64_t, detail::SecondsTag>;
 using Minutes = Duration<uint64_t, detail::MinutesTag>;
 using Hours = Duration<uint64_t, detail::HoursTag>;
