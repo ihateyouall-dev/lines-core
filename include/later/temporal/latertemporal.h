@@ -4,40 +4,15 @@
 #include <concepts>
 #include <cstdint>
 #include <iomanip>
+#include <ios>
 #include <sstream>
 #include <string>
 
 namespace Later::Temporal {
-namespace detail {
-struct TemporalTag {};
-
-template <typename Unit>
-concept TemporalUnit = std::derived_from<Unit, TemporalTag>;
-
-struct LinearTimeTag : TemporalTag {};
-struct CalendarTimeTag : TemporalTag {};
-
-template <typename Unit>
-concept LinearUnit = std::derived_from<Unit, LinearTimeTag>;
-
-template <typename Unit>
-concept CalendarUnit = std::derived_from<Unit, CalendarTimeTag>;
-
-struct SecondsTag : LinearTimeTag {};
-struct MinutesTag : LinearTimeTag {};
-struct HoursTag : LinearTimeTag {};
-
-struct DaysTag : CalendarTimeTag {};
-struct WeeksTag : CalendarTimeTag {};
-struct MonthsTag : CalendarTimeTag {};
-struct YearsTag : CalendarTimeTag {};
-}; // namespace detail
-
-template <std::integral Rep, detail::TemporalUnit Unit> class Duration {
+template <uint32_t Period, std::integral Rep = uint64_t> class Duration {
     Rep _value;
 
   public:
-    using unit_type = Unit;
     Duration(const Duration &) = default;
     Duration(Duration &&) = default;
     auto operator=(const Duration &) -> Duration & = default;
@@ -142,20 +117,13 @@ template <std::integral Rep, detail::TemporalUnit Unit> class Duration {
     auto count() const noexcept -> Rep { return _value; }
 };
 
-template <typename T>
-concept LinearDuration = requires { T::unit_type; } && detail::LinearUnit<typename T::unit_type>;
-
-template <typename T>
-concept CalendarDuration =
-    requires { T::unit_type; } && detail::CalendarUnit<typename T::unit_type>;
-
-using Seconds = Duration<uint64_t, detail::SecondsTag>;
-using Minutes = Duration<uint64_t, detail::MinutesTag>;
-using Hours = Duration<uint64_t, detail::HoursTag>;
-using Days = Duration<int64_t, detail::DaysTag>;
-using Weeks = Duration<int64_t, detail::WeeksTag>;
-using Months = Duration<int64_t, detail::MonthsTag>;
-using Years = Duration<int64_t, detail::YearsTag>;
+using Seconds = Duration<1>;
+using Minutes = Duration<60>;              // NOLINT
+using Hours = Duration<3600>;              // NOLINT
+using Days = Duration<86400, int64_t>;     // NOLINT
+using Weeks = Duration<604800, int64_t>;   // NOLINT
+using Months = Duration<2629746, int64_t>; // NOLINT
+using Years = Duration<31556952, int64_t>; // NOLINT
 
 class Time {
     using uint = std::uint32_t;
