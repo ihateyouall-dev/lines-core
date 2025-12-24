@@ -33,19 +33,63 @@ struct MonthsTag : CalendarTimeTag {};
 struct YearsTag : CalendarTimeTag {};
 }; // namespace detail
 
-template <typename Rep, detail::TemporalUnit Unit> class Duration {
+template <std::integral Rep, detail::TemporalUnit Unit> class Duration {
     using unit_type = Unit;
-    Rep _rep;
+    Rep _value;
 
   public:
     Duration(const Duration &) = delete;
     Duration(Duration &&) = delete;
     auto operator=(const Duration &) -> Duration & = delete;
     auto operator=(Duration &&) -> Duration & = delete;
-    explicit Duration(Rep rep) : _rep(std::move(rep)) {}
+    explicit Duration(Rep value) : _value(std::move(value)) {}
     ~Duration() = default;
 
     auto operator<=>(const Duration &) const = default;
+
+    auto operator++() noexcept -> Duration & {
+        ++_value;
+        return *this;
+    }
+
+    auto operator++(int) noexcept -> Duration {
+        auto temp = *this;
+        ++*this;
+        return temp;
+    }
+
+    auto operator--() noexcept -> Duration & {
+        --_value;
+        return *this;
+    }
+
+    auto operator--(int) noexcept -> Duration {
+        auto temp = *this;
+        --*this;
+        return temp;
+    }
+
+    auto operator+(const Duration &dur) const noexcept -> Duration {
+        auto temp = *this;
+        temp += dur;
+        return temp;
+    }
+
+    auto operator+=(const Duration &dur) noexcept -> Duration & {
+        _value += dur._value;
+        return *this;
+    }
+
+    auto operator-(const Duration &dur) noexcept -> Duration {
+        auto temp = *this;
+        temp -= dur;
+        return temp;
+    }
+
+    auto operator-=(const Duration &dur) noexcept -> Duration & {
+        _value -= dur._value;
+        return *this;
+    }
 };
 
 template <typename T>
