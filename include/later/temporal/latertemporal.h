@@ -17,6 +17,12 @@ concept TemporalUnit = std::derived_from<Unit, TemporalTag>;
 struct LinearTimeTag : TemporalTag {};
 struct CalendarTimeTag : TemporalTag {};
 
+template <typename Unit>
+concept LinearUnit = std::derived_from<Unit, LinearTimeTag>;
+
+template <typename Unit>
+concept CalendarUnit = std::derived_from<Unit, CalendarTimeTag>;
+
 struct SecondsTag : LinearTimeTag {};
 struct MinutesTag : LinearTimeTag {};
 struct HoursTag : LinearTimeTag {};
@@ -28,6 +34,7 @@ struct YearsTag : CalendarTimeTag {};
 }; // namespace detail
 
 template <typename Rep, detail::TemporalUnit Unit> class Duration {
+    using unit_type = Unit;
     Rep _rep;
 
   public:
