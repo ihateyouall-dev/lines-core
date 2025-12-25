@@ -24,21 +24,6 @@ template <uint32_t Period, std::integral Rep = uint64_t> class Duration {
 
     constexpr auto operator<=>(const Duration &) const = default;
 
-    template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
-        requires(!(P1 == P2) && std::same_as<R1, R2>)
-    friend constexpr auto operator<=>(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
-        using Dur1 = Duration<P1, R1>;
-        using Dur2 = Duration<P2, R2>;
-
-        if (Dur1::period > Dur2::period) {
-            return duration_cast<Dur2>(dur1) <=> dur2;
-        }
-        if (Dur1::period < Dur2::period) {
-            return dur1 <=> duration_cast<Dur1>(dur2);
-        }
-        __builtin_unreachable();
-    }
-
     auto operator++() -> Duration & {
         ++_value;
         return *this;
@@ -134,6 +119,22 @@ template <uint32_t Period, std::integral Rep = uint64_t> class Duration {
     auto count() const noexcept -> Rep { return _value; }
 };
 
+template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+    requires(!(P1 == P2))
+constexpr auto operator<=>(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
+    using Dur1 = Duration<P1, R1>;
+    using Dur2 = Duration<P2, R2>;
+
+    if constexpr (Dur1::period > Dur2::period) {
+        return duration_cast<Dur2>(dur1) <=> dur2;
+    }
+
+    if constexpr (Dur1::period < Dur2::period) {
+        return dur1 <=> duration_cast<Dur1>(dur2);
+    }
+    __builtin_unreachable();
+}
+
 using Seconds = Duration<1>;
 using Minutes = Duration<60>;              // NOLINT
 using Hours = Duration<3600>;              // NOLINT
@@ -164,6 +165,7 @@ constexpr auto ceil(const Duration<Period, Rep> &dur) -> To {
     }
     return to_dur;
 }
+
 template <typename To, uint32_t Period, std::integral Rep>
 constexpr auto round(const Duration<Period, Rep> &dur) -> To {
     To to0 = std::chrono::floor<To>(dur);
