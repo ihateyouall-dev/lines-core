@@ -132,6 +132,41 @@ constexpr auto duration_cast(const Duration<Period, Rep> &dur) -> To {
     return To(dur.count() * Period / To::period);
 }
 
+template <typename To, uint32_t Period, std::integral Rep>
+constexpr auto floor(const Duration<Period, Rep> &dur) -> To {
+    To to_dur = duration_cast<To>(dur);
+    if (to_dur > dur) {
+        return to_dur - To{1};
+    }
+    return to_dur;
+}
+
+template <typename To, uint32_t Period, std::integral Rep>
+constexpr auto ceil(const Duration<Period, Rep> &dur) -> To {
+    To to_dur = duration_cast<To>(dur);
+    if (to_dur < dur) {
+        return to_dur - To{1};
+    }
+    return to_dur;
+}
+template <typename To, uint32_t Period, std::integral Rep>
+constexpr auto round(const Duration<Period, Rep> &dur) -> To {
+    To to0 = std::chrono::floor<To>(dur);
+    To to1 = to0 + To{1};
+    auto diff0 = dur - to0;
+    auto diff1 = to1 - dur;
+    if (diff0 == diff1) {
+        if (to0.count() & 1) {
+            return to1;
+        }
+        return to0;
+    }
+    if (diff0 < diff1) {
+        return to0;
+    }
+    return to1;
+}
+
 class Time {
     using uint = std::uint32_t;
     uint _time;
