@@ -167,42 +167,34 @@ constexpr auto ceil(const Duration<Period, Rep> &dur) -> To {
 }
 
 class Time {
-    using uint = std::uint32_t;
-    uint _time;
-
-    static constexpr uint seconds_in_hour = 3600;
-    static constexpr uint seconds_in_minute = 60;
-    static constexpr uint seconds_in_day = 24 * seconds_in_hour;
+    Seconds _rep = Seconds{0};
 
   public:
     Time() = default;
-    explicit Time(uint time) : _time(time % seconds_in_day) {}
-    Time(uint hours, uint minutes, uint seconds)
-        : _time(((hours * seconds_in_hour) + (minutes * seconds_in_minute) + seconds) %
-                seconds_in_day) {}
+    explicit Time(Seconds rep) : _rep(rep) {}
 
-    [[nodiscard]] auto time() const -> uint { return _time; }
+    [[nodiscard]] auto count() const -> Seconds { return _rep; }
 
     auto operator<=>(const Time &) const = default;
 
     [[nodiscard]] auto hh_mm_ss() const -> std::string {
         std::ostringstream hh_mm_ss;
 
-        uint hours = static_cast<uint>(_time / seconds_in_hour);
-        const uint minutes = (_time / seconds_in_minute) % 60;
-        const uint seconds = _time % 60;
+        auto hours = floor<Hours>(_rep);
+        auto minutes = floor<Minutes>(_rep - duration_cast<Seconds>(hours));
+        auto seconds = _rep - duration_cast<Seconds>(minutes) - duration_cast<Seconds>(hours);
 
-        hh_mm_ss << std::setw(2) << std::setfill('0') << hours << ':' << std::setw(2) << minutes
-                 << ':' << std::setw(2) << seconds;
+        hh_mm_ss << std::setw(2) << std::setfill('0') << hours.count() << ':' << std::setw(2)
+                 << minutes.count() << ':' << std::setw(2) << seconds.count();
 
         return hh_mm_ss.str();
     }
 
     static auto now() -> Time {
         auto now = std::chrono::system_clock::now();
-        auto absolute_time =
+        auto absolute_rep =
             std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-        return Time(static_cast<uint>(absolute_time) % seconds_in_day);
+        return Time(Seconds{static_cast<unsigned long>(absolute_rep)});
     }
 };
 
