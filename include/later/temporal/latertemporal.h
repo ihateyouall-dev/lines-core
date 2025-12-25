@@ -161,7 +161,7 @@ template <typename To, uint32_t Period, std::integral Rep>
 constexpr auto ceil(const Duration<Period, Rep> &dur) -> To {
     To to_dur = duration_cast<To>(dur);
     if (to_dur < dur) {
-        return to_dur - To{1};
+        return to_dur + To{1};
     }
     return to_dur;
 }
