@@ -1,33 +1,18 @@
 #pragma once
 
+#include "../macro/latermacro.hpp"
+#include "../temporal/latertemporal.h"
 #include <algorithm>        // std::ranges::all_of
-#include <chrono>           // std::chrono::system_clock
 #include <initializer_list> // std::initializer_list
-#include <latermacro.hpp>
-#include <latertime.h>
-#include <optional>  // std::optional
-#include <stdexcept> // std::out_of_range, std::invalid_argument
-#include <string>    // std::string
-#include <utility>   // std::move
-#include <vector>    // std::vector
+#include <optional>         // std::optional
+#include <stdexcept>        // std::out_of_range, std::invalid_argument
+#include <string>           // std::string
+#include <utility>          // std::move
+#include <vector>           // std::vector
 
-using Time = std::chrono::system_clock::time_point;
-using namespace std::chrono_literals;
-using namespace std::chrono;
 using uint = unsigned int;
 
 namespace Later {
-struct Progress {
-    Progress(uint current,          // NOLINT(bugprone-easily-swappable-parameters)
-             uint maximal) noexcept // NOLINT(bugprone-easily-swappable-parameters)
-        : current(current), maximal(maximal) {}
-    Progress() = default;
-    uint current = 0;
-    uint maximal = 1;
-
-    [[nodiscard]] auto completed() const noexcept -> bool { return current >= maximal; }
-};
-
 class Task {
     std::string _title;
     std::optional<std::string> _description = std::nullopt;
@@ -148,13 +133,11 @@ class TaskList {
 
 class Tasks {
     TaskList _daily_tasks;
-    Time _update_time = Time(0);
 
   public:
     Tasks() = default;
 
-    Tasks(TaskList daily_tasks, Time update_time)
-        : _daily_tasks(std::move(daily_tasks)), _update_time(update_time) {}
+    explicit Tasks(TaskList daily_tasks) : _daily_tasks(std::move(daily_tasks)) {}
     Tasks(const Tasks &) = default;
     Tasks(Tasks &&) = default;
     auto operator=(const Tasks &) -> Tasks & = default;
@@ -176,11 +159,5 @@ class Tasks {
     [[nodiscard]] auto daily_tasks() const -> const TaskList & { return _daily_tasks; }
 
     void update() noexcept { _daily_tasks.reset(); }
-
-    void safe_update() noexcept {
-        if (Time::now() >= _update_time) {
-            _daily_tasks.reset();
-        }
-    }
 };
 } // namespace Later
