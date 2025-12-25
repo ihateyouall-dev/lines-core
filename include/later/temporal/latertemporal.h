@@ -22,7 +22,21 @@ template <uint32_t Period, std::integral Rep = uint64_t> class Duration {
     explicit Duration(Rep value) : _value(std::move(value)) {}
     ~Duration() = default;
 
-    auto operator<=>(const Duration &) const = default;
+    constexpr auto operator<=>(const Duration &) const = default;
+
+    template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+    friend constexpr auto operator<=>(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
+        using Dur1 = Duration<P1, R1>;
+        using Dur2 = Duration<P2, R2>;
+
+        if (Dur1::period > Dur2::period) {
+            return duration_cast<Dur2>(dur1) <=> dur2;
+        }
+        if (Dur1::period < Dur2::period) {
+            return dur1 <=> duration_cast<Dur1>(dur2);
+        }
+        return dur1 <=> dur2;
+    }
 
     auto operator++() -> Duration & {
         ++_value;
