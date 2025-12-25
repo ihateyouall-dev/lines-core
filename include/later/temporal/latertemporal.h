@@ -127,7 +127,7 @@ using Weeks = Duration<604800, int64_t>;   // NOLINT
 using Months = Duration<2629746, int64_t>; // NOLINT
 using Years = Duration<31556952, int64_t>; // NOLINT
 
-template <typename To, uint32_t Period, typename Rep>
+template <typename To, uint32_t Period, std::integral Rep>
 constexpr auto duration_cast(const Duration<Period, Rep> &dur) -> To {
     return dur.count() * Period / To::period;
 }
