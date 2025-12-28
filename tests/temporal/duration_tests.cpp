@@ -29,6 +29,10 @@ TEST(DurationCast, Days) {
     EXPECT_EQ(duration_cast<Days>(Minutes{2880}), Days{2});
     EXPECT_EQ(duration_cast<Days>(Hours{48}), Days{2});
     EXPECT_EQ(duration_cast<Days>(Weeks{2}), Days{14});
+    EXPECT_EQ(duration_cast<Days>(Months{2}), Days{60});
+    EXPECT_EQ(duration_cast<Days>(Months{3}), Days{30} * 3 + Days{1});
+    EXPECT_EQ(duration_cast<Days>(Years{2}), Days{730});
+    EXPECT_EQ(duration_cast<Days>(Years{5}), Days{365} * 5 + Days{1});
 }
 
 TEST(DurationCast, Weeks) {
@@ -36,6 +40,10 @@ TEST(DurationCast, Weeks) {
     EXPECT_EQ(duration_cast<Weeks>(Minutes{20160}), Weeks{2});
     EXPECT_EQ(duration_cast<Weeks>(Hours{336}), Weeks{2});
     EXPECT_EQ(duration_cast<Weeks>(Days{14}), Weeks{2});
+    EXPECT_EQ(duration_cast<Weeks>(Months{2}), Weeks{8});
+    EXPECT_EQ(duration_cast<Weeks>(Months{3}), Weeks{4} * 3 + Weeks{1});
+    EXPECT_EQ(duration_cast<Weeks>(Years{2}), Weeks{104});
+    EXPECT_EQ(duration_cast<Weeks>(Years{11}), Weeks{52} * 11 + Weeks{1});
 }
 
 TEST(DurationCast, Calendar) {
