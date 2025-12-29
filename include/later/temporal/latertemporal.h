@@ -9,7 +9,7 @@
 
 namespace Later::Temporal {
 
-template <uint32_t Period, std::integral Rep = uint64_t> class Duration {
+template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     Rep _value;
     uint32_t _period = Period;
 
@@ -116,7 +116,7 @@ template <uint32_t Period, std::integral Rep = uint64_t> class Duration {
         return *this;
     }
 
-    auto count() const noexcept -> Rep { return _value; }
+    [[nodiscard]] auto count() const noexcept -> Rep { return _value; }
 };
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
@@ -136,12 +136,12 @@ constexpr auto operator<=>(const Duration<P1, R1> &dur1, const Duration<P2, R2> 
 }
 
 using Seconds = Duration<1>;
-using Minutes = Duration<60>;              // NOLINT
-using Hours = Duration<3600>;              // NOLINT
-using Days = Duration<86400, int64_t>;     // NOLINT
-using Weeks = Duration<604800, int64_t>;   // NOLINT
-using Months = Duration<2629746, int64_t>; // NOLINT
-using Years = Duration<31556952, int64_t>; // NOLINT
+using Minutes = Duration<60>;     // NOLINT
+using Hours = Duration<3600>;     // NOLINT
+using Days = Duration<86400>;     // NOLINT
+using Weeks = Duration<604800>;   // NOLINT
+using Months = Duration<2629746>; // NOLINT
+using Years = Duration<31556952>; // NOLINT
 
 template <typename To, uint32_t Period, std::integral Rep>
 constexpr auto duration_cast(const Duration<Period, Rep> &dur) -> To {
@@ -194,7 +194,7 @@ class Time {
         auto now = std::chrono::system_clock::now();
         auto absolute_rep =
             std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-        return Time(Seconds{static_cast<unsigned long>(absolute_rep)});
+        return Time(Seconds{static_cast<long>(absolute_rep)});
     }
 };
 
