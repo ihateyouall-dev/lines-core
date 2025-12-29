@@ -89,3 +89,197 @@ TEST(DurationCast, ReversibleConversions) {
 TEST(DurationCast, LargeValues) {
     EXPECT_EQ(duration_cast<Seconds>(Days{100000}), Seconds{100000LL * 24 * 60 * 60});
 }
+
+TEST(DurationFloor, Seconds) {
+    EXPECT_EQ(floor<Minutes>(Seconds{61}), Minutes{1});
+    EXPECT_EQ(floor<Minutes>(Seconds{119}), Minutes{1});
+    EXPECT_EQ(floor<Hours>(Seconds{3601}), Hours{1});
+    EXPECT_EQ(floor<Hours>(Seconds{7199}), Hours{1});
+    EXPECT_EQ(floor<Days>(Seconds{86401}), Days{1});
+    EXPECT_EQ(floor<Days>(Seconds{172799}), Days{1});
+    EXPECT_EQ(floor<Weeks>(Seconds{604801}), Weeks{1});
+    EXPECT_EQ(floor<Weeks>(Seconds{1209599}), Weeks{1});
+}
+
+TEST(DurationFloor, Minutes) {
+    EXPECT_EQ(floor<Hours>(Minutes{61}), Hours{1});
+    EXPECT_EQ(floor<Hours>(Minutes{119}), Hours{1});
+    EXPECT_EQ(floor<Days>(Minutes{1441}), Days{1});
+    EXPECT_EQ(floor<Days>(Minutes{2879}), Days{1});
+    EXPECT_EQ(floor<Weeks>(Minutes{10081}), Weeks{1});
+    EXPECT_EQ(floor<Weeks>(Minutes{20159}), Weeks{1});
+}
+
+TEST(DurationFloor, Hours) {
+    EXPECT_EQ(floor<Days>(Hours{25}), Days{1});
+    EXPECT_EQ(floor<Days>(Hours{47}), Days{1});
+    EXPECT_EQ(floor<Weeks>(Hours{169}), Weeks{1});
+    EXPECT_EQ(floor<Weeks>(Hours{335}), Weeks{1});
+}
+
+TEST(DurationFloor, Days) {
+    EXPECT_EQ(floor<Weeks>(Days{8}), Weeks{1});
+    EXPECT_EQ(floor<Weeks>(Days{13}), Weeks{1});
+}
+
+TEST(DurationFloor, Weeks) {
+    EXPECT_EQ(floor<Weeks>(Weeks{1}), Weeks{1});
+    EXPECT_EQ(floor<Weeks>(Weeks{3}), Weeks{3});
+}
+
+TEST(DurationFloor, Calendar) {
+    EXPECT_EQ(floor<Years>(Months{13}), Years{1});
+    EXPECT_EQ(floor<Years>(Months{23}), Years{1});
+    EXPECT_EQ(floor<Months>(Days{31}), Months{1});
+    EXPECT_EQ(floor<Months>(Days{92}), Months{3});
+}
+
+TEST(DurationFloor, ExactBoundaries) {
+    EXPECT_EQ(floor<Minutes>(Seconds{60}), Minutes{1});
+    EXPECT_EQ(floor<Hours>(Minutes{60}), Hours{1});
+    EXPECT_EQ(floor<Days>(Hours{24}), Days{1});
+    EXPECT_EQ(floor<Weeks>(Days{7}), Weeks{1});
+}
+
+TEST(DurationFloor, ZeroValues) {
+    EXPECT_EQ(floor<Seconds>(Seconds{0}), Seconds{0});
+    EXPECT_EQ(floor<Minutes>(Seconds{0}), Minutes{0});
+    EXPECT_EQ(floor<Hours>(Minutes{0}), Hours{0});
+    EXPECT_EQ(floor<Days>(Hours{0}), Days{0});
+}
+
+TEST(DurationFloor, LessThanOneUnit) {
+    EXPECT_EQ(floor<Minutes>(Seconds{59}), Minutes{0});
+    EXPECT_EQ(floor<Hours>(Minutes{59}), Hours{0});
+    EXPECT_EQ(floor<Days>(Hours{23}), Days{0});
+    EXPECT_EQ(floor<Weeks>(Days{6}), Weeks{0});
+}
+
+TEST(DurationFloor, Idempotent) {
+    auto d = floor<Days>(Hours{49}); // NOLINT
+    EXPECT_EQ(floor<Days>(d), d);
+
+    auto w = floor<Weeks>(Days{20}); // NOLINT
+    EXPECT_EQ(floor<Weeks>(w), w);
+}
+
+TEST(DurationFloor, MatchesDurationCastForLinearUnits) {
+    EXPECT_EQ(floor<Minutes>(Seconds{119}), duration_cast<Minutes>(Seconds{119}));
+
+    EXPECT_EQ(floor<Hours>(Minutes{3599}), duration_cast<Hours>(Minutes{3599}));
+}
+
+TEST(DurationFloor, LargeValues) {
+    EXPECT_EQ(floor<Days>(Hours{24 * 365}), Days{365}); // NOLINT
+    EXPECT_EQ(floor<Weeks>(Days{7 * 520}), Weeks{520}); // NOLINT
+}
+
+TEST(DurationFloor, NegativeValues) {
+    EXPECT_EQ(floor<Minutes>(Seconds{-1}), Minutes{-1});
+    EXPECT_EQ(floor<Minutes>(Seconds{-61}), Minutes{-2});
+}
+
+TEST(DurationFloor, Composition) {
+    auto x = Seconds{90000}; // NOLINT
+    EXPECT_EQ(floor<Days>(floor<Hours>(x)), floor<Days>(x));
+}
+
+TEST(DurationCeil, Seconds) {
+    EXPECT_EQ(ceil<Minutes>(Seconds{1}), Minutes{1});
+    EXPECT_EQ(ceil<Minutes>(Seconds{61}), Minutes{2});
+    EXPECT_EQ(ceil<Hours>(Seconds{3601}), Hours{2});
+    EXPECT_EQ(ceil<Hours>(Seconds{7199}), Hours{2});
+    EXPECT_EQ(ceil<Days>(Seconds{86401}), Days{2});
+    EXPECT_EQ(ceil<Days>(Seconds{172799}), Days{2});
+    EXPECT_EQ(ceil<Weeks>(Seconds{604801}), Weeks{2});
+    EXPECT_EQ(ceil<Weeks>(Seconds{1209599}), Weeks{2});
+}
+
+TEST(DurationCeil, Minutes) {
+    EXPECT_EQ(ceil<Hours>(Minutes{1}), Hours{1});
+    EXPECT_EQ(ceil<Hours>(Minutes{61}), Hours{2});
+    EXPECT_EQ(ceil<Days>(Minutes{1441}), Days{2});
+    EXPECT_EQ(ceil<Days>(Minutes{2879}), Days{2});
+    EXPECT_EQ(ceil<Weeks>(Minutes{10081}), Weeks{2});
+    EXPECT_EQ(ceil<Weeks>(Minutes{20159}), Weeks{2});
+}
+
+TEST(DurationCeil, Hours) {
+    EXPECT_EQ(ceil<Days>(Hours{1}), Days{1});
+    EXPECT_EQ(ceil<Days>(Hours{25}), Days{2});
+    EXPECT_EQ(ceil<Weeks>(Hours{169}), Weeks{2});
+    EXPECT_EQ(ceil<Weeks>(Hours{335}), Weeks{2});
+}
+
+TEST(DurationCeil, Days) {
+    EXPECT_EQ(ceil<Weeks>(Days{1}), Weeks{1});
+    EXPECT_EQ(ceil<Weeks>(Days{8}), Weeks{2});
+    EXPECT_EQ(ceil<Weeks>(Days{13}), Weeks{2});
+}
+
+TEST(DurationCeil, Weeks) {
+    EXPECT_EQ(ceil<Weeks>(Weeks{1}), Weeks{1});
+    EXPECT_EQ(ceil<Weeks>(Weeks{3}), Weeks{3});
+}
+
+TEST(DurationCeil, Calendar) {
+    EXPECT_EQ(ceil<Years>(Months{1}), Years{1});
+    EXPECT_EQ(ceil<Years>(Months{13}), Years{2});
+    EXPECT_EQ(ceil<Months>(Days{1}), Months{1});
+    EXPECT_EQ(ceil<Months>(Days{31}), Months{2});
+    EXPECT_EQ(ceil<Months>(Days{92}), Months{4});
+}
+
+TEST(DurationCeil, ExactBoundaries) {
+    EXPECT_EQ(ceil<Minutes>(Seconds{60}), Minutes{1});
+    EXPECT_EQ(ceil<Hours>(Minutes{60}), Hours{1});
+    EXPECT_EQ(ceil<Days>(Hours{24}), Days{1});
+    EXPECT_EQ(ceil<Weeks>(Days{7}), Weeks{1});
+}
+
+TEST(DurationCeil, ZeroValues) {
+    EXPECT_EQ(ceil<Seconds>(Seconds{0}), Seconds{0});
+    EXPECT_EQ(ceil<Minutes>(Seconds{0}), Minutes{0});
+    EXPECT_EQ(ceil<Hours>(Minutes{0}), Hours{0});
+    EXPECT_EQ(ceil<Days>(Hours{0}), Days{0});
+}
+
+TEST(DurationCeil, LessThanOneUnit) {
+    EXPECT_EQ(ceil<Minutes>(Seconds{1}), Minutes{1});
+    EXPECT_EQ(ceil<Hours>(Minutes{1}), Hours{1});
+    EXPECT_EQ(ceil<Days>(Hours{1}), Days{1});
+    EXPECT_EQ(ceil<Weeks>(Days{1}), Weeks{1});
+}
+
+TEST(DurationCeil, Idempotent) {
+    auto d = ceil<Days>(Hours{49}); // NOLINT
+    EXPECT_EQ(ceil<Days>(d), d);
+
+    auto w = ceil<Weeks>(Days{20}); // NOLINT
+    EXPECT_EQ(ceil<Weeks>(w), w);
+}
+
+TEST(DurationCeil, MatchesDurationCastForLinearUnitsWhenExact) {
+    EXPECT_EQ(ceil<Minutes>(Seconds{120}), duration_cast<Minutes>(Seconds{120}));
+    EXPECT_EQ(ceil<Hours>(Minutes{120}), duration_cast<Hours>(Minutes{120}));
+}
+
+TEST(DurationCeil, LargeValues) {
+    EXPECT_EQ(ceil<Days>(Hours{24 * 365}), Days{365}); // NOLINT
+    EXPECT_EQ(ceil<Weeks>(Days{7 * 520}), Weeks{520}); // NOLINT
+}
+
+TEST(DurationCeil, NegativeValues) {
+    EXPECT_EQ(ceil<Minutes>(Seconds{-1}), Minutes{0});
+    EXPECT_EQ(ceil<Minutes>(Seconds{-61}), Minutes{-1});
+}
+
+TEST(DurationCeil, Composition) {
+    auto x = Seconds{90000}; // NOLINT
+    EXPECT_EQ(ceil<Days>(ceil<Hours>(x)), ceil<Days>(x));
+}
+
+TEST(DurationFloorCeil, Invariant) {
+    auto s = Seconds{61}; // NOLINT
+    EXPECT_LE(floor<Minutes>(s), ceil<Minutes>(s));
+}
