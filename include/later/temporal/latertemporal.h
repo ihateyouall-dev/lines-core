@@ -22,8 +22,6 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     explicit Duration(Rep value) : _value(std::move(value)) {}
     ~Duration() = default;
 
-    constexpr auto operator<=>(const Duration &) const = default;
-
     constexpr auto operator+() const noexcept -> Duration { return *this; }
 
     constexpr auto operator-() const noexcept -> Duration { return Duration{-_value}; }
@@ -131,37 +129,40 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         return *this;
     }
 
-    [[nodiscard]] auto count() const noexcept -> Rep { return _value; }
+    [[nodiscard]] constexpr auto count() const noexcept -> Rep { return _value; }
 };
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
-    requires(!(P1 == P2))
-constexpr auto operator<=>(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
-    using Dur1 = Duration<P1, R1>;
-    using Dur2 = Duration<P2, R2>;
+constexpr auto operator<=>(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+    using Lhs = Duration<P1, R1>;
+    using Rhs = Duration<P2, R2>;
 
-    if constexpr (Dur1::period > Dur2::period) {
-        return duration_cast<Dur2>(dur1) <=> dur2;
+    if constexpr (Lhs::period > Rhs::period) {
+        return duration_cast<Rhs>(lhs).count() <=> rhs.count();
+    } else if constexpr (Lhs::period < Rhs::period) {
+        return lhs.count() <=> duration_cast<Lhs>(rhs).count();
+    } else {
+        return lhs.count() <=> rhs.count();
     }
+}
 
-    if constexpr (Dur1::period < Dur2::period) {
-        return dur1 <=> duration_cast<Dur1>(dur2);
-    }
-    __builtin_unreachable();
+template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+constexpr auto operator==(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) -> bool {
+    return (lhs <=> rhs) == 0;
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator+(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
-    using Dur1 = Duration<P1, R1>;
-    using Dur2 = Duration<P2, R2>;
+constexpr auto operator+(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+    using Lhs = Duration<P1, R1>;
+    using Rhs = Duration<P2, R2>;
 
-    if constexpr (Dur1::period > Dur2::period) {
-        return duration_cast<Dur2>(dur1) + dur2;
+    if constexpr (Lhs::period > Rhs::period) {
+        return duration_cast<Rhs>(lhs) + rhs;
     }
 
-    if constexpr (Dur1::period < Dur2::period) {
-        return dur1 + duration_cast<Dur1>(dur2);
+    if constexpr (Lhs::period < Rhs::period) {
+        return lhs + duration_cast<Lhs>(rhs);
     }
     __builtin_unreachable();
 }
@@ -175,16 +176,16 @@ constexpr auto operator+=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator-(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
-    using Dur1 = Duration<P1, R1>;
-    using Dur2 = Duration<P2, R2>;
+constexpr auto operator-(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+    using Lhs = Duration<P1, R1>;
+    using Rhs = Duration<P2, R2>;
 
-    if constexpr (Dur1::period > Dur2::period) {
-        return duration_cast<Dur2>(dur1) - dur2;
+    if constexpr (Lhs::period > Rhs::period) {
+        return duration_cast<Rhs>(lhs) - rhs;
     }
 
-    if constexpr (Dur1::period < Dur2::period) {
-        return dur1 - duration_cast<Dur1>(dur2);
+    if constexpr (Lhs::period < Rhs::period) {
+        return lhs - duration_cast<Lhs>(rhs);
     }
     __builtin_unreachable();
 }
@@ -198,16 +199,16 @@ constexpr auto operator-=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator/(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
-    using Dur1 = Duration<P1, R1>;
-    using Dur2 = Duration<P2, R2>;
+constexpr auto operator/(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+    using Lhs = Duration<P1, R1>;
+    using Rhs = Duration<P2, R2>;
 
-    if constexpr (Dur1::period > Dur2::period) {
-        return duration_cast<Dur2>(dur1) / dur2;
+    if constexpr (Lhs::period > Rhs::period) {
+        return duration_cast<Rhs>(lhs) / rhs;
     }
 
-    if constexpr (Dur1::period < Dur2::period) {
-        return dur1 / duration_cast<Dur1>(dur2);
+    if constexpr (Lhs::period < Rhs::period) {
+        return lhs / duration_cast<Lhs>(rhs);
     }
     __builtin_unreachable();
 }
@@ -221,16 +222,16 @@ constexpr auto operator/=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator%(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
-    using Dur1 = Duration<P1, R1>;
-    using Dur2 = Duration<P2, R2>;
+constexpr auto operator%(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+    using Lhs = Duration<P1, R1>;
+    using Rhs = Duration<P2, R2>;
 
-    if constexpr (Dur1::period > Dur2::period) {
-        return duration_cast<Dur2>(dur1) % dur2;
+    if constexpr (Lhs::period > Rhs::period) {
+        return duration_cast<Rhs>(lhs) % rhs;
     }
 
-    if constexpr (Dur1::period < Dur2::period) {
-        return dur1 % duration_cast<Dur1>(dur2);
+    if constexpr (Lhs::period < Rhs::period) {
+        return lhs % duration_cast<Lhs>(rhs);
     }
     __builtin_unreachable();
 }

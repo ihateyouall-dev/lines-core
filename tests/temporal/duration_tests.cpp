@@ -3,6 +3,28 @@
 
 using namespace Later::Temporal;
 
+TEST(DurationCompare, PositiveValues) {
+    EXPECT_EQ(Minutes{1}, Seconds{60});
+    EXPECT_EQ(Hours{1}, Minutes{60});
+    EXPECT_EQ(Days{1}, Hours{24});
+    EXPECT_NE(Days{28}, Months{1});
+    EXPECT_LT(Hours{12}, Days{1});
+    EXPECT_LE(Days{30}, Months{1});
+    EXPECT_GE(Months{1}, Weeks{4});
+    EXPECT_GT(Years{2}, Months{23});
+}
+
+TEST(DurationCompare, NegativeValues) {
+    EXPECT_EQ(Minutes{-1}, Seconds{-60});
+    EXPECT_EQ(Hours{-1}, Minutes{-60});
+    EXPECT_EQ(Days{-1}, Hours{-24});
+    EXPECT_NE(Days{-28}, Months{-1});
+    EXPECT_GT(Hours{-12}, Days{-1});
+    EXPECT_GE(Days{-30}, Months{-1});
+    EXPECT_LE(Months{-1}, Weeks{-4});
+    EXPECT_LT(Years{-2}, Months{-23});
+}
+
 TEST(DurationCast, Seconds) {
     EXPECT_EQ(duration_cast<Seconds>(Minutes{2}), Seconds{120});
     EXPECT_EQ(duration_cast<Seconds>(Hours{2}), Seconds{7200});
