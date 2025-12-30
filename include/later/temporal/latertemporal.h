@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <iomanip>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 namespace Later::Temporal {
@@ -86,45 +87,61 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     }
 
     template <std::integral T> constexpr auto operator/(T num) const -> Duration {
+        if (num == 0) {
+            throw std::invalid_argument("Duration::operator/: division by zero");
+        }
         auto temp = *this;
         temp /= num;
         return temp;
     }
 
     template <std::integral T> constexpr auto operator/=(T num) -> Duration & {
+        if (num == 0) {
+            throw std::invalid_argument("Duration::operator/=: division by zero");
+        }
         _value /= num;
         return *this;
     }
 
     constexpr auto operator/(const Duration &dur) -> Rep {
+        if (dur == Duration{0}) {
+            throw std::invalid_argument("Duration::operator/: division by zero");
+        }
         auto temp = *this;
         temp /= dur._value;
-        return temp;
-    }
-
-    constexpr auto operator/=(const Duration &dur) -> Duration & {
-        _value /= dur._value;
-        return *this;
+        return temp._value;
     }
 
     template <std::integral T> constexpr auto operator%(T num) const -> Duration {
+        if (num == 0) {
+            throw std::invalid_argument("Duration::operator%: division by zero");
+        }
         auto temp = *this;
         temp %= num;
         return temp;
     }
 
     template <std::integral T> constexpr auto operator%=(T num) -> Duration & {
+        if (num == 0) {
+            throw std::invalid_argument("Duration::operator%=: division by zero");
+        }
         _value %= num;
         return *this;
     }
 
     constexpr auto operator%(const Duration &dur) const -> Rep {
+        if (dur == Duration{0}) {
+            throw std::invalid_argument("Duration::operator%: division by zero");
+        }
         auto temp = *this;
         temp %= dur._value;
         return temp._value;
     }
 
     constexpr auto operator%=(const Duration &dur) -> Duration & {
+        if (dur == Duration{0}) {
+            throw std::invalid_argument("Duration::operator%=: division by zero");
+        }
         _value %= dur._value;
         return *this;
     }
@@ -203,6 +220,10 @@ constexpr auto operator/(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rh
     using Lhs = Duration<P1, R1>;
     using Rhs = Duration<P2, R2>;
 
+    if (rhs == Rhs{0}) {
+        throw std::invalid_argument("Duration::operator/: division by zero");
+    }
+
     if constexpr (Lhs::period > Rhs::period) {
         return duration_cast<Rhs>(lhs) / rhs;
     }
@@ -215,16 +236,13 @@ constexpr auto operator/(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rh
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator/=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
-    lhs /= duration_cast<Duration<P1, R1>>(rhs);
-    return lhs;
-}
-
-template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
-    requires(!(P1 == P2))
 constexpr auto operator%(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
     using Lhs = Duration<P1, R1>;
     using Rhs = Duration<P2, R2>;
+
+    if (rhs == Rhs{0}) {
+        throw std::invalid_argument("Duration::operator%: division by zero");
+    }
 
     if constexpr (Lhs::period > Rhs::period) {
         return duration_cast<Rhs>(lhs) % rhs;
@@ -239,6 +257,9 @@ constexpr auto operator%(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rh
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
 constexpr auto operator%=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+    if (rhs == Duration<P2, R2>{0}) {
+        throw std::invalid_argument("Duration::operator%=: division by zero");
+    }
     lhs %= duration_cast<Duration<P1, R1>>(rhs);
     return lhs;
 }
