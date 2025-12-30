@@ -1,5 +1,6 @@
 #include "latertemporal.h"
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 using namespace Later::Temporal;
 
@@ -23,6 +24,52 @@ TEST(DurationCompare, NegativeValues) {
     EXPECT_GE(Days{-30}, Months{-1});
     EXPECT_LE(Months{-1}, Weeks{-4});
     EXPECT_LT(Years{-2}, Months{-23});
+}
+
+TEST(DurationArithmetic, Addition) {
+    EXPECT_EQ(Seconds{1} + Seconds{2}, Seconds{3});
+    EXPECT_EQ(Minutes{1} + Seconds{2}, Seconds{62});
+    EXPECT_EQ(Minutes{2} + Seconds{60}, Minutes{3});
+    EXPECT_EQ(Hours{23} + Minutes{60}, Days{1});
+}
+
+TEST(DurationArithmetic, Substraction) {
+    EXPECT_EQ(Seconds{3} - Seconds{2}, Seconds{1});
+    EXPECT_EQ(Minutes{1} - Seconds{2}, Seconds{58});
+    EXPECT_EQ(Seconds{60} - Minutes{1}, Seconds{0});
+    EXPECT_EQ(Hours{3} - Minutes{180}, Days{0});
+}
+
+TEST(DurationArithmetic, Multiplication) {
+    EXPECT_EQ(Seconds{2} * 3, Seconds{6});
+    EXPECT_EQ(Seconds{6} * 10, Minutes{1});
+    EXPECT_EQ(Minutes{20} * 3, Hours{1});
+    EXPECT_EQ(Hours{12} * 4, Days{2});
+    EXPECT_EQ(3 * Seconds{30}, Seconds{90});
+}
+
+TEST(DurationArithmetic, Division) {
+    EXPECT_EQ(Seconds{6} / 3, Seconds{2});
+    EXPECT_NE(Minutes{1} / 3, Seconds{20}); // Because arithmetic operators return value of minimal
+                                            // period, 1m / 3 returns minutes
+    EXPECT_EQ(Minutes{1} / Seconds{3}, 20); // This is
+                                            // another case, at this moment minimal period is
+                                            // seconds, then 1m / 3s returns 20
+    EXPECT_THROW(Seconds{30} / 0, std::invalid_argument);
+}
+
+TEST(DurationArithmetic, Mod) {
+    EXPECT_EQ(Seconds{6} % 3, Seconds{0});
+    EXPECT_NE(Minutes{1} % 3, Seconds{0});
+    EXPECT_EQ(Minutes{1} % Seconds{3}, 0);
+    EXPECT_THROW(Seconds{30} % 0, std::invalid_argument);
+}
+
+TEST(DurationArithmetic, NegativeValues) {
+    EXPECT_EQ(Seconds{1} - Seconds{2}, Seconds{-1});
+    EXPECT_EQ(Seconds{30} - Minutes{1}, Seconds{-30});
+    EXPECT_EQ(Minutes{-1} * -60, Hours{1});
+    EXPECT_EQ(Hours{-24} / 12, Hours{-2});
 }
 
 TEST(DurationCast, Seconds) {
