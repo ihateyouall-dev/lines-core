@@ -352,3 +352,56 @@ TEST(DurationFloorCeil, Invariant) {
     auto s = Seconds{61}; // NOLINT
     EXPECT_LE(floor<Minutes>(s), ceil<Minutes>(s));
 }
+
+TEST(DurationRound, PositiveValues) {
+    EXPECT_EQ(round<Minutes>(Seconds{31}), Minutes{1});
+    EXPECT_EQ(round<Minutes>(Seconds{30}), Minutes{0});
+
+    EXPECT_EQ(round<Hours>(Minutes{90}), Hours{2});
+    EXPECT_EQ(round<Hours>(Minutes{89}), Hours{1});
+
+    EXPECT_EQ(round<Days>(Hours{36}), Days{2});
+    EXPECT_EQ(round<Days>(Hours{35}), Days{1});
+
+    EXPECT_EQ(round<Weeks>(Days{4}), Weeks{1});
+    EXPECT_EQ(round<Weeks>(Days{3}), Weeks{0});
+}
+
+TEST(DurationRound, NegativeValues) {
+    EXPECT_EQ(round<Minutes>(Seconds{-31}), Minutes{-1});
+    EXPECT_EQ(round<Minutes>(Seconds{-30}), Minutes{0});
+
+    EXPECT_EQ(round<Hours>(Minutes{-90}), Hours{-2});
+    EXPECT_EQ(round<Hours>(Minutes{-89}), Hours{-1});
+
+    EXPECT_EQ(round<Days>(Hours{-36}), Days{-2});
+    EXPECT_EQ(round<Days>(Hours{-35}), Days{-1});
+
+    EXPECT_EQ(round<Weeks>(Days{-4}), Weeks{-1});
+    EXPECT_EQ(round<Weeks>(Days{-3}), Weeks{0});
+}
+
+TEST(DurationRound, HalfwayCases) {
+    EXPECT_EQ(round<Minutes>(Seconds{31}), Minutes{1});
+    EXPECT_EQ(round<Minutes>(Seconds{-31}), Minutes{-1});
+
+    EXPECT_EQ(round<Hours>(Minutes{31}), Hours{1});
+    EXPECT_EQ(round<Hours>(Minutes{-31}), Hours{-1});
+}
+
+TEST(DurationRound, SamePeriod) {
+    EXPECT_EQ(round<Seconds>(Seconds{10}), Seconds{10});
+    EXPECT_EQ(round<Minutes>(Minutes{-5}), Minutes{-5});
+    EXPECT_EQ(round<Days>(Days{3}), Days{3});
+}
+
+TEST(DurationRound, Calendar) {
+    EXPECT_EQ(round<Months>(Days{16}), Months{1});
+    EXPECT_EQ(round<Months>(Days{15}), Months{0});
+
+    EXPECT_EQ(round<Years>(Months{18}), Years{2});
+    EXPECT_EQ(round<Years>(Months{17}), Years{1});
+
+    EXPECT_EQ(round<Years>(Months{-18}), Years{-2});
+    EXPECT_EQ(round<Years>(Months{-17}), Years{-1});
+}
