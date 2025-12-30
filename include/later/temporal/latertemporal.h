@@ -24,95 +24,110 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
 
     constexpr auto operator<=>(const Duration &) const = default;
 
-    auto operator++() -> Duration & {
+    constexpr auto operator+() const noexcept -> Duration { return *this; }
+
+    constexpr auto operator-() const noexcept -> Duration { return Duration{-_value}; }
+
+    constexpr auto operator++() -> Duration & {
         ++_value;
         return *this;
     }
 
-    auto operator++(int) -> Duration {
+    constexpr auto operator++(int) -> Duration {
         auto temp = *this;
         ++*this;
         return temp;
     }
 
-    auto operator--() -> Duration & {
+    constexpr auto operator--() -> Duration & {
         --_value;
         return *this;
     }
 
-    auto operator--(int) -> Duration {
+    constexpr auto operator--(int) -> Duration {
         auto temp = *this;
         --*this;
         return temp;
     }
 
-    auto operator+(const Duration &dur) const -> Duration {
+    constexpr auto operator+(const Duration &dur) const -> Duration {
         auto temp = *this;
         temp += dur;
         return temp;
     }
 
-    auto operator+=(const Duration &dur) -> Duration & {
+    constexpr auto operator+=(const Duration &dur) -> Duration & {
         _value += dur._value;
         return *this;
     }
 
-    auto operator-(const Duration &dur) const -> Duration {
+    constexpr auto operator-(const Duration &dur) const -> Duration {
         auto temp = *this;
         temp -= dur;
         return temp;
     }
 
-    auto operator-=(const Duration &dur) -> Duration & {
+    constexpr auto operator-=(const Duration &dur) -> Duration & {
         _value -= dur._value;
         return *this;
     }
 
-    template <std::integral T> auto operator*(T num) const -> Duration {
+    template <std::integral T> constexpr auto operator*(T num) const -> Duration {
         auto temp = *this;
         temp *= num;
         return temp;
     }
 
-    template <std::integral T> auto operator*=(T num) -> Duration & {
+    template <std::integral T> constexpr auto operator*=(T num) -> Duration & {
         _value *= num;
         return *this;
     }
 
-    template <std::integral T> friend auto operator*(T num, Duration dur) -> Duration {
+    template <std::integral T> constexpr friend auto operator*(T num, Duration dur) -> Duration {
         return dur * num;
     }
 
-    template <std::integral T> auto operator/(T num) const -> Duration {
+    template <std::integral T> constexpr auto operator/(T num) const -> Duration {
         auto temp = *this;
         temp /= num;
         return temp;
     }
 
-    template <std::integral T> auto operator/=(T num) -> Duration & {
+    template <std::integral T> constexpr auto operator/=(T num) -> Duration & {
         _value /= num;
         return *this;
     }
 
-    template <std::integral T> auto operator%(T num) const -> Duration {
+    constexpr auto operator/(const Duration &dur) -> Rep {
+        auto temp = *this;
+        temp /= dur._value;
+        return temp;
+    }
+
+    constexpr auto operator/=(const Duration &dur) -> Duration & {
+        _value /= dur._value;
+        return *this;
+    }
+
+    template <std::integral T> constexpr auto operator%(T num) const -> Duration {
         auto temp = *this;
         temp %= num;
         return temp;
     }
 
-    template <std::integral T> auto operator%=(T num) -> Duration & {
+    template <std::integral T> constexpr auto operator%=(T num) -> Duration & {
         _value %= num;
         return *this;
     }
 
-    auto operator%(const Duration &dur) const -> Duration {
+    constexpr auto operator%(const Duration &dur) const -> Rep {
         auto temp = *this;
-        temp %= dur;
-        return temp;
+        temp %= dur._value;
+        return temp._value;
     }
 
-    auto operator%=(const Duration &dur) -> Duration & {
-        _value %= dur;
+    constexpr auto operator%=(const Duration &dur) -> Duration & {
+        _value %= dur._value;
         return *this;
     }
 
@@ -133,6 +148,98 @@ constexpr auto operator<=>(const Duration<P1, R1> &dur1, const Duration<P2, R2> 
         return dur1 <=> duration_cast<Dur1>(dur2);
     }
     __builtin_unreachable();
+}
+
+template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+    requires(!(P1 == P2))
+constexpr auto operator+(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
+    using Dur1 = Duration<P1, R1>;
+    using Dur2 = Duration<P2, R2>;
+
+    if constexpr (Dur1::period > Dur2::period) {
+        return duration_cast<Dur2>(dur1) + dur2;
+    }
+
+    if constexpr (Dur1::period < Dur2::period) {
+        return dur1 + duration_cast<Dur1>(dur2);
+    }
+    __builtin_unreachable();
+}
+
+template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+    requires(!(P1 == P2))
+constexpr auto operator+=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+    lhs += duration_cast<Duration<P1, R1>>(rhs);
+    return lhs;
+}
+
+template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+    requires(!(P1 == P2))
+constexpr auto operator-(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
+    using Dur1 = Duration<P1, R1>;
+    using Dur2 = Duration<P2, R2>;
+
+    if constexpr (Dur1::period > Dur2::period) {
+        return duration_cast<Dur2>(dur1) - dur2;
+    }
+
+    if constexpr (Dur1::period < Dur2::period) {
+        return dur1 - duration_cast<Dur1>(dur2);
+    }
+    __builtin_unreachable();
+}
+
+template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+    requires(!(P1 == P2))
+constexpr auto operator-=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+    lhs -= duration_cast<Duration<P1, R1>>(rhs);
+    return lhs;
+}
+
+template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+    requires(!(P1 == P2))
+constexpr auto operator/(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
+    using Dur1 = Duration<P1, R1>;
+    using Dur2 = Duration<P2, R2>;
+
+    if constexpr (Dur1::period > Dur2::period) {
+        return duration_cast<Dur2>(dur1) / dur2;
+    }
+
+    if constexpr (Dur1::period < Dur2::period) {
+        return dur1 / duration_cast<Dur1>(dur2);
+    }
+    __builtin_unreachable();
+}
+
+template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+    requires(!(P1 == P2))
+constexpr auto operator/=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+    lhs /= duration_cast<Duration<P1, R1>>(rhs);
+    return lhs;
+}
+
+template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+    requires(!(P1 == P2))
+constexpr auto operator%(const Duration<P1, R1> &dur1, const Duration<P2, R2> &dur2) {
+    using Dur1 = Duration<P1, R1>;
+    using Dur2 = Duration<P2, R2>;
+
+    if constexpr (Dur1::period > Dur2::period) {
+        return duration_cast<Dur2>(dur1) % dur2;
+    }
+
+    if constexpr (Dur1::period < Dur2::period) {
+        return dur1 % duration_cast<Dur1>(dur2);
+    }
+    __builtin_unreachable();
+}
+
+template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
+    requires(!(P1 == P2))
+constexpr auto operator%=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+    lhs %= duration_cast<Duration<P1, R1>>(rhs);
+    return lhs;
 }
 
 using Seconds = Duration<1>;
