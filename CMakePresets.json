@@ -5,9 +5,20 @@
       "name": "debug",
       "displayName": "Debug configuration",
       "generator": "Ninja",
-      "binaryDir": "build",
+      "binaryDir": "build/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release configuration",
+      "generator": "Ninja",
+      "binaryDir": "build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
       }
@@ -19,6 +30,12 @@
       "displayName": "Debug build",
       "configurePreset": "debug",
       "jobs": 8
+    },
+    {
+      "name": "release",
+      "displayName": "Release build",
+      "configurePreset": "release",
+      "jobs": 8
     }
   ],
   "testPresets": [
@@ -26,6 +43,14 @@
       "name": "debug",
       "displayName": "Debug test",
       "configurePreset": "debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release test",
+      "configurePreset": "release",
       "output": {
         "outputOnFailure": true
       }
@@ -39,6 +64,15 @@
         { "type": "configure", "name": "debug" },
         { "type": "build", "name": "debug" },
         { "type": "test", "name": "debug" }
+      ]
+    },
+    {
+      "name": "release",
+      "displayName": "Release workflow",
+      "steps": [
+        { "type": "configure", "name": "release" },
+        { "type": "build", "name": "release" },
+        { "type": "test", "name": "release" }
       ]
     }
   ]
