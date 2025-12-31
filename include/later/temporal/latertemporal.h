@@ -316,9 +316,15 @@ constexpr auto round(const Duration<Period, Rep> &dur) -> To {
 }
 
 class Timestamp {
+    // 0 <= _rep < 24h
     Seconds _rep = Seconds{0};
 
-    void normalize() { _rep %= Days::period; }
+    void normalize() {
+        _rep %= Days::period;
+        if (_rep < Seconds{0}) {
+            _rep += Seconds{Days::period};
+        }
+    }
 
   public:
     Timestamp() = default;
@@ -340,7 +346,7 @@ class Timestamp {
 
     auto operator++(int) -> Timestamp {
         auto temp = *this;
-        ++temp._rep;
+        ++*this;
         temp.normalize();
         return temp;
     }
@@ -353,15 +359,15 @@ class Timestamp {
 
     auto operator--(int) -> Timestamp {
         auto temp = *this;
-        --temp._rep;
+        --*this;
         temp.normalize();
         return temp;
     }
 
     template <uint32_t Period, std::integral Rep>
-    auto operator+(const Duration<Period, Rep> &dur) -> Timestamp {
+    auto operator+(const Duration<Period, Rep> &dur) const -> Timestamp {
         auto temp = *this;
-        temp._rep += dur.count();
+        temp._rep += dur;
         temp.normalize();
         return temp;
     }
@@ -374,14 +380,14 @@ class Timestamp {
     }
 
     template <uint32_t Period, std::integral Rep>
-    auto operator-(const Duration<Period, Rep> &dur) -> Timestamp {
+    auto operator-(const Duration<Period, Rep> &dur) const -> Timestamp {
         auto temp = *this;
-        temp._rep -= dur.count();
+        temp._rep -= dur;
         temp.normalize();
         return temp;
     }
 
-    auto operator-(const Timestamp &time) -> decltype(_rep) {
+    auto operator-(const Timestamp &time) const -> decltype(_rep) {
         auto temp = _rep;
         temp -= time._rep;
         return temp;
@@ -389,7 +395,7 @@ class Timestamp {
 
     template <uint32_t Period, std::integral Rep>
     auto operator-=(const Duration<Period, Rep> &dur) -> Timestamp & {
-        _rep -= dur.count();
+        _rep -= dur;
         normalize();
         return *this;
     }
@@ -407,6 +413,14 @@ class Timestamp {
         return hh_mm_ss.str();
     }
 
+    [[nodiscard]] auto hours() const -> Hours { return floor<Hours>(_rep); }
+
+    [[nodiscard]] auto minutes() const -> Minutes {
+        return floor<Minutes>(_rep - floor<Hours>(_rep));
+    }
+
+    [[nodiscard]] auto seconds() const -> Seconds { return _rep - floor<Minutes>(_rep); }
+
     static auto now() -> Timestamp {
         auto now = std::chrono::system_clock::now();
         auto absolute_rep =
@@ -416,7 +430,7 @@ class Timestamp {
 };
 
 template <uint32_t Period, std::integral Rep>
-auto operator+(const Duration<Period, Rep> &dur, Timestamp &time) -> Timestamp {
+auto operator+(const Duration<Period, Rep> &dur, const Timestamp &time) -> Timestamp {
     return time + dur;
 }
 
