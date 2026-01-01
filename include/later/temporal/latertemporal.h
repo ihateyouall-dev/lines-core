@@ -347,7 +347,7 @@ class Timestamp {
     auto operator++(int) -> Timestamp {
         auto temp = *this;
         ++*this;
-        temp.normalize();
+        normalize();
         return temp;
     }
 
@@ -360,7 +360,7 @@ class Timestamp {
     auto operator--(int) -> Timestamp {
         auto temp = *this;
         --*this;
-        temp.normalize();
+        normalize();
         return temp;
     }
 
@@ -404,8 +404,8 @@ class Timestamp {
         std::ostringstream hh_mm_ss;
 
         auto hours = floor<Hours>(_rep);
-        auto minutes = floor<Minutes>(_rep - duration_cast<Seconds>(hours));
-        auto seconds = _rep - duration_cast<Seconds>(minutes) - duration_cast<Seconds>(hours);
+        auto minutes = floor<Minutes>(_rep - hours);
+        auto seconds = _rep - floor<Minutes>(_rep);
 
         hh_mm_ss << std::setw(2) << std::setfill('0') << hours.count() << ':' << std::setw(2)
                  << minutes.count() << ':' << std::setw(2) << seconds.count();
@@ -421,7 +421,7 @@ class Timestamp {
 
     [[nodiscard]] auto seconds() const -> Seconds { return _rep - floor<Minutes>(_rep); }
 
-    static auto now() -> Timestamp {
+    static auto now() -> Timestamp { // TO MOVE INTO CLOCKS
         auto now = std::chrono::system_clock::now();
         auto absolute_rep =
             std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
