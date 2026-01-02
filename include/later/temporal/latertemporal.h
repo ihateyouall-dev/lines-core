@@ -444,28 +444,54 @@ auto operator+(const Duration<Period, Rep> &dur, const Timestamp &time) -> Times
 }
 
 class Date {
-    std::chrono::days _days;
+    Days _rep;
 
-    [[nodiscard]] auto ymd() const -> std::chrono::year_month_day {
-        return std::chrono::sys_days(_days);
+    std::chrono::year_month_day _ymd;
+
+    [[nodiscard]] auto update_ymd() const -> std::chrono::year_month_day {
+        return std::chrono::sys_days(std::chrono::days{_rep.count()});
     }
 
   public:
-    explicit Date(std::chrono::days days) : _days(days) {}
+    explicit Date(Days rep) : _rep(rep), _ymd(update_ymd()) {}
 
-    auto operator<=>(const Date &) const = default;
+    auto operator<=>(const Date &date) const { return _rep <=> date._rep; }
 
-    auto operator+=(std::chrono::days days) -> Date & {
-        _days += days;
+    auto operator==(const Date &date) const -> bool { return (*this <=> date) == 0; }
+
+    template <uint32_t Period, std::integral Rep>
+    auto operator+=(const Duration<Period, Rep> &dur) -> Date & {
+        _rep += duration_cast<Days>(dur);
+        _ymd = update_ymd();
         return *this;
     }
-    auto operator-=(std::chrono::days days) -> Date & {
-        _days -= days;
+
+    template <uint32_t Period, std::integral Rep>
+    auto operator+(const Duration<Period, Rep> &dur) const -> Date {
+        auto temp = *this;
+        temp += dur;
+        return temp;
+    }
+
+    template <uint32_t Period, std::integral Rep>
+    auto operator-=(const Duration<Period, Rep> &dur) -> Date & {
+        _rep -= duration_cast<Days>(dur);
+        _ymd = update_ymd();
         return *this;
     }
+
+    template <uint32_t Period, std::integral Rep>
+    auto operator-(const Duration<Period, Rep> &dur) const -> Date {
+        auto temp = *this;
+        temp -= dur;
+        return temp;
+    }
+
+    auto operator-(const Date &date) const -> Days { return _rep - date._rep; }
 
     auto operator++() -> Date & {
-        ++_days;
+        ++_rep;
+        _ymd = update_ymd();
         return *this;
     }
     auto operator++(int) -> Date {
@@ -475,23 +501,30 @@ class Date {
     }
 
     auto operator--() -> Date & {
-        --_days;
+        --_rep;
+        _ymd = update_ymd();
         return *this;
     }
+
     auto operator--(int) -> Date {
         Date tmp = *this;
         --*this;
         return tmp;
     }
 
-    static auto today() -> Date {
+    static auto today() -> Date { // TO MOVE INTO CLOCKS
         auto now = std::chrono::system_clock::now();
         auto days = std::chrono::floor<std::chrono::days>(now).time_since_epoch();
-        return Date(days);
+        return Date(Days{days});
     }
 
-    [[nodiscard]] auto year() const -> int { return int(ymd().year()); }
-    [[nodiscard]] auto month() const -> unsigned { return unsigned(ymd().month()); }
-    [[nodiscard]] auto day() const -> unsigned { return unsigned(ymd().day()); }
+    [[nodiscard]] auto year() const -> int { return int(_ymd.year()); }
+    [[nodiscard]] auto month() const -> unsigned { return unsigned(_ymd.month()); }
+    [[nodiscard]] auto day() const -> unsigned { return unsigned(_ymd.day()); }
 };
+
+template <uint32_t Period, std::integral Rep>
+auto operator+(const Duration<Period, Rep> &lhs, const Date &rhs) -> Date {
+    return rhs + lhs;
+}
 } // namespace Later::Temporal
