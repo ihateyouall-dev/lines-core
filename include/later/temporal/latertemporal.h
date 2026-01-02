@@ -429,13 +429,6 @@ class Timestamp {
     }
 
     [[nodiscard]] auto seconds() const -> Seconds { return _rep - floor<Minutes>(_rep); }
-
-    static auto now() -> Timestamp { // TO MOVE INTO CLOCKS
-        auto now = std::chrono::system_clock::now();
-        auto absolute_rep =
-            std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-        return Timestamp(Seconds{static_cast<long>(absolute_rep)});
-    }
 };
 
 template <uint32_t Period, std::integral Rep>
@@ -676,6 +669,16 @@ class Date {
 
   public:
     explicit Date(Days rep) : _rep(rep), _ymd(update_ymd()) {}
+    Date(const Year &year, const Month &month, const Day &day)
+        : _rep(Days{std::chrono::sys_days{
+              std::chrono::year{int(year)} / std::chrono::month{unsigned(month)} /
+              std::chrono::day{unsigned(
+                  day)}}.time_since_epoch()}),
+          _ymd(update_ymd()) {
+        if (!_ymd.ok()) {
+            throw std::invalid_argument("Date::Date: invalid arguments for constructor");
+        }
+    }
 
     auto operator<=>(const Date &date) const { return _rep <=> date._rep; }
 
@@ -734,15 +737,9 @@ class Date {
         return tmp;
     }
 
-    static auto today() -> Date { // TO MOVE INTO CLOCKS
-        auto now = std::chrono::system_clock::now();
-        auto days = std::chrono::floor<std::chrono::days>(now).time_since_epoch();
-        return Date(Days{days});
-    }
-
-    [[nodiscard]] auto year() const -> int { return int(_ymd.year()); }
-    [[nodiscard]] auto month() const -> unsigned { return unsigned(_ymd.month()); }
-    [[nodiscard]] auto day() const -> unsigned { return unsigned(_ymd.day()); }
+    [[nodiscard]] auto year() const -> Year { return Year{int(_ymd.year())}; }
+    [[nodiscard]] auto month() const -> Month { return Month{unsigned(_ymd.month())}; }
+    [[nodiscard]] auto day() const -> Day { return Day{unsigned(_ymd.day())}; }
 };
 
 template <uint32_t Period, std::integral Rep>
