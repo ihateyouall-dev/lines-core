@@ -405,3 +405,28 @@ TEST(DurationRound, Calendar) {
     EXPECT_EQ(round<Years>(Months{-18}), Years{-2});
     EXPECT_EQ(round<Years>(Months{-17}), Years{-1});
 }
+
+TEST(DurationCompatibility, ToChrono) {
+    EXPECT_EQ(std::chrono::seconds{Seconds{10}}, std::chrono::seconds{10});
+    EXPECT_EQ(std::chrono::minutes{Minutes{10}}, std::chrono::minutes{10});
+    EXPECT_EQ(std::chrono::hours{Hours{10}}, std::chrono::hours{10});
+    EXPECT_EQ(std::chrono::days{Days{10}}, std::chrono::days{10});
+    EXPECT_EQ(std::chrono::weeks{Weeks{10}}, std::chrono::weeks{10});
+    EXPECT_EQ(std::chrono::months{Months{10}}, std::chrono::months{10});
+    EXPECT_EQ(std::chrono::years{Years{10}}, std::chrono::years{10});
+}
+
+TEST(DurationCompatibility, FromChrono) {
+    EXPECT_EQ(Seconds{std::chrono::seconds{10}}, Seconds{10});
+    EXPECT_EQ(Minutes{std::chrono::minutes{10}}, Minutes{10});
+    EXPECT_EQ(Hours{std::chrono::hours{10}}, Hours{10});
+    EXPECT_EQ(Days{std::chrono::days{10}}, Days{10});
+    EXPECT_EQ(Weeks{std::chrono::weeks{10}}, Weeks{10});
+    EXPECT_EQ(Months{std::chrono::months{10}}, Months{10});
+    EXPECT_EQ(Years{std::chrono::years{10}}, Years{10});
+}
+
+TEST(DurationCompatibility, FromDifferentPeriod) {
+    EXPECT_EQ(Seconds{Minutes{1}}, Seconds{60});
+    EXPECT_EQ(Hours{Days{1}}, Hours{24});
+}

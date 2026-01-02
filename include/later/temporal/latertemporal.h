@@ -1,35 +1,44 @@
 #pragma once
 
-#include <bits/chrono.h>
 #include <chrono>
 #include <concepts>
 #include <cstdint>
 #include <iomanip>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 
 namespace Later::Temporal {
 
 template <uint32_t Period, std::integral Rep = int64_t> class Duration {
-    Rep _value;
+    Rep _rep;
     uint32_t _period = Period;
 
   public:
+    constexpr Duration() = default;
     static constexpr uint32_t period = Period;
     Duration(const Duration &) = default;
     Duration(Duration &&) = default;
     auto operator=(const Duration &) -> Duration & = default;
     auto operator=(Duration &&) -> Duration & = default;
-    explicit Duration(Rep value) : _value(std::move(value)) {}
+    explicit constexpr Duration(Rep rep) : _rep(std::move(rep)) {}
+    template <uint32_t P, std::integral R>
+    explicit constexpr Duration(const Duration<P, R> &dur) : _rep(dur.count() * P / period) {}
+    template <class R, class P>
+    explicit constexpr Duration(std::chrono::duration<R, P> const &dur)
+        : _rep(std::chrono::duration_cast<std::chrono::duration<Rep, std::ratio<Period>>>(dur)
+                   .count()) {}
     ~Duration() = default;
+
+    constexpr explicit operator std::chrono::duration<Rep, std::ratio<Period>>() {
+        return std::chrono::duration<Rep, std::ratio<Period>>(_rep);
+    }
 
     constexpr auto operator+() const noexcept -> Duration { return *this; }
 
-    constexpr auto operator-() const noexcept -> Duration { return Duration{-_value}; }
+    constexpr auto operator-() const noexcept -> Duration { return Duration{-_rep}; }
 
     constexpr auto operator++() -> Duration & {
-        ++_value;
+        ++_rep;
         return *this;
     }
 
@@ -40,7 +49,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     }
 
     constexpr auto operator--() -> Duration & {
-        --_value;
+        --_rep;
         return *this;
     }
 
@@ -57,7 +66,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     }
 
     constexpr auto operator+=(const Duration &dur) -> Duration & {
-        _value += dur._value;
+        _rep += dur._rep;
         return *this;
     }
 
@@ -68,7 +77,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     }
 
     constexpr auto operator-=(const Duration &dur) -> Duration & {
-        _value -= dur._value;
+        _rep -= dur._rep;
         return *this;
     }
 
@@ -79,7 +88,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     }
 
     template <std::integral T> constexpr auto operator*=(T num) -> Duration & {
-        _value *= num;
+        _rep *= num;
         return *this;
     }
 
@@ -100,7 +109,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         if (num == 0) {
             throw std::invalid_argument("Duration::operator/=: division by zero");
         }
-        _value /= num;
+        _rep /= num;
         return *this;
     }
 
@@ -109,8 +118,8 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
             throw std::invalid_argument("Duration::operator/: division by zero");
         }
         auto temp = *this;
-        temp /= dur._value;
-        return temp._value;
+        temp /= dur._rep;
+        return temp._rep;
     }
 
     template <std::integral T> constexpr auto operator%(T num) const -> Duration {
@@ -126,7 +135,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         if (num == 0) {
             throw std::invalid_argument("Duration::operator%=: division by zero");
         }
-        _value %= num;
+        _rep %= num;
         return *this;
     }
 
@@ -135,19 +144,19 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
             throw std::invalid_argument("Duration::operator%: division by zero");
         }
         auto temp = *this;
-        temp %= dur._value;
-        return temp._value;
+        temp %= dur._rep;
+        return temp._rep;
     }
 
     constexpr auto operator%=(const Duration &dur) -> Duration & {
         if (dur == Duration{0}) {
             throw std::invalid_argument("Duration::operator%=: division by zero");
         }
-        _value %= dur._value;
+        _rep %= dur._rep;
         return *this;
     }
 
-    [[nodiscard]] constexpr auto count() const noexcept -> Rep { return _value; }
+    [[nodiscard]] constexpr auto count() const noexcept -> Rep { return _rep; }
 };
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
