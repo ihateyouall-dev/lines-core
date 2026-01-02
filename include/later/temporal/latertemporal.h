@@ -443,6 +443,228 @@ auto operator+(const Duration<Period, Rep> &dur, const Timestamp &time) -> Times
     return time + dur;
 }
 
+class Year {
+    int _rep;
+
+    using Rep = decltype(_rep);
+
+  public:
+    Year(const Year &) = default;
+    Year(Year &&) = default;
+    auto operator=(const Year &) -> Year & = default;
+    auto operator=(Year &&) -> Year & = default;
+    explicit Year(int rep) : _rep(rep) {}
+    ~Year() = default;
+
+    constexpr explicit operator int() const noexcept { return _rep; }
+
+    auto operator<=>(const Year &) const = default;
+
+    auto operator+() const noexcept -> Year { return *this; }
+
+    auto operator-() const noexcept -> Year { return Year{-_rep}; }
+
+    auto operator+=(const Years &yrs) -> Year & {
+        _rep += static_cast<Rep>(yrs.count());
+        return *this;
+    }
+
+    auto operator-=(const Years &yrs) -> Year & {
+        _rep -= static_cast<Rep>(yrs.count());
+        return *this;
+    }
+
+    auto operator++() -> Year & {
+        ++_rep;
+        return *this;
+    }
+
+    auto operator++(int) -> Year {
+        auto temp = *this;
+        ++*this;
+        return temp;
+    }
+
+    auto operator--() -> Year & {
+        --_rep;
+        return *this;
+    }
+
+    auto operator--(int) -> Year {
+        auto temp = *this;
+        --*this;
+        return temp;
+    }
+
+    auto operator+(const Years &yrs) const -> Year {
+        auto temp = *this;
+        temp += yrs;
+        return temp;
+    }
+
+    auto operator-(const Years &yrs) const -> Year {
+        auto temp = *this;
+        temp -= yrs;
+        return temp;
+    }
+
+    auto operator-(const Year &year) const -> Years { return Years{_rep - year._rep}; }
+
+    [[nodiscard]] constexpr auto is_leap() const noexcept -> bool {
+        if (_rep % 400 == 0) { // NOLINT
+            return true;
+        }
+        if (_rep % 100 == 0) { // NOLINT
+            return false;
+        }
+        return _rep % 4 == 0;
+    }
+
+    [[nodiscard]] auto ok() const noexcept -> bool {
+        return _rep != std::numeric_limits<Rep>::min();
+    }
+};
+
+inline auto operator+(const Years &lhs, const Year &rhs) -> Year { return rhs + lhs; }
+
+class Month {
+    // 1 <= _rep <= 12. Not strong invariant
+    uint8_t _rep;
+
+  public:
+    Month(const Month &) = default;
+    Month(Month &&) = default;
+    auto operator=(const Month &) -> Month & = default;
+    auto operator=(Month &&) -> Month & = default;
+    explicit Month(uint32_t rep) : _rep(rep) {}
+    ~Month() = default;
+
+    auto operator<=>(const Month &) const = default;
+
+    explicit constexpr operator unsigned() const { return _rep; }
+
+    auto operator++() -> Month & {
+        ++_rep;
+        return *this;
+    }
+
+    auto operator++(int) -> Month {
+        auto temp = *this;
+        ++*this;
+        return temp;
+    }
+
+    auto operator--() -> Month & {
+        --_rep;
+        return *this;
+    }
+
+    auto operator--(int) -> Month {
+        auto temp = *this;
+        --*this;
+        return temp;
+    }
+
+    auto operator+=(const Months &months) -> Month & {
+        _rep += months.count();
+        return *this;
+    }
+
+    auto operator-=(const Months &months) -> Month & {
+        _rep -= months.count();
+        return *this;
+    }
+
+    auto operator+(const Months &months) const -> Month {
+        auto temp = *this;
+        temp += months;
+        return temp;
+    }
+
+    auto operator-(const Months &months) const -> Month {
+        auto temp = *this;
+        temp -= months;
+        return temp;
+    }
+
+    auto operator-(const Month &month) const -> Months { return Months{_rep - month._rep}; }
+
+    [[nodiscard]] auto ok() const -> bool {
+        return _rep >= 1 && _rep <= 12; // NOLINT
+    }
+};
+
+inline auto operator+(const Months &lhs, const Month &rhs) -> Month { return rhs + lhs; }
+
+class Day {
+    // 1 <= _rep <= 31. Not strong invariant
+    uint8_t _rep;
+
+  public:
+    Day(const Day &) = default;
+    Day(Day &&) = default;
+    auto operator=(const Day &) -> Day & = default;
+    auto operator=(Day &&) -> Day & = default;
+    explicit Day(uint32_t rep) : _rep(rep) {}
+    ~Day() = default;
+
+    auto operator<=>(const Day &) const = default;
+
+    explicit constexpr operator unsigned() const { return _rep; }
+
+    auto operator++() -> Day & {
+        ++_rep;
+        return *this;
+    }
+
+    auto operator++(int) -> Day {
+        auto temp = *this;
+        ++*this;
+        return temp;
+    }
+
+    auto operator--() -> Day & {
+        --_rep;
+        return *this;
+    }
+
+    auto operator--(int) -> Day {
+        auto temp = *this;
+        --*this;
+        return temp;
+    }
+
+    auto operator+=(const Days &days) -> Day & {
+        _rep += days.count();
+        return *this;
+    }
+
+    auto operator-=(const Days &days) -> Day & {
+        _rep -= days.count();
+        return *this;
+    }
+
+    auto operator+(const Days &days) const -> Day {
+        auto temp = *this;
+        temp += days;
+        return temp;
+    }
+
+    auto operator-(const Days &days) const -> Day {
+        auto temp = *this;
+        temp -= days;
+        return temp;
+    }
+
+    auto operator-(const Day &day) const -> Days { return Days{_rep - day._rep}; }
+
+    [[nodiscard]] auto ok() const -> bool {
+        return _rep >= 1 && _rep <= 31; // NOLINT
+    }
+};
+
+inline auto operator+(const Days &lhs, const Day &rhs) -> Day { return rhs + lhs; }
+
 class Date {
     Days _rep;
 
