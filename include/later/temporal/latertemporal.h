@@ -506,8 +506,7 @@ class TimePoint {
 };
 
 template <uint32_t Period, std::integral Rep>
-auto operator+(const Later::Temporal::Duration<Period, Rep> &lhs, const TimePoint &rhs)
-    -> TimePoint {
+auto operator+(const Duration<Period, Rep> &lhs, const TimePoint &rhs) -> TimePoint {
     return rhs + lhs;
 }
 
@@ -823,7 +822,14 @@ auto operator+(const Duration<Period, Rep> &lhs, const Date &rhs) -> Date {
 }
 
 struct UTCClock final {
-    // static auto now() -> TimePoint TODO
+    static auto now() -> TimePoint {
+        auto now =
+            std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
+        auto absolute_time = Seconds{std::chrono::duration_cast<std::chrono::seconds>(
+            now.get_sys_time().time_since_epoch())};
+        return TimePoint(duration_cast<Seconds>(absolute_time));
+    }
+
     static auto since_midnight() -> Timestamp {
         auto now = std::chrono::system_clock::now();
         auto absolute_time =
@@ -841,7 +847,14 @@ struct UTCClock final {
 };
 
 struct LocalClock final {
-    // static auto now() -> TimePoint TODO
+    static auto now() -> TimePoint {
+        auto now =
+            std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
+        auto absolute_time = Seconds{std::chrono::duration_cast<std::chrono::seconds>(
+            now.get_local_time().time_since_epoch())};
+        return TimePoint(duration_cast<Seconds>(absolute_time));
+    }
+
     static auto since_midnight() -> Timestamp {
         auto now =
             std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
