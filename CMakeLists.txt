@@ -32,6 +32,7 @@ enable_testing()
 add_executable(tests
     tests/temporal/duration_tests.cpp
     tests/temporal/timestamp_tests.cpp
+    tests/temporal/timepoint_tests.cpp
 )
 
 target_link_libraries(tests PRIVATE GTest::gtest_main Later::Temporal)

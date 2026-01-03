@@ -487,20 +487,20 @@ class TimePoint {
     }
 
     template <uint32_t Period, std::integral Rep>
-    auto operator+(const Later::Temporal::Duration<Period, Rep> &dur) -> TimePoint {
+    auto operator+(const Later::Temporal::Duration<Period, Rep> &dur) const -> TimePoint {
         auto temp = *this;
         temp += dur;
         return temp;
     }
 
     template <uint32_t Period, std::integral Rep>
-    auto operator-(const Later::Temporal::Duration<Period, Rep> &dur) -> TimePoint {
+    auto operator-(const Later::Temporal::Duration<Period, Rep> &dur) const -> TimePoint {
         auto temp = *this;
         temp -= dur;
         return temp;
     }
 
-    auto operator-(const TimePoint &tp) -> Duration { return _rep - tp._rep; } // NOLINT
+    auto operator-(const TimePoint &tp) const -> Duration { return _rep - tp._rep; } // NOLINT
 
     [[nodiscard]] auto time_since_epoch() const -> Duration { return _rep; }
 };
