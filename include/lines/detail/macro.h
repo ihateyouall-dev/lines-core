@@ -1,0 +1,20 @@
+#pragma once
+
+#define LINES_VERSION "0.1.0b"
+#define LINES_VERSION_MAJOR 0
+#define LINES_VERSION_MINOR 1
+#define LINES_VERSION_PATCH 0
+#define LINES_VERSION_BETA true
+#define LINES_VERSION_ALPHA false
+
+#if defined(_WIN32)
+#include <windows.h>
+#define LINES_WINDOWSNT
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#define LINES_DARWIN
+#elif defined(__unix__) || defined(__unix)
+#define LINES_UNIX
+#else
+#error "Unsupported platform"
+#endif

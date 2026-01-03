@@ -1,7 +1,7 @@
-#include "latertemporal.h"
+#include "lines/temporal.h"
 #include <gtest/gtest.h>
 
-using namespace Later::Temporal;
+using namespace Lines::Temporal;
 
 TEST(TimePointConstruction, TimeSinceEpoch) {
     EXPECT_EQ(TimePoint(Seconds{0}).time_since_epoch(), Seconds{0});

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(later LANGUAGES CXX)
+project(lines LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,27 +14,21 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_library(tasks INTERFACE)
-add_library(macro INTERFACE)
-add_library(temporal INTERFACE)
+add_library(lines INTERFACE)
 
-target_include_directories(tasks INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/later/tasks>)
-target_include_directories(macro INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/later/macro>)
-target_include_directories(temporal INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/later/temporal>)
+target_include_directories(lines INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-target_link_libraries(tasks INTERFACE macro temporal)
-
-add_library(Later::Tasks ALIAS tasks)
-add_library(Later::Temporal ALIAS temporal)
+add_library(Lines::Lines ALIAS lines)
 
 enable_testing()
 
 add_executable(tests
+    tests/temporal/date_tests.cpp
     tests/temporal/duration_tests.cpp
     tests/temporal/timestamp_tests.cpp
     tests/temporal/timepoint_tests.cpp
 )
 
-target_link_libraries(tests PRIVATE GTest::gtest_main Later::Temporal)
+target_link_libraries(tests PRIVATE GTest::gtest_main Lines::Lines)
 
 add_test(NAME tests COMMAND tests)

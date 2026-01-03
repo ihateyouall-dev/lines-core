@@ -1,7 +1,7 @@
-#include "latertemporal.h"
+#include "lines/temporal.h"
 #include <gtest/gtest.h>
 
-using namespace Later::Temporal;
+using namespace Lines::Temporal;
 
 TEST(TimestampArithmetic, Normalization) {
     EXPECT_EQ(++Timestamp(Seconds{86399}), Timestamp(Seconds{0}));

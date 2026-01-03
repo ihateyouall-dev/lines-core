@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string>
 
-namespace Later::Temporal {
+namespace Lines::Temporal {
 
 template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     Rep _rep;
@@ -475,26 +475,26 @@ class TimePoint {
     }
 
     template <uint32_t Period, std::integral Rep>
-    auto operator+=(const Later::Temporal::Duration<Period, Rep> &dur) -> TimePoint & {
+    auto operator+=(const Lines::Temporal::Duration<Period, Rep> &dur) -> TimePoint & {
         _rep += dur;
         return *this;
     }
 
     template <uint32_t Period, std::integral Rep>
-    auto operator-=(const Later::Temporal::Duration<Period, Rep> &dur) -> TimePoint & {
+    auto operator-=(const Lines::Temporal::Duration<Period, Rep> &dur) -> TimePoint & {
         _rep -= dur;
         return *this;
     }
 
     template <uint32_t Period, std::integral Rep>
-    auto operator+(const Later::Temporal::Duration<Period, Rep> &dur) const -> TimePoint {
+    auto operator+(const Lines::Temporal::Duration<Period, Rep> &dur) const -> TimePoint {
         auto temp = *this;
         temp += dur;
         return temp;
     }
 
     template <uint32_t Period, std::integral Rep>
-    auto operator-(const Later::Temporal::Duration<Period, Rep> &dur) const -> TimePoint {
+    auto operator-(const Lines::Temporal::Duration<Period, Rep> &dur) const -> TimePoint {
         auto temp = *this;
         temp -= dur;
         return temp;
@@ -899,4 +899,4 @@ struct LocalClock final {
         return Date(Days{days});
     }
 };
-} // namespace Later::Temporal
+} // namespace Lines::Temporal

@@ -1,8 +1,7 @@
-#include "latertemporal.h"
+#include "lines/temporal.h"
 #include <gtest/gtest.h>
-#include <stdexcept>
 
-using namespace Later::Temporal;
+using namespace Lines::Temporal;
 
 TEST(DurationCompare, PositiveValues) {
     EXPECT_EQ(Minutes{1}, Seconds{60});

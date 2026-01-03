@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../macro/latermacro.hpp"
-#include "../temporal/latertemporal.h"
+#include "detail/macro.h"
+#include "temporal.h"
 #include <algorithm>        // std::ranges::all_of
 #include <initializer_list> // std::initializer_list
 #include <optional>         // std::optional
@@ -12,7 +12,7 @@
 
 using uint = unsigned int;
 
-namespace Later {
+namespace Lines {
 class Task {
     std::string _title;
     std::optional<std::string> _description = std::nullopt;
@@ -160,4 +160,4 @@ class Tasks {
 
     void update() noexcept { _daily_tasks.reset(); }
 };
-} // namespace Later
+} // namespace Lines
