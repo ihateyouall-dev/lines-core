@@ -732,6 +732,16 @@ class Day {
 
 inline auto operator+(const Days &lhs, const Day &rhs) -> Day { return rhs + lhs; }
 
+enum class Weekday : int8_t {
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5,
+    Saturday = 6,
+    Sunday = 7
+};
+
 class Date {
     Days _rep;
 
@@ -814,6 +824,7 @@ class Date {
     [[nodiscard]] auto year() const -> Year { return Year{int(_ymd.year())}; }
     [[nodiscard]] auto month() const -> Month { return Month{unsigned(_ymd.month())}; }
     [[nodiscard]] auto day() const -> Day { return Day{unsigned(_ymd.day())}; }
+    auto weekday() const -> Weekday { return static_cast<Weekday>((_rep % 7).count()); } // NOLINT
 };
 
 template <uint32_t Period, std::integral Rep>
