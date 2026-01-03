@@ -326,7 +326,7 @@ constexpr auto round(const Duration<Period, Rep> &dur) -> To {
 
 class Timestamp {
     // 0 <= _rep < 24h
-    Seconds _rep = Seconds{0};
+    Seconds _rep{0};
 
     void normalize() {
         _rep %= Days::period;
@@ -434,6 +434,81 @@ class Timestamp {
 template <uint32_t Period, std::integral Rep>
 auto operator+(const Duration<Period, Rep> &dur, const Timestamp &time) -> Timestamp {
     return time + dur;
+}
+
+class TimePoint {
+    // Unlike Timestamp, this class does not have a strong invariant.
+    // It represents absolute time since the epoch.
+    Seconds _rep{0};
+
+  public:
+    using Duration = decltype(_rep);
+    explicit TimePoint(Duration rep) : _rep(rep) {}
+    TimePoint(const TimePoint &) = default;
+    TimePoint(TimePoint &&) = default;
+    auto operator=(const TimePoint &) -> TimePoint & = default;
+    auto operator=(TimePoint &&) -> TimePoint & = default;
+    ~TimePoint() = default;
+
+    auto operator<=>(const TimePoint &) const = default;
+
+    auto operator++() -> TimePoint & {
+        ++_rep;
+        return *this;
+    }
+
+    auto operator++(int) -> TimePoint {
+        auto temp = *this;
+        ++*this;
+        return temp;
+    }
+
+    auto operator--() -> TimePoint & {
+        --_rep;
+        return *this;
+    }
+
+    auto operator--(int) -> TimePoint {
+        auto temp = *this;
+        --*this;
+        return temp;
+    }
+
+    template <uint32_t Period, std::integral Rep>
+    auto operator+=(const Later::Temporal::Duration<Period, Rep> &dur) -> TimePoint & {
+        _rep += dur;
+        return *this;
+    }
+
+    template <uint32_t Period, std::integral Rep>
+    auto operator-=(const Later::Temporal::Duration<Period, Rep> &dur) -> TimePoint & {
+        _rep -= dur;
+        return *this;
+    }
+
+    template <uint32_t Period, std::integral Rep>
+    auto operator+(const Later::Temporal::Duration<Period, Rep> &dur) -> TimePoint {
+        auto temp = *this;
+        temp += dur;
+        return temp;
+    }
+
+    template <uint32_t Period, std::integral Rep>
+    auto operator-(const Later::Temporal::Duration<Period, Rep> &dur) -> TimePoint {
+        auto temp = *this;
+        temp -= dur;
+        return temp;
+    }
+
+    auto operator-(const TimePoint &tp) -> Duration { return _rep - tp._rep; } // NOLINT
+
+    [[nodiscard]] auto time_since_epoch() const -> Duration { return _rep; }
+};
+
+template <uint32_t Period, std::integral Rep>
+auto operator+(const Later::Temporal::Duration<Period, Rep> &lhs, const TimePoint &rhs)
+    -> TimePoint {
+    return rhs + lhs;
 }
 
 class Year {
