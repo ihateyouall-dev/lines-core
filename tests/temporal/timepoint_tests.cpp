@@ -36,3 +36,8 @@ TEST(TimePointArithmetic, Difference) {
     EXPECT_EQ(TimePoint(Seconds{200}) - TimePoint(Seconds{50}), Seconds{150});
     EXPECT_EQ(TimePoint(Seconds{50}) - TimePoint(Seconds{200}), Seconds{-150});
 }
+
+TEST(TimePointWrapping, DateTime) {
+    EXPECT_EQ(DateTime{TimePoint{Seconds{86401}}}.date(), Date{Days{1}});
+    EXPECT_EQ(DateTime{TimePoint{Seconds{86401}}}.time(), Timestamp{Seconds{1}});
+}

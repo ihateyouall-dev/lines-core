@@ -821,6 +821,23 @@ auto operator+(const Duration<Period, Rep> &lhs, const Date &rhs) -> Date {
     return rhs + lhs;
 }
 
+// Representation of TimePoint as Date + TimeStamp
+class DateTime {
+    TimePoint _tp;
+
+  public:
+    DateTime(const DateTime &) = default;
+    DateTime(DateTime &&) = default;
+    auto operator=(const DateTime &) -> DateTime & = default;
+    auto operator=(DateTime &&) -> DateTime & = default;
+    explicit DateTime(TimePoint tp) : _tp(tp) {} // NOLINT
+    ~DateTime() = default;
+
+    [[nodiscard]] auto date() const -> Date { return Date(floor<Days>(_tp.time_since_epoch())); }
+
+    [[nodiscard]] auto time() const -> Timestamp { return Timestamp(_tp.time_since_epoch()); }
+};
+
 struct UTCClock final {
     static auto now() -> TimePoint {
         auto now =
