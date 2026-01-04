@@ -406,13 +406,13 @@ TEST(DurationRound, Calendar) {
 }
 
 TEST(DurationCompatibility, ToChrono) {
-    EXPECT_EQ(std::chrono::seconds{Seconds{10}}, std::chrono::seconds{10});
-    EXPECT_EQ(std::chrono::minutes{Minutes{10}}, std::chrono::minutes{10});
-    EXPECT_EQ(std::chrono::hours{Hours{10}}, std::chrono::hours{10});
-    EXPECT_EQ(std::chrono::days{Days{10}}, std::chrono::days{10});
-    EXPECT_EQ(std::chrono::weeks{Weeks{10}}, std::chrono::weeks{10});
-    EXPECT_EQ(std::chrono::months{Months{10}}, std::chrono::months{10});
-    EXPECT_EQ(std::chrono::years{Years{10}}, std::chrono::years{10});
+    EXPECT_EQ(Seconds{10}.to_chrono<std::chrono::seconds>(), std::chrono::seconds{10});
+    EXPECT_EQ(Minutes{10}.to_chrono<std::chrono::minutes>(), std::chrono::minutes{10});
+    EXPECT_EQ(Hours{10}.to_chrono<std::chrono::hours>(), std::chrono::hours{10});
+    EXPECT_EQ(Days{10}.to_chrono<std::chrono::days>(), std::chrono::days{10});
+    EXPECT_EQ(Weeks{10}.to_chrono<std::chrono::weeks>(), std::chrono::weeks{10});
+    EXPECT_EQ(Months{10}.to_chrono<std::chrono::months>(), std::chrono::months{10});
+    EXPECT_EQ(Years{10}.to_chrono<std::chrono::years>(), std::chrono::years{10});
 }
 
 TEST(DurationCompatibility, FromChrono) {

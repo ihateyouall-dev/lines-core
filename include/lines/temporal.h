@@ -29,10 +29,6 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
                    .count()) {}
     ~Duration() = default;
 
-    constexpr explicit operator std::chrono::duration<Rep, std::ratio<Period>>() {
-        return std::chrono::duration<Rep, std::ratio<Period>>(_rep);
-    }
-
     constexpr auto operator+() const noexcept -> Duration { return *this; }
 
     constexpr auto operator-() const noexcept -> Duration { return Duration{-_rep}; }
@@ -157,6 +153,10 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     }
 
     [[nodiscard]] constexpr auto count() const noexcept -> Rep { return _rep; }
+
+    template <typename ChronoDuration> constexpr auto to_chrono() const -> ChronoDuration {
+        return ChronoDuration{_rep * period / ChronoDuration::period::num};
+    }
 };
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
