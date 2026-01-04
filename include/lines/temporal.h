@@ -911,11 +911,6 @@ struct LocalClock final {
     }
 
     [[nodiscard]] static auto current_zone() -> TimeZone {
-#if !defined(LINES_DARWIN)
-        const std::chrono::time_zone *tz = std::chrono::current_zone(); // NOLINT
-        auto info = tz->get_info(std::chrono::system_clock::now());
-        return TimeZone(Seconds{info.offset});
-#else
         std::time_t now = std::time(nullptr);
         std::tm local{};
         std::tm utc{};
@@ -924,7 +919,6 @@ struct LocalClock final {
         auto local_sec = std::mktime(&local);
         auto utc_sec = std::mktime(&utc);
         return TimeZone(Seconds{local_sec - utc_sec});
-#endif
     }
 };
 } // namespace Lines::Temporal
