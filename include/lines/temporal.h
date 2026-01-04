@@ -860,26 +860,10 @@ class TimeZone {
     auto operator=(const TimeZone &) -> TimeZone & = default;
     auto operator=(TimeZone &&) -> TimeZone & = default;
     explicit TimeZone(Seconds offset) : _offset(offset) {}
+    explicit TimeZone(Hours hours) : _offset(Seconds{duration_cast<Seconds>(hours)}) {}
     ~TimeZone() = default;
 
     [[nodiscard]] auto offset() const -> Seconds { return _offset; }
-
-    [[nodiscard]] static auto current_zone() -> TimeZone { // MOVE INTO LOCAL CLOCK
-#if !defined(LINES_DARWIN)
-        const std::chrono::time_zone *tz = std::chrono::current_zone(); // NOLINT
-        auto info = tz->get_info(std::chrono::system_clock::now());
-        return TimeZone(Seconds{info.offset});
-#else
-        std::time_t now = std::time(nullptr);
-        std::tm local{};
-        std::tm utc{};
-        localtime_r(&now, &local);
-        gmtime_r(&now, &utc);
-        auto local_sec = std::mktime(&local);
-        auto utc_sec = std::mktime(&utc);
-        return TimeZone(Seconds{local_sec - utc_sec});
-#endif
-    }
 };
 
 // Wraps TimePoint and TimeZone into an object representing a zoned time
@@ -947,6 +931,23 @@ struct LocalClock final {
                 .get_local_time();
         auto days = std::chrono::floor<std::chrono::days>(now).time_since_epoch();
         return Date(Days{days});
+    }
+
+    [[nodiscard]] static auto current_zone() -> TimeZone {
+#if !defined(LINES_DARWIN)
+        const std::chrono::time_zone *tz = std::chrono::current_zone(); // NOLINT
+        auto info = tz->get_info(std::chrono::system_clock::now());
+        return TimeZone(Seconds{info.offset});
+#else
+        std::time_t now = std::time(nullptr);
+        std::tm local{};
+        std::tm utc{};
+        localtime_r(&now, &local);
+        gmtime_r(&now, &utc);
+        auto local_sec = std::mktime(&local);
+        auto utc_sec = std::mktime(&utc);
+        return TimeZone(Seconds{local_sec - utc_sec});
+#endif
     }
 };
 } // namespace Lines::Temporal

@@ -41,3 +41,10 @@ TEST(TimePointWrapping, DateTime) {
     EXPECT_EQ(DateTime{TimePoint{Seconds{86401}}}.date(), Date{Days{1}});
     EXPECT_EQ(DateTime{TimePoint{Seconds{86401}}}.time(), Timestamp{Seconds{1}});
 }
+
+TEST(TimePointWrapping, ZonedTime) {
+    EXPECT_EQ(ZonedTime(TimePoint(Seconds{0}), TimeZone(Hours{1})).get_local_time(),
+              TimePoint(Seconds{3600}));
+    EXPECT_EQ(ZonedTime(TimePoint(Seconds{0}), TimeZone(Hours{-1})).get_local_time(),
+              TimePoint(Seconds{-3600}));
+}
