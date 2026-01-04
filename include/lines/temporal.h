@@ -910,27 +910,15 @@ struct UTCClock final {
 
 struct LocalClock final {
     static auto now() -> TimePoint {
-        auto now =
-            std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
-        auto absolute_time = Seconds{std::chrono::duration_cast<std::chrono::seconds>(
-            now.get_local_time().time_since_epoch())};
-        return TimePoint(duration_cast<Seconds>(absolute_time));
+        auto now = UTCClock::now();
+        return ZonedTime(now, current_zone()).get_local_time();
     }
 
-    static auto since_midnight() -> Timestamp {
-        auto now =
-            std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
-        auto absolute_time = Seconds{std::chrono::duration_cast<std::chrono::seconds>(
-            now.get_local_time().time_since_epoch())};
-        return Timestamp(duration_cast<Seconds>(absolute_time));
-    }
+    static auto since_midnight() -> Timestamp { return Timestamp(now().time_since_epoch()); }
 
     static auto today() noexcept -> Date {
-        auto now =
-            std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now())
-                .get_local_time();
-        auto days = std::chrono::floor<std::chrono::days>(now).time_since_epoch();
-        return Date(Days{days});
+        auto days = floor<Days>(now().time_since_epoch());
+        return Date(days);
     }
 
     [[nodiscard]] static auto current_zone() -> TimeZone {
