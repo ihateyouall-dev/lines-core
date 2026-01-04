@@ -1,5 +1,6 @@
 #pragma once
 
+#include "detail/macro.h"
 #include <chrono>
 #include <concepts>
 #include <cstdint>
@@ -8,7 +9,6 @@
 #include <string>
 
 namespace Lines::Temporal {
-
 template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     Rep _rep;
     uint32_t _period = Period;
@@ -603,7 +603,7 @@ class Month {
     Month(Month &&) = default;
     auto operator=(const Month &) -> Month & = default;
     auto operator=(Month &&) -> Month & = default;
-    explicit Month(uint32_t rep) : _rep(rep) {}
+    explicit Month(uint32_t rep) : _rep(rep) {} // NOLINT
     ~Month() = default;
 
     auto operator<=>(const Month &) const = default;
@@ -672,7 +672,7 @@ class Day {
     Day(Day &&) = default;
     auto operator=(const Day &) -> Day & = default;
     auto operator=(Day &&) -> Day & = default;
-    explicit Day(uint32_t rep) : _rep(rep) {}
+    explicit Day(uint32_t rep) : _rep(rep) {} // NOLINT
     ~Day() = default;
 
     auto operator<=>(const Day &) const = default;
@@ -847,6 +847,37 @@ class DateTime {
     [[nodiscard]] auto date() const -> Date { return Date(floor<Days>(_tp.time_since_epoch())); }
 
     [[nodiscard]] auto time() const -> Timestamp { return Timestamp(_tp.time_since_epoch()); }
+};
+
+class TimeZone {
+    Seconds _offset;
+
+  public:
+    TimeZone(const TimeZone &) = default;
+    TimeZone(TimeZone &&) = default;
+    auto operator=(const TimeZone &) -> TimeZone & = default;
+    auto operator=(TimeZone &&) -> TimeZone & = default;
+    explicit TimeZone(Seconds offset) : _offset(offset) {}
+    ~TimeZone() = default;
+
+    [[nodiscard]] auto offset() const -> Seconds { return _offset; }
+
+    [[nodiscard]] static auto current_zone() -> TimeZone { // MOVE INTO LOCAL CLOCK
+#if !defined(LINES_DARWIN)
+        const std::chrono::time_zone *tz = std::chrono::current_zone(); // NOLINT
+        auto info = tz->get_info(std::chrono::system_clock::now());
+        return TimeZone(Seconds{info.offset});
+#else
+        std::time_t now = std::time(nullptr);
+        std::tm local{};
+        std::tm utc{};
+        localtime_r(&now, &local);
+        gmtime_r(&now, &utc);
+        auto local_sec = std::mktime(&local);
+        auto utc_sec = std::mktime(&utc);
+        return TimeZone(Seconds{local_sec - utc_sec});
+#endif
+    }
 };
 
 struct UTCClock final {
