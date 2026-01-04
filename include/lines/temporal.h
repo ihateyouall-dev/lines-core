@@ -884,32 +884,21 @@ class ZonedTime {
 };
 
 struct UTCClock final {
-    static auto now() -> TimePoint {
-        auto now =
-            std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
-        auto absolute_time = Seconds{std::chrono::duration_cast<std::chrono::seconds>(
-            now.get_sys_time().time_since_epoch())};
-        return TimePoint(duration_cast<Seconds>(absolute_time));
-    }
-
-    static auto since_midnight() -> Timestamp {
+    static auto now() noexcept -> TimePoint {
         auto now = std::chrono::system_clock::now();
-        auto absolute_time =
-            Seconds{std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch())};
-        return Timestamp(duration_cast<Seconds>(absolute_time));
+        return TimePoint(Seconds{now.time_since_epoch()});
     }
 
-    static auto today() -> Date {
-        auto now =
-            std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now())
-                .get_sys_time();
-        auto days = std::chrono::floor<std::chrono::days>(now).time_since_epoch();
+    static auto since_midnight() -> Timestamp { return Timestamp(now().time_since_epoch()); }
+
+    static auto today() noexcept -> Date {
+        auto days = floor<Days>(now().time_since_epoch());
         return Date(Days{days});
     }
 };
 
 struct LocalClock final {
-    static auto now() -> TimePoint {
+    static auto now() noexcept -> TimePoint {
         auto now = UTCClock::now();
         return ZonedTime(now, current_zone()).get_local_time();
     }
