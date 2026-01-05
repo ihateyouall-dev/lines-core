@@ -54,6 +54,7 @@ class BinaryTaskCompletion : public TaskCompletion {
     bool _completed = false;
 
   public:
+    BinaryTaskCompletion() = default;
     BinaryTaskCompletion(const BinaryTaskCompletion &) = default;
     BinaryTaskCompletion(BinaryTaskCompletion &&) = default;
     auto operator=(const BinaryTaskCompletion &) -> BinaryTaskCompletion & = default;
