@@ -3,6 +3,7 @@
 #include "detail/macro.h"
 #include "temporal.h"
 #include <algorithm>        // std::ranges::all_of
+#include <functional>       // std::function
 #include <initializer_list> // std::initializer_list
 #include <optional>         // std::optional
 #include <stdexcept>        // std::out_of_range, std::invalid_argument
