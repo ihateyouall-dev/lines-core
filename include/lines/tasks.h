@@ -34,6 +34,7 @@ struct TaskInfo {
 
 class TaskCompletion {
   public:
+    TaskCompletion() = default;
     TaskCompletion(const TaskCompletion &) = default;
     TaskCompletion(TaskCompletion &&) = default;
     auto operator=(const TaskCompletion &) -> TaskCompletion & = default;
@@ -45,6 +46,52 @@ class TaskCompletion {
     virtual void reset() noexcept = 0;
 
     [[nodiscard]] virtual auto clone() const -> std::unique_ptr<TaskCompletion> = 0;
+};
+
+class BinaryTaskCompletion : public TaskCompletion {
+    bool _completed = false;
+
+  public:
+    BinaryTaskCompletion(const BinaryTaskCompletion &) = default;
+    BinaryTaskCompletion(BinaryTaskCompletion &&) = default;
+    auto operator=(const BinaryTaskCompletion &) -> BinaryTaskCompletion & = default;
+    auto operator=(BinaryTaskCompletion &&) -> BinaryTaskCompletion & = default;
+    ~BinaryTaskCompletion() override = default;
+
+    void complete() noexcept override { _completed = true; }
+    [[nodiscard]] auto completed() const noexcept -> bool override { return _completed; }
+    void reset() noexcept override { _completed = false; }
+    [[nodiscard]] auto clone() const -> std::unique_ptr<TaskCompletion> override {
+        return std::make_unique<BinaryTaskCompletion>(*this);
+    }
+};
+
+class ProgressTaskCompletion : public TaskCompletion {
+    uint _min;
+    uint _max;
+    uint _current = 0;
+
+  public:
+    ProgressTaskCompletion() = delete;
+    ProgressTaskCompletion(uint min, uint max) : _min(min), _max(max) {} // NOLINT
+    ProgressTaskCompletion(const ProgressTaskCompletion &) = default;
+    ProgressTaskCompletion(ProgressTaskCompletion &&) = default;
+    auto operator=(const ProgressTaskCompletion &) -> ProgressTaskCompletion & = default;
+    auto operator=(ProgressTaskCompletion &&) -> ProgressTaskCompletion & = default;
+    ~ProgressTaskCompletion() override = default;
+
+    void complete() noexcept override { _current = _max; }
+    [[nodiscard]] auto completed() const noexcept -> bool override { return _current == _max; }
+    void reset() noexcept override { _current = 0; }
+    [[nodiscard]] auto clone() const -> std::unique_ptr<TaskCompletion> override {
+        return std::make_unique<ProgressTaskCompletion>(*this);
+    }
+
+    [[nodiscard]] auto min() const noexcept -> uint { return _min; }
+    [[nodiscard]] auto max() const noexcept -> uint { return _max; }
+    [[nodiscard]] auto current() const noexcept -> uint { return _current; }
+
+    void set_current(uint current) { _current = current; }
 };
 
 class TaskVisibility {
