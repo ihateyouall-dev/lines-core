@@ -824,7 +824,9 @@ class Date {
     [[nodiscard]] auto year() const -> Year { return Year{int(_ymd.year())}; }
     [[nodiscard]] auto month() const -> Month { return Month{unsigned(_ymd.month())}; }
     [[nodiscard]] auto day() const -> Day { return Day{unsigned(_ymd.day())}; }
-    auto weekday() const -> Weekday { return static_cast<Weekday>((_rep % 7).count()); } // NOLINT
+    [[nodiscard]] auto weekday() const -> Weekday {
+        return static_cast<Weekday>(((_rep - Days{3}) % 7).count()); // NOLINT
+    }
 };
 
 template <uint32_t Period, std::integral Rep>

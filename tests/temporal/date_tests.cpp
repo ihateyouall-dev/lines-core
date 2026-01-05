@@ -57,7 +57,7 @@ TEST(DateArithmetic, IncrementDecrement) {
 }
 
 TEST(DateAccessors, WeekdayStable) {
-    Date d1{Year{1970}, Month{1}, Day{1}}; // NOLINT
+    Date d1{Year{1970}, Month{1}, Day{7}}; // NOLINT
     Date d2 = d1 + Days{7};                // NOLINT
 
     EXPECT_EQ(d1.weekday(), d2.weekday());
