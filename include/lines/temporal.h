@@ -827,6 +827,10 @@ class Date {
     [[nodiscard]] auto weekday() const -> Weekday {
         return static_cast<Weekday>(((_rep - Days{3}) % 7).count()); // NOLINT
     }
+
+    [[nodiscard]] auto yyyy_mm_dd() const -> std::string {
+        return std::format("{}-{:02}-{:02}", int(year()), unsigned(month()), unsigned(day()));
+    }
 };
 
 template <uint32_t Period, std::integral Rep>
