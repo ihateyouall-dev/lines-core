@@ -821,6 +821,7 @@ class Date {
         return tmp;
     }
 
+    [[nodiscard]] auto time_since_epoch() const -> Days { return _rep; }
     [[nodiscard]] auto year() const -> Year { return Year{int(_ymd.year())}; }
     [[nodiscard]] auto month() const -> Month { return Month{unsigned(_ymd.month())}; }
     [[nodiscard]] auto day() const -> Day { return Day{unsigned(_ymd.day())}; }
