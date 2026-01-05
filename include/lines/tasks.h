@@ -43,6 +43,8 @@ class TaskCompletion {
     virtual void complete() noexcept = 0;
     [[nodiscard]] virtual auto completed() const noexcept -> bool = 0;
     virtual void reset() noexcept = 0;
+
+    [[nodiscard]] virtual auto clone() const -> std::unique_ptr<TaskCompletion> = 0;
 };
 
 class TaskVisibility {
@@ -73,12 +75,27 @@ inline auto always() {
 
 class Task {
     TaskInfo _info;
+    std::unique_ptr<TaskCompletion> _completion;
+    TaskVisibility _visibility;
 
   public:
-    Task() = default;
-    Task(const Task &) = default;
+    Task(const Task &task) : _info(task._info), _visibility(task._visibility) {
+        _completion = task._completion->clone();
+    }
+    auto operator=(const Task &task) -> Task & {
+        if (this == &task) {
+            return *this;
+        }
+
+        _info = task._info;
+        _completion = task._completion->clone();
+        _visibility = task._visibility;
+        return *this;
+    };
+    Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion, TaskVisibility visibility)
+        : _info(std::move(info)), _completion(std::move(completion)),
+          _visibility(std::move(visibility)) {}
     Task(Task &&) = default;
-    auto operator=(const Task &) -> Task & = default;
     auto operator=(Task &&) -> Task & = default;
     ~Task() = default;
 };
