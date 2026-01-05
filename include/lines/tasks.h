@@ -20,8 +20,8 @@ struct TaskInfo {
     auto operator=(const TaskInfo &) -> TaskInfo & = default;
     auto operator=(TaskInfo &&) -> TaskInfo & = default;
     explicit TaskInfo(std::string title, std::optional<std::string> desc = std::nullopt,
-                      std::vector<std::string> categories = {})
-        : title(std::move(title)), description(std::move(desc)), categories(std::move(categories)) {
+                      std::vector<std::string> tags = {})
+        : title(std::move(title)), description(std::move(desc)), tags(std::move(tags)) {
         if (this->title.empty()) {
             throw std::invalid_argument("TaskInfo: title must not be empty");
         }
@@ -29,12 +29,14 @@ struct TaskInfo {
     ~TaskInfo() = default;
     std::string title;
     std::optional<std::string> description;
-    std::vector<std::string> categories;
+    std::vector<std::string> tags;
 };
 
 class TaskCompletion {
-  public:
+  protected:
     TaskCompletion() = default;
+
+  public:
     TaskCompletion(const TaskCompletion &) = default;
     TaskCompletion(TaskCompletion &&) = default;
     auto operator=(const TaskCompletion &) -> TaskCompletion & = default;
@@ -73,7 +75,11 @@ class ProgressTaskCompletion : public TaskCompletion {
 
   public:
     ProgressTaskCompletion() = delete;
-    ProgressTaskCompletion(uint min, uint max) : _min(min), _max(max) {} // NOLINT
+    ProgressTaskCompletion(uint min, uint max) : _min(min), _max(max) { // NOLINT
+        if (_min > _max) {
+            throw std::invalid_argument("ProgressTaskCompletion: min > max");
+        }
+    }
     ProgressTaskCompletion(const ProgressTaskCompletion &) = default;
     ProgressTaskCompletion(ProgressTaskCompletion &&) = default;
     auto operator=(const ProgressTaskCompletion &) -> ProgressTaskCompletion & = default;
@@ -91,7 +97,12 @@ class ProgressTaskCompletion : public TaskCompletion {
     [[nodiscard]] auto max() const noexcept -> uint { return _max; }
     [[nodiscard]] auto current() const noexcept -> uint { return _current; }
 
-    void set_current(uint current) { _current = current; }
+    void set_current(uint current) {
+        if (current > _max || current < _min) {
+            throw std::out_of_range("ProgressTaskCompletion: current out of range");
+        }
+        _current = current;
+    }
 };
 
 class TaskVisibility {
@@ -100,6 +111,7 @@ class TaskVisibility {
     std::optional<Temporal::Date> _starting_from;
 
   public:
+    TaskVisibility() = delete;
     TaskVisibility(const TaskVisibility &) = default;
     TaskVisibility(TaskVisibility &&) = default;
     auto operator=(const TaskVisibility &) -> TaskVisibility & = default;
@@ -133,18 +145,47 @@ class Task {
         if (this == &task) {
             return *this;
         }
+        _completion = task._completion->clone();
 
         _info = task._info;
-        _completion = task._completion->clone();
         _visibility = task._visibility;
         return *this;
     };
     Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion, TaskVisibility visibility)
         : _info(std::move(info)), _completion(std::move(completion)),
-          _visibility(std::move(visibility)) {}
+          _visibility(std::move(visibility)) {
+        if (_info.title.empty()) {
+            throw std::invalid_argument("Task: title must not be empty");
+        }
+        if (!_completion) {
+            throw std::invalid_argument("Task: completion must not be null");
+        }
+    }
     Task(Task &&) = default;
     auto operator=(Task &&) -> Task & = default;
     ~Task() = default;
+
+    auto completion() -> TaskCompletion & { return *_completion; }
+    [[nodiscard]] auto completion() const -> const TaskCompletion & { return *_completion; }
+
+    void set_title(const std::string &title) {
+        if (title.empty()) {
+            throw std::invalid_argument("Task: title must not be empty");
+        }
+        _info.title = title;
+    }
+    void set_description(const std::string &description) { _info.description = description; }
+    void set_tags(std::vector<std::string> tags) { _info.tags = std::move(tags); }
+
+    [[nodiscard]] auto title() const -> const std::string & { return _info.title; }
+    [[nodiscard]] auto description() const -> const std::optional<std::string> & {
+        return _info.description;
+    }
+    [[nodiscard]] auto tags() const -> const std::vector<std::string> & { return _info.tags; }
+
+    [[nodiscard]] auto visible(const Temporal::Date &date) const noexcept -> bool {
+        return _visibility.visible(date);
+    }
 };
 
 class TaskList {
