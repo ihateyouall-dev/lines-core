@@ -1,3 +1,3 @@
 return {
-  exec = "./build/debug/tests",
+  exec = "./build/debug/clang/tests",
 }
