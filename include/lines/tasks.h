@@ -132,6 +132,82 @@ namespace Visibility {
 inline auto always() {
     return TaskVisibility([](auto, auto) { return true; }, std::nullopt);
 }
+
+inline auto never() {
+    return TaskVisibility([](auto, auto) { return false; }, std::nullopt);
+}
+
+inline auto from(const Temporal::Date &from) {
+    return TaskVisibility([from](const Temporal::Date &date, auto) { return date >= from; },
+                          std::nullopt);
+}
+
+inline auto until(const Temporal::Date &until) {
+    return TaskVisibility([until](const Temporal::Date &date, auto) { return date <= until; },
+                          std::nullopt);
+}
+
+inline auto between(const Temporal::Date &from, const Temporal::Date &until) {
+    if (from > until) {
+        throw std::invalid_argument("Visibility::between: from > until");
+    }
+
+    return TaskVisibility(
+        [from, until](const Temporal::Date &date, auto) { return date >= from && date <= until; },
+        std::nullopt);
+}
+
+inline auto weekdays() {
+    return TaskVisibility(
+        [](const Temporal::Date &date, auto) {
+            auto weekday = date.weekday();
+            return weekday >= Temporal::Weekday::Monday && weekday <= Temporal::Weekday::Friday;
+        },
+        std::nullopt);
+}
+
+inline auto weekends() {
+    return TaskVisibility(
+        [](const Temporal::Date &date, auto) {
+            auto weekday = date.weekday();
+            return weekday == Temporal::Weekday::Saturday || weekday == Temporal::Weekday::Sunday;
+        },
+        std::nullopt);
+}
+
+inline auto once(const Temporal::Date &target) {
+    return TaskVisibility([target](const Temporal::Date &date, auto) { return date == target; },
+                          std::nullopt);
+}
+
+inline auto every_month_day(const Temporal::Day &day) {
+    if (unsigned(day) == 0 || unsigned(day) > 31) { // NOLINT
+        throw std::invalid_argument("Visibility::every_month_day: invalid day");
+    }
+
+    return TaskVisibility([day](const Temporal::Date &date, auto) { return date.day() == day; },
+                          std::nullopt);
+}
+
+inline auto every_nth_day(uint n, const Temporal::Date &start) {
+    if (n == 0) {
+        throw std::invalid_argument("Visibility::every_nth_day: n must not be 0");
+    }
+    return TaskVisibility(
+        [n, start](const Temporal::Date &date, auto) {
+            if (date < start) {
+                return false;
+            }
+            return (date - start).count() % n == 0;
+        },
+        std::nullopt);
+}
+
+inline auto every_weekday(Temporal::Weekday weekday) {
+    return TaskVisibility(
+        [weekday](const Temporal::Date &date, auto) { return date.weekday() == weekday; },
+        std::nullopt);
+}
 }; // namespace Visibility
 
 class Task {
