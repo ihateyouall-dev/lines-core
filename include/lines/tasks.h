@@ -108,9 +108,8 @@ class ProgressTaskCompletion : public TaskCompletion {
 };
 
 class TaskVisibility {
-    using Pred = std::function<bool(const Temporal::Date &, const std::optional<Temporal::Date> &)>;
+    using Pred = std::function<bool(const Temporal::Date &)>;
     Pred _predicate;
-    std::optional<Temporal::Date> _starting_from;
 
   public:
     TaskVisibility() = delete;
@@ -118,33 +117,29 @@ class TaskVisibility {
     TaskVisibility(TaskVisibility &&) = default;
     auto operator=(const TaskVisibility &) -> TaskVisibility & = default;
     auto operator=(TaskVisibility &&) -> TaskVisibility & = default;
-    explicit TaskVisibility(Pred predicate,
-                            const std::optional<Temporal::Date> &starting_from = std::nullopt)
-        : _predicate(std::move(predicate)), _starting_from(starting_from) {}
+    explicit TaskVisibility(Pred predicate) : _predicate(std::move(predicate)) {}
     ~TaskVisibility() = default;
 
     [[nodiscard]] auto visible(const Temporal::Date &date) const noexcept -> bool {
-        return _predicate(date, _starting_from);
+        return _predicate(date);
     }
 };
 
 namespace Visibility {
 inline auto always() {
-    return TaskVisibility([](auto, auto) { return true; }, std::nullopt);
+    return TaskVisibility([](auto) { return true; });
 }
 
 inline auto never() {
-    return TaskVisibility([](auto, auto) { return false; }, std::nullopt);
+    return TaskVisibility([](auto) { return false; });
 }
 
 inline auto from(const Temporal::Date &from) {
-    return TaskVisibility([from](const Temporal::Date &date, auto) { return date >= from; },
-                          std::nullopt);
+    return TaskVisibility([from](const Temporal::Date &date) { return date >= from; });
 }
 
 inline auto until(const Temporal::Date &until) {
-    return TaskVisibility([until](const Temporal::Date &date, auto) { return date <= until; },
-                          std::nullopt);
+    return TaskVisibility([until](const Temporal::Date &date) { return date <= until; });
 }
 
 inline auto between(const Temporal::Date &from, const Temporal::Date &until) {
@@ -153,31 +148,25 @@ inline auto between(const Temporal::Date &from, const Temporal::Date &until) {
     }
 
     return TaskVisibility(
-        [from, until](const Temporal::Date &date, auto) { return date >= from && date <= until; },
-        std::nullopt);
+        [from, until](const Temporal::Date &date) { return date >= from && date <= until; });
 }
 
 inline auto weekdays() {
-    return TaskVisibility(
-        [](const Temporal::Date &date, auto) {
-            auto weekday = date.weekday();
-            return weekday >= Temporal::Weekday::Monday && weekday <= Temporal::Weekday::Friday;
-        },
-        std::nullopt);
+    return TaskVisibility([](const Temporal::Date &date) {
+        auto weekday = date.weekday();
+        return weekday >= Temporal::Weekday::Monday && weekday <= Temporal::Weekday::Friday;
+    });
 }
 
 inline auto weekends() {
-    return TaskVisibility(
-        [](const Temporal::Date &date, auto) {
-            auto weekday = date.weekday();
-            return weekday == Temporal::Weekday::Saturday || weekday == Temporal::Weekday::Sunday;
-        },
-        std::nullopt);
+    return TaskVisibility([](const Temporal::Date &date) {
+        auto weekday = date.weekday();
+        return weekday == Temporal::Weekday::Saturday || weekday == Temporal::Weekday::Sunday;
+    });
 }
 
 inline auto once(const Temporal::Date &target) {
-    return TaskVisibility([target](const Temporal::Date &date, auto) { return date == target; },
-                          std::nullopt);
+    return TaskVisibility([target](const Temporal::Date &date) { return date == target; });
 }
 
 inline auto every_month_day(const Temporal::Day &day) {
@@ -185,28 +174,24 @@ inline auto every_month_day(const Temporal::Day &day) {
         throw std::invalid_argument("Visibility::every_month_day: invalid day");
     }
 
-    return TaskVisibility([day](const Temporal::Date &date, auto) { return date.day() == day; },
-                          std::nullopt);
+    return TaskVisibility([day](const Temporal::Date &date) { return date.day() == day; });
 }
 
 inline auto every_nth_day(uint n, const Temporal::Date &start) {
     if (n == 0) {
         throw std::invalid_argument("Visibility::every_nth_day: n must not be 0");
     }
-    return TaskVisibility(
-        [n, start](const Temporal::Date &date, auto) {
-            if (date < start) {
-                return false;
-            }
-            return (date - start).count() % n == 0;
-        },
-        std::nullopt);
+    return TaskVisibility([n, start](const Temporal::Date &date) {
+        if (date < start) {
+            return false;
+        }
+        return (date - start).count() % n == 0;
+    });
 }
 
 inline auto every_weekday(Temporal::Weekday weekday) {
     return TaskVisibility(
-        [weekday](const Temporal::Date &date, auto) { return date.weekday() == weekday; },
-        std::nullopt);
+        [weekday](const Temporal::Date &date) { return date.weekday() == weekday; });
 }
 }; // namespace Visibility
 

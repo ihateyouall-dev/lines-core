@@ -79,11 +79,9 @@ TEST(TaskVisibility, CustomPredicateRespectsStartDate) {
     Temporal::Date before{start - Temporal::Days{1}};
     Temporal::Date after{start + Temporal::Days{1}};
 
-    TaskVisibility vis(
-        [](const Temporal::Date &d, const std::optional<Temporal::Date> &start) { // NOLINT
-            return start && d >= *start;
-        },
-        start);
+    TaskVisibility vis([start](const Temporal::Date &d) { // NOLINT
+        return d >= start;
+    });
 
     EXPECT_FALSE(vis.visible(before));
     EXPECT_TRUE(vis.visible(after));
@@ -115,8 +113,8 @@ TEST(Task, MoveTransfersOwnership) {
 }
 
 TEST(Task, SetTitleThrowsOnEmpty) {
-    Task t( // NOLINT
-        TaskInfo("title"), std::make_unique<BinaryTaskCompletion>(), Visibility::always());
+    Task t(TaskInfo("title"), std::make_unique<BinaryTaskCompletion>(),
+           Visibility::always()); // NOLINT
 
     EXPECT_THROW(t.set_title(""), std::invalid_argument);
 }
