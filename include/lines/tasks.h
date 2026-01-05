@@ -13,58 +13,74 @@
 using uint = unsigned int;
 
 namespace Lines {
-class Task {
-    std::string _title;
-    std::optional<std::string> _description = std::nullopt;
-    std::optional<std::string> _category = std::nullopt;
-    bool _completed = false;
-
-  public:
-    Task(std::string title, std::string description, std::string category)
-        : _title(std::move(title)) { // NOLINT
-
-        if (description == "") {
-            _description = std::nullopt;
-        } else {
-            _description = std::move(description);
-        }
-        if (category == "") {
-            _category = std::nullopt;
-        } else {
-            _category = std::move(category);
+struct TaskInfo {
+    TaskInfo() = default;
+    TaskInfo(const TaskInfo &) = default;
+    TaskInfo(TaskInfo &&) = default;
+    auto operator=(const TaskInfo &) -> TaskInfo & = default;
+    auto operator=(TaskInfo &&) -> TaskInfo & = default;
+    explicit TaskInfo(std::string title, std::optional<std::string> desc = std::nullopt,
+                      std::vector<std::string> categories = {})
+        : title(std::move(title)), description(std::move(desc)), categories(std::move(categories)) {
+        if (this->title.empty()) {
+            throw std::invalid_argument("TaskInfo: title must not be empty");
         }
     }
+    ~TaskInfo() = default;
+    std::string title;
+    std::optional<std::string> description;
+    std::vector<std::string> categories;
+};
+
+class TaskCompletion {
+  public:
+    TaskCompletion(const TaskCompletion &) = default;
+    TaskCompletion(TaskCompletion &&) = default;
+    auto operator=(const TaskCompletion &) -> TaskCompletion & = default;
+    auto operator=(TaskCompletion &&) -> TaskCompletion & = default;
+    virtual ~TaskCompletion() = default;
+
+    virtual void complete() noexcept = 0;
+    [[nodiscard]] virtual auto completed() const noexcept -> bool = 0;
+    virtual void reset() noexcept = 0;
+};
+
+class TaskVisibility {
+    using Pred = std::function<bool(const Temporal::Date &, const std::optional<Temporal::Date> &)>;
+    Pred _predicate;
+    std::optional<Temporal::Date> _starting_from;
+
+  public:
+    TaskVisibility(const TaskVisibility &) = default;
+    TaskVisibility(TaskVisibility &&) = default;
+    auto operator=(const TaskVisibility &) -> TaskVisibility & = default;
+    auto operator=(TaskVisibility &&) -> TaskVisibility & = default;
+    explicit TaskVisibility(Pred predicate,
+                            const std::optional<Temporal::Date> &starting_from = std::nullopt)
+        : _predicate(std::move(predicate)), _starting_from(starting_from) {}
+    ~TaskVisibility() = default;
+
+    [[nodiscard]] auto visible(const Temporal::Date &date) const noexcept -> bool {
+        return _predicate(date, _starting_from);
+    }
+};
+
+namespace Visibility {
+inline auto always() {
+    return TaskVisibility([](auto, auto) { return true; }, std::nullopt);
+}
+}; // namespace Visibility
+
+class Task {
+    TaskInfo _info;
+
+  public:
     Task() = default;
     Task(const Task &) = default;
     Task(Task &&) = default;
     auto operator=(const Task &) -> Task & = default;
     auto operator=(Task &&) -> Task & = default;
     ~Task() = default;
-
-    void complete() { _completed = true; }
-
-    void reset() { _completed = false; }
-
-    [[nodiscard]] auto completed() const -> bool { return _completed; }
-
-    [[nodiscard]] auto title() const -> std::string { return _title; }
-    [[nodiscard]] auto description() const -> std::optional<std::string> { return _description; }
-    [[nodiscard]] auto category() const -> std::optional<std::string> { return _category; }
-    void set_title(const std::string &title) { _title = title; }
-    void set_description(const std::string &description) {
-        if (description == "") {
-            _description = std::nullopt;
-        } else {
-            _description = description;
-        }
-    }
-    void set_category(const std::string &category) {
-        if (category == "") {
-            _category = std::nullopt;
-        } else {
-            _category = category;
-        }
-    }
 };
 
 class TaskList {
@@ -85,7 +101,7 @@ class TaskList {
     ~TaskList() = default;
 
     [[nodiscard]] auto completed() const -> bool {
-        return std::ranges::all_of(_tasks, &Task::completed);
+        return std::ranges::all_of(_tasks, [](const auto &) { return true; });
     }
 
     auto operator[](const std::size_t index) -> Task & { return _tasks[index]; }
@@ -111,7 +127,7 @@ class TaskList {
 
     void reset() {
         for (auto &task : _tasks) {
-            task.reset();
+            ;
         }
     }
 
