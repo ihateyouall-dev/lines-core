@@ -1,4 +1,5 @@
 #include "lines/tasks.h"
+#include "lines/temporal.h"
 #include <gtest/gtest.h>
 
 using namespace Lines;
@@ -67,14 +68,101 @@ TEST(ProgressTaskCompletion, SetCurrentOutOfRangeThrows) {
     EXPECT_THROW(c.set_current(100), std::out_of_range);
 }
 
-TEST(TaskVisibility, AlwaysVisible) {
+TEST(TaskVisibility, Always) {
     auto vis = Visibility::always();
     Temporal::Date date{Temporal::Days{1}};
 
     EXPECT_TRUE(vis.visible(date));
 }
 
-TEST(TaskVisibility, CustomPredicateRespectsStartDate) {
+TEST(TaskVisibility, Never) {
+    auto vis = Visibility::never();
+    Temporal::Date date{Temporal::Days{1}};
+
+    EXPECT_FALSE(vis.visible(date));
+}
+
+TEST(TaskVisibility, Weekdays) {
+    auto vis = Visibility::weekdays();
+    Temporal::Date date{Temporal::Days{7}}; // NOLINT
+    EXPECT_TRUE(vis.visible(date));
+    date += Temporal::Days{2};
+    EXPECT_FALSE(vis.visible(date));
+}
+
+TEST(TaskVisibility, Weekends) {
+    auto vis = Visibility::weekends();
+    Temporal::Date date{Temporal::Days{7}}; // NOLINT
+    EXPECT_FALSE(vis.visible(date));
+    date += Temporal::Days{2};
+    EXPECT_TRUE(vis.visible(date));
+}
+
+TEST(TaskVisibility, From) {
+    auto date = Temporal::Date(Temporal::Days{14}); // NOLINT
+    auto vis = Visibility::from(date);
+    EXPECT_FALSE(vis.visible(Temporal::Date(Temporal::Days{13}))); // NOLINT
+    EXPECT_TRUE(vis.visible(Temporal::Date(Temporal::Days{14})));  // NOLINT
+    EXPECT_TRUE(vis.visible(Temporal::Date(Temporal::Days{15})));  // NOLINT
+}
+
+TEST(TaskVisibility, Until) {
+    auto date = Temporal::Date(Temporal::Days{14}); // NOLINT
+    auto vis = Visibility::until(date);
+    EXPECT_TRUE(vis.visible(Temporal::Date(Temporal::Days{13})));  // NOLINT
+    EXPECT_TRUE(vis.visible(Temporal::Date(Temporal::Days{14})));  // NOLINT
+    EXPECT_FALSE(vis.visible(Temporal::Date(Temporal::Days{15}))); // NOLINT
+}
+
+TEST(TaskVisibility, Between) {
+    auto start = Temporal::Date(Temporal::Days{14}); // NOLINT
+    auto end = Temporal::Date(Temporal::Days{16});   // NOLINT
+    auto vis = Visibility::between(start, end);
+    EXPECT_FALSE(vis.visible(Temporal::Date(Temporal::Days{13}))); // NOLINT
+    EXPECT_TRUE(vis.visible(Temporal::Date(Temporal::Days{14})));  // NOLINT
+    EXPECT_TRUE(vis.visible(Temporal::Date(Temporal::Days{15})));  // NOLINT
+    EXPECT_TRUE(vis.visible(Temporal::Date(Temporal::Days{16})));  // NOLINT
+}
+
+TEST(TaskVisibility, Once) {
+    auto vis = Visibility::once(Temporal::Date{Temporal::Days{1}});
+    Temporal::Date date{Temporal::Days{1}};
+    EXPECT_TRUE(vis.visible(date));
+    date += Temporal::Days{1};
+    EXPECT_FALSE(vis.visible(date));
+    date += Temporal::Days{1};
+    EXPECT_FALSE(vis.visible(date));
+}
+
+TEST(TaskVisibility, EveryMonthDay) {
+    auto vis = Visibility::every_month_day(Temporal::Day{1});
+    Temporal::Date date{Temporal::Days{0}};                                          // 1970-01-01
+    Temporal::Date next(Temporal::Year{2026}, Temporal::Month{2}, Temporal::Day{1}); // NOLINT
+    EXPECT_TRUE(vis.visible(date));
+    date += Temporal::Days{1};
+    EXPECT_FALSE(vis.visible(date));
+    EXPECT_TRUE(vis.visible(next));
+}
+
+TEST(TaskVisibility, EveryWeekday) {
+    auto vis = Visibility::every_weekday(Temporal::Weekday::Thursday);
+    Temporal::Date date{Temporal::Days{0}};
+    EXPECT_TRUE(vis.visible(date));
+    date += Temporal::Days{1};
+    EXPECT_FALSE(vis.visible(date));
+}
+
+TEST(TaskVisibility, EveryNthDay) {
+    auto vis = Visibility::every_nth_day(2, Temporal::Date{Temporal::Days{1}});
+    Temporal::Date date{Temporal::Days{1}};
+    EXPECT_TRUE(vis.visible(date));
+    date += Temporal::Days{1};
+    EXPECT_FALSE(vis.visible(date));
+    date += Temporal::Days{1};
+    EXPECT_TRUE(vis.visible(date));
+}
+
+TEST(TaskVisibility, CustomPredicate) {
     Temporal::Date start{Temporal::Days{1}};
     Temporal::Date before{start - Temporal::Days{1}};
     Temporal::Date after{start + Temporal::Days{1}};
@@ -113,8 +201,8 @@ TEST(Task, MoveTransfersOwnership) {
 }
 
 TEST(Task, SetTitleThrowsOnEmpty) {
-    Task t(TaskInfo("title"), std::make_unique<BinaryTaskCompletion>(),
-           Visibility::always()); // NOLINT
+    Task t(TaskInfo("title"), std::make_unique<BinaryTaskCompletion>(), // NOLINT
+           Visibility::always());
 
     EXPECT_THROW(t.set_title(""), std::invalid_argument);
 }
