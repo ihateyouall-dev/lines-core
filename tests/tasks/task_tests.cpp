@@ -175,14 +175,12 @@ TEST(TaskVisibility, CustomPredicate) {
     EXPECT_TRUE(vis.visible(after));
 }
 
-TEST(Task, ThrowsIfCompletionIsNull) {
-    TaskInfo info("title");
-    EXPECT_THROW(Task(info, nullptr, Visibility::always()), std::invalid_argument);
-}
-
 TEST(Task, CopyClonesCompletion) {
-    Task original(TaskInfo("title"), std::make_unique<BinaryTaskCompletion>(),
-                  Visibility::always());
+    Task original = make_task()
+                        .info(TaskInfo("title"))
+                        .completion(BinaryTaskCompletion())
+                        .visibility(Visibility::always())
+                        .task();
 
     original.completion().complete();
 
@@ -193,16 +191,14 @@ TEST(Task, CopyClonesCompletion) {
 }
 
 TEST(Task, MoveTransfersOwnership) {
-    Task t1( // NOLINT
-        TaskInfo("title"), std::make_unique<BinaryTaskCompletion>(), Visibility::always());
+    Task t1 = make_task().info(TaskInfo("title")).task(); // NOLINT
 
     Task t2 = std::move(t1); // NOLINT
     EXPECT_FALSE(t2.title().empty());
 }
 
 TEST(Task, SetTitleThrowsOnEmpty) {
-    Task t(TaskInfo("title"), std::make_unique<BinaryTaskCompletion>(), // NOLINT
-           Visibility::always());
+    Task t = make_task().info(TaskInfo("title")).task(); // NOLINT
 
     EXPECT_THROW(t.set_title(""), std::invalid_argument);
 }

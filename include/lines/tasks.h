@@ -2,14 +2,16 @@
 
 #include "detail/macro.h"
 #include "temporal.h"
-#include <algorithm>        // std::ranges::all_of
+#include <algorithm> // std::ranges::all_of
+#include <cassert>
 #include <functional>       // std::function
 #include <initializer_list> // std::initializer_list
-#include <optional>         // std::optional
-#include <stdexcept>        // std::out_of_range, std::invalid_argument
-#include <string>           // std::string
-#include <utility>          // std::move
-#include <vector>           // std::vector
+#include <memory>
+#include <optional>  // std::optional
+#include <stdexcept> // std::out_of_range, std::invalid_argument
+#include <string>    // std::string
+#include <utility>   // std::move
+#include <vector>    // std::vector
 
 using uint = unsigned int;
 
@@ -199,8 +201,20 @@ class Task {
     TaskInfo _info;
     std::unique_ptr<TaskCompletion> _completion;
     TaskVisibility _visibility;
+    explicit Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion,
+                  TaskVisibility visibility)
+        : _info(std::move(info)), _completion(std::move(completion)),
+          _visibility(std::move(visibility)) {
+        if (_info.title.empty()) {
+            throw std::invalid_argument("Task: title must not be empty");
+        }
+        if (!_completion) {
+            throw std::invalid_argument("Task: completion must not be null");
+        }
+    }
 
   public:
+    friend class TaskFactory;
     Task(const Task &task) : _info(task._info), _visibility(task._visibility) {
         _completion = task._completion->clone();
     }
@@ -214,16 +228,6 @@ class Task {
         _visibility = task._visibility;
         return *this;
     };
-    Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion, TaskVisibility visibility)
-        : _info(std::move(info)), _completion(std::move(completion)),
-          _visibility(std::move(visibility)) {
-        if (_info.title.empty()) {
-            throw std::invalid_argument("Task: title must not be empty");
-        }
-        if (!_completion) {
-            throw std::invalid_argument("Task: completion must not be null");
-        }
-    }
     Task(Task &&) = default;
     auto operator=(Task &&) -> Task & = default;
     ~Task() = default;
@@ -250,6 +254,40 @@ class Task {
         return _visibility.visible(date);
     }
 };
+
+class TaskFactory final {
+    TaskInfo _info;
+    std::unique_ptr<TaskCompletion> _completion = std::make_unique<BinaryTaskCompletion>();
+    TaskVisibility _visibility = Visibility::always();
+
+  public:
+    TaskFactory() = default;
+    TaskFactory(const TaskFactory &) = delete;
+    TaskFactory(TaskFactory &&) = default;
+    auto operator=(const TaskFactory &) = delete;
+    auto operator=(TaskFactory &&) -> TaskFactory & = default;
+    ~TaskFactory() = default;
+    auto info(const TaskInfo &info) && -> TaskFactory {
+        _info = info;
+        return std::move(*this);
+    }
+
+    auto completion(const TaskCompletion &completion) && -> TaskFactory {
+        _completion = completion.clone();
+        return std::move(*this);
+    }
+
+    auto visibility(const TaskVisibility &visibility) && -> TaskFactory {
+        _visibility = visibility;
+        return std::move(*this);
+    }
+
+    auto task() && {
+        return Task(std::move(_info), std::move(_completion), std::move(_visibility));
+    }
+};
+
+inline auto make_task() -> TaskFactory { return {}; }
 
 class TaskList {
     std::vector<Task> _tasks;
