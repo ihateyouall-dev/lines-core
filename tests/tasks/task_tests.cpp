@@ -124,6 +124,12 @@ TEST(TaskVisibility, Between) {
     EXPECT_TRUE(vis.visible(Temporal::Date(Temporal::Days{16})));  // NOLINT
 }
 
+TEST(TaskVisibility, BetweenThrowsIfInvalidRange) {
+    auto from = Temporal::Date{Temporal::Days{10}}; // NOLINT
+    auto until = Temporal::Date{Temporal::Days{5}}; // NOLINT
+    EXPECT_THROW(Visibility::between(from, until), std::invalid_argument);
+}
+
 TEST(TaskVisibility, Once) {
     auto vis = Visibility::once(Temporal::Date{Temporal::Days{1}});
     Temporal::Date date{Temporal::Days{1}};
@@ -160,6 +166,11 @@ TEST(TaskVisibility, EveryNthDay) {
     EXPECT_FALSE(vis.visible(date));
     date += Temporal::Days{1};
     EXPECT_TRUE(vis.visible(date));
+}
+
+TEST(TaskVisibility, EveryNthDayThrowsOnZero) {
+    EXPECT_THROW(Visibility::every_nth_day(0, Temporal::Date{Temporal::Days{1}}),
+                 std::invalid_argument);
 }
 
 TEST(TaskVisibility, CustomPredicate) {
@@ -201,4 +212,22 @@ TEST(Task, SetTitleThrowsOnEmpty) {
     Task t = make_task().info(TaskInfo("title")).task(); // NOLINT
 
     EXPECT_THROW(t.set_title(""), std::invalid_argument);
+}
+
+TEST(TaskFactory, CannotBeReusedAfterMove) {
+    auto factory = make_task().info(TaskInfo("title"));
+    Task t = std::move(factory).task(); // NOLINT
+
+    // at this point, factory is no longer valid
+    SUCCEED();
+}
+
+TEST(TaskFactory, DefaultCompletionIsBinary) {
+    Task t = make_task().info(TaskInfo("title")).task(); // NOLINT
+    EXPECT_FALSE(t.completion().completed());
+}
+
+TEST(TaskFactory, AllowsPartialConfiguration) {
+    Task t = make_task().info(TaskInfo("title")).task(); // NOLINT
+    EXPECT_EQ(t.title(), "title");
 }
