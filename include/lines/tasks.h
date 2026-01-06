@@ -4,8 +4,10 @@
 #include "temporal.h"
 #include <algorithm> // std::ranges::all_of
 #include <cassert>
+#include <cstddef>
 #include <functional>       // std::function
 #include <initializer_list> // std::initializer_list
+#include <iterator>
 #include <memory>
 #include <optional>  // std::optional
 #include <stdexcept> // std::out_of_range, std::invalid_argument
@@ -295,10 +297,10 @@ class TaskList {
   public:
     TaskList(const TaskList &) = default;
     TaskList(TaskList &&) = default;
-    TaskList(std::initializer_list<Task> &tasks) : _tasks(tasks) {}
+    TaskList(std::initializer_list<Task> tasks) : _tasks(tasks) {}
     auto operator=(const TaskList &) -> TaskList & = default;
     auto operator=(TaskList &&) -> TaskList & = default;
-    auto operator=(const std::initializer_list<Task> &tasks) -> TaskList & {
+    auto operator=(std::initializer_list<Task> tasks) -> TaskList & {
         _tasks = tasks;
         return *this;
     }
@@ -307,7 +309,8 @@ class TaskList {
     ~TaskList() = default;
 
     [[nodiscard]] auto completed() const -> bool {
-        return std::ranges::all_of(_tasks, [](const auto &) { return true; });
+        return std::ranges::all_of(_tasks,
+                                   [](const auto &task) { return task.completion().completed(); });
     }
 
     auto operator[](const std::size_t index) -> Task & { return _tasks[index]; }
@@ -321,9 +324,7 @@ class TaskList {
         if (index >= _tasks.size()) {
             throw std::out_of_range("TaskList::erase: index out of range");
         }
-        auto iterator = _tasks.begin();
-        std::advance(iterator, index);
-        _tasks.erase(iterator);
+        _tasks.erase(_tasks.begin() + static_cast<std::ptrdiff_t>(index));
     }
 
     auto begin() noexcept { return _tasks.begin(); }
@@ -333,14 +334,14 @@ class TaskList {
 
     void reset() {
         for (auto &task : _tasks) {
-            ;
+            task.completion().reset();
         }
     }
 
     void add(const Task &task) { _tasks.emplace_back(task); }
     void add(Task &&task) { _tasks.emplace_back(std::move(task)); }
 
-    void swap(uint index1, uint index2) noexcept(false) {
+    void swap(std::size_t index1, std::size_t index2) noexcept(false) {
         if (index1 >= _tasks.size() || index2 >= _tasks.size()) {
             throw std::out_of_range("TaskList::swap: index out of range");
         }
