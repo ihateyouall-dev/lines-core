@@ -352,35 +352,15 @@ class TaskList {
     [[nodiscard]] auto size() const noexcept -> std::size_t { return _tasks.size(); }
 
     [[nodiscard]] auto empty() const noexcept -> bool { return _tasks.empty(); }
-};
 
-class Tasks {
-    TaskList _daily_tasks;
-
-  public:
-    Tasks() = default;
-
-    explicit Tasks(TaskList daily_tasks) : _daily_tasks(std::move(daily_tasks)) {}
-    Tasks(const Tasks &) = default;
-    Tasks(Tasks &&) = default;
-    auto operator=(const Tasks &) -> Tasks & = default;
-    auto operator=(Tasks &&) -> Tasks & = default;
-    ~Tasks() = default;
-
-    void add_task(const Task &task) { _daily_tasks.add(task); }
-    void add_task(Task &&task) { _daily_tasks.add(std::move(task)); }
-
-    void delete_task(const std::size_t index) { _daily_tasks.erase(index); }
-
-    auto get_daily_task(uint index) -> Task * { return &_daily_tasks.at(index); }
-    [[nodiscard]] auto get_daily_task(uint index) const -> const Task & {
-        return _daily_tasks.at(index);
+    [[nodiscard]] auto visible_at(const Temporal::Date &date) const -> TaskList {
+        TaskList result;
+        for (const auto &task : _tasks) {
+            if (task.visible(date)) {
+                result.add(task);
+            }
+        }
+        return result;
     }
-
-    void swap_tasks(uint index1, uint index2) { _daily_tasks.swap(index1, index2); }
-
-    [[nodiscard]] auto daily_tasks() const -> const TaskList & { return _daily_tasks; }
-
-    void update() noexcept { _daily_tasks.reset(); }
 };
 } // namespace Lines
