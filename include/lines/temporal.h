@@ -733,13 +733,13 @@ class Day {
 inline auto operator+(const Days &lhs, const Day &rhs) -> Day { return rhs + lhs; }
 
 enum class Weekday : int8_t {
-    Monday = 1,
-    Tuesday = 2,
-    Wednesday = 3,
-    Thursday = 4,
-    Friday = 5,
-    Saturday = 6,
-    Sunday = 7
+    Monday = 0,
+    Tuesday = 1,
+    Wednesday = 2,
+    Thursday = 3,
+    Friday = 4,
+    Saturday = 5,
+    Sunday = 6
 };
 
 class Date {
@@ -826,7 +826,7 @@ class Date {
     [[nodiscard]] auto month() const -> Month { return Month{unsigned(_ymd.month())}; }
     [[nodiscard]] auto day() const -> Day { return Day{unsigned(_ymd.day())}; }
     [[nodiscard]] auto weekday() const -> Weekday {
-        return static_cast<Weekday>(((_rep - Days{3}) % 7).count()); // NOLINT
+        return static_cast<Weekday>(((_rep + Days{3}) % 7).count()); // NOLINT
     }
 
     [[nodiscard]] auto yyyy_mm_dd() const -> std::string {
