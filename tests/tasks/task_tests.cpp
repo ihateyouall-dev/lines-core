@@ -13,26 +13,26 @@ TEST(TaskInfo, CreatesWithValidTitle) {
 
 TEST(TaskInfo, ThrowsOnEmptyTitle) { EXPECT_THROW(TaskInfo(""), std::invalid_argument); }
 
-TEST(BinaryTaskCompletion, InitiallyNotCompleted) {
-    BinaryTaskCompletion c; // NOLINT
+TEST(TaskCompletion, InitiallyNotCompleted) {
+    TaskCompletion c; // NOLINT
     EXPECT_FALSE(c.completed());
 }
 
-TEST(BinaryTaskCompletion, CompleteSetsCompleted) {
-    BinaryTaskCompletion c; // NOLINT
+TEST(TaskCompletion, CompleteSetsCompleted) {
+    TaskCompletion c; // NOLINT
     c.complete();
     EXPECT_TRUE(c.completed());
 }
 
-TEST(BinaryTaskCompletion, ResetWorks) {
-    BinaryTaskCompletion c; // NOLINT
+TEST(TaskCompletion, ResetWorks) {
+    TaskCompletion c; // NOLINT
     c.complete();
     c.reset();
     EXPECT_FALSE(c.completed());
 }
 
-TEST(BinaryTaskCompletion, CloneCopiesState) {
-    BinaryTaskCompletion c; // NOLINT
+TEST(TaskCompletion, CloneCopiesState) {
+    TaskCompletion c; // NOLINT
     c.complete();
 
     auto clone = c.clone();
@@ -189,7 +189,7 @@ TEST(TaskVisibility, CustomPredicate) {
 TEST(Task, CopyClonesCompletion) {
     Task original = make_task()
                         .info(TaskInfo("title"))
-                        .completion(BinaryTaskCompletion())
+                        .completion(TaskCompletion())
                         .visibility(Visibility::always())
                         .task();
 
@@ -222,7 +222,7 @@ TEST(TaskFactory, CannotBeReusedAfterMove) {
     SUCCEED();
 }
 
-TEST(TaskFactory, DefaultCompletionIsBinary) {
+TEST(TaskFactory, DefaultCompletionIs) {
     Task t = make_task().info(TaskInfo("title")).task(); // NOLINT
     EXPECT_FALSE(t.completion().completed());
 }

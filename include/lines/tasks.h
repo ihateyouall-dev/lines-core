@@ -4,16 +4,15 @@
 #include "temporal.h"
 #include <algorithm> // std::ranges::all_of
 #include <cassert>
-#include <cstddef>
+#include <cstddef>          // std::size_t, std::ptrdiff_t
 #include <functional>       // std::function
 #include <initializer_list> // std::initializer_list
-#include <iterator>
-#include <memory>
-#include <optional>  // std::optional
-#include <stdexcept> // std::out_of_range, std::invalid_argument
-#include <string>    // std::string
-#include <utility>   // std::move
-#include <vector>    // std::vector
+#include <memory>           // std::unique_ptr, std::make_unique
+#include <optional>         // std::optional
+#include <stdexcept>        // std::out_of_range, std::invalid_argument
+#include <string>           // std::string
+#include <utility>          // std::move
+#include <vector>           // std::vector
 
 using uint = unsigned int;
 
@@ -38,50 +37,45 @@ struct TaskInfo {
 };
 
 class TaskCompletion {
+  public:
+    enum class State : uint8_t { NotCompleted, Completed, Skipped };
+
+  private:
+    State _state = State::NotCompleted;
+
   protected:
-    TaskCompletion() = default;
+    virtual void set_state(State state) noexcept { _state = state; }
 
   public:
+    TaskCompletion() = default;
     TaskCompletion(const TaskCompletion &) = default;
     TaskCompletion(TaskCompletion &&) = default;
     auto operator=(const TaskCompletion &) -> TaskCompletion & = default;
     auto operator=(TaskCompletion &&) -> TaskCompletion & = default;
     virtual ~TaskCompletion() = default;
 
-    virtual void complete() noexcept = 0;
-    [[nodiscard]] virtual auto completed() const noexcept -> bool = 0;
-    virtual void reset() noexcept = 0;
+    virtual void complete() noexcept { set_state(State::Completed); };
+    [[nodiscard]] auto completed() const noexcept -> bool { return _state == State::Completed; }
+    [[nodiscard]] auto finished() const noexcept -> bool { return _state != State::NotCompleted; }
 
-    [[nodiscard]] virtual auto clone() const -> std::unique_ptr<TaskCompletion> = 0;
-};
+    virtual void reset() noexcept { set_state(State::NotCompleted); }
+    virtual void skip() noexcept { set_state(State::Skipped); }
+    [[nodiscard]] auto skipped() const noexcept -> bool { return _state == State::Skipped; }
+    [[nodiscard]] auto state() const noexcept -> State { return _state; }
 
-class BinaryTaskCompletion : public TaskCompletion {
-    bool _completed = false;
-
-  public:
-    BinaryTaskCompletion() = default;
-    BinaryTaskCompletion(const BinaryTaskCompletion &) = default;
-    BinaryTaskCompletion(BinaryTaskCompletion &&) = default;
-    auto operator=(const BinaryTaskCompletion &) -> BinaryTaskCompletion & = default;
-    auto operator=(BinaryTaskCompletion &&) -> BinaryTaskCompletion & = default;
-    ~BinaryTaskCompletion() override = default;
-
-    void complete() noexcept override { _completed = true; }
-    [[nodiscard]] auto completed() const noexcept -> bool override { return _completed; }
-    void reset() noexcept override { _completed = false; }
-    [[nodiscard]] auto clone() const -> std::unique_ptr<TaskCompletion> override {
-        return std::make_unique<BinaryTaskCompletion>(*this);
-    }
+    [[nodiscard]] virtual auto clone() const -> std::unique_ptr<TaskCompletion> {
+        return std::make_unique<TaskCompletion>(*this);
+    };
 };
 
 class ProgressTaskCompletion : public TaskCompletion {
     uint _min;
     uint _max;
-    uint _current = 0;
+    uint _current;
 
   public:
     ProgressTaskCompletion() = delete;
-    ProgressTaskCompletion(uint min, uint max) : _min(min), _max(max) { // NOLINT
+    ProgressTaskCompletion(uint min, uint max) : _min(min), _max(max), _current(min) { // NOLINT
         if (_min > _max) {
             throw std::invalid_argument("ProgressTaskCompletion: min > max");
         }
@@ -92,9 +86,14 @@ class ProgressTaskCompletion : public TaskCompletion {
     auto operator=(ProgressTaskCompletion &&) -> ProgressTaskCompletion & = default;
     ~ProgressTaskCompletion() override = default;
 
-    void complete() noexcept override { _current = _max; }
-    [[nodiscard]] auto completed() const noexcept -> bool override { return _current == _max; }
-    void reset() noexcept override { _current = 0; }
+    void complete() noexcept override {
+        TaskCompletion::complete();
+        _current = _max;
+    }
+    void reset() noexcept override {
+        TaskCompletion::reset();
+        _current = _min;
+    }
     [[nodiscard]] auto clone() const -> std::unique_ptr<TaskCompletion> override {
         return std::make_unique<ProgressTaskCompletion>(*this);
     }
@@ -107,7 +106,20 @@ class ProgressTaskCompletion : public TaskCompletion {
         if (current > _max || current < _min) {
             throw std::out_of_range("ProgressTaskCompletion: current out of range");
         }
+        if (current == _max) {
+            complete();
+            return;
+        }
         _current = current;
+    }
+
+    void set_state(State state) noexcept override {
+        TaskCompletion::set_state(state);
+        if (state == State::Completed) {
+            _current = _max;
+        } else if (state == State::NotCompleted) {
+            reset();
+        }
     }
 };
 
@@ -259,7 +271,7 @@ class Task {
 
 class TaskFactory final {
     TaskInfo _info;
-    std::unique_ptr<TaskCompletion> _completion = std::make_unique<BinaryTaskCompletion>();
+    std::unique_ptr<TaskCompletion> _completion = std::make_unique<TaskCompletion>();
     TaskVisibility _visibility = Visibility::always();
 
   public:
