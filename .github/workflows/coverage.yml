@@ -15,15 +15,15 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libc++-dev libc++abi-dev
       
       - name: Configure
-        run: cmake --preset release-coverage
+        run: cmake --preset coverage
       
       - name: Build
-        run: cmake --build --preset release-coverage
+        run: cmake --build --preset coverage
       
       - name: Test
         run: |
           LLVM_PROFILE_FILE="coverage-%p.profraw" \
-          ctest --preset release-coverage
+          ctest --preset coverage
       
       - name: Merge coverage data
         run: |
