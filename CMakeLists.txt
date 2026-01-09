@@ -23,6 +23,7 @@ add_library(Lines::Lines ALIAS lines)
 enable_testing()
 
 add_executable(tests
+    tests/roadmaps/roadmap_tests.cpp
     tests/tasks/task_tests.cpp
     tests/temporal/date_tests.cpp
     tests/temporal/duration_tests.cpp
