@@ -8,6 +8,7 @@
 #define LINES_VERSION_ALPHA false
 
 #if defined(_WIN32)
+#define NOMINMAX
 #define LINES_WINDOWSNT
 #elif defined(__APPLE__)
 #define LINES_DARWIN
