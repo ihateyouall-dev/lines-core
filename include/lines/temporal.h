@@ -921,8 +921,14 @@ struct LocalClock final {
         std::time_t now = std::time(nullptr);
         std::tm local{};
         std::tm utc{};
+#if defined(LINES_WINDOWSNT)
+        localtime_s(&local, &now);
+        gmtime_s(&utc, &now);
+#else
         localtime_r(&now, &local);
         gmtime_r(&now, &utc);
+#endif
+
         auto local_sec = std::mktime(&local);
         auto utc_sec = std::mktime(&utc);
         return TimeZone(Seconds{local_sec - utc_sec});
