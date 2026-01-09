@@ -42,6 +42,26 @@
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CXX_COMPILER": "g++"
       }
+    },
+    {
+      "name": "debug-msvc",
+      "displayName": "Debug configuration (MSVC)",
+      "generator": "Ninja",
+      "binaryDir": "build/debug/msvc",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "cl"
+      }
+    },
+    {
+      "name": "release-msvc",
+      "displayName": "Release configuration (MSVC)",
+      "generator": "Ninja",
+      "binaryDir": "build/release/msvc",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "cl"
+      }
     }
   ],
   "buildPresets": [
@@ -67,6 +87,18 @@
       "name": "release-gcc",
       "displayName": "Release build (GCC libstdc++)",
       "configurePreset": "release-gcc",
+      "jobs": 8
+    },
+    {
+      "name": "debug-msvc",
+      "displayName": "Debug build (MSVC)",
+      "configurePreset": "debug-msvc",
+      "jobs": 8
+    },
+    {
+      "name": "release-msvc",
+      "displayName": "Release build (MSVC)",
+      "configurePreset": "release-msvc",
       "jobs": 8
     }
   ],
@@ -99,6 +131,22 @@
       "name": "release-gcc",
       "displayName": "Release test (GCC libstdc++)",
       "configurePreset": "release-gcc",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "debug-msvc",
+      "displayName": "Debug test (MSVC)",
+      "configurePreset": "debug-msvc",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "release-msvc",
+      "displayName": "Release test (MSVC)",
+      "configurePreset": "release-msvc",
       "output": {
         "outputOnFailure": true
       }
@@ -139,6 +187,24 @@
         { "type": "configure", "name": "release-gcc" },
         { "type": "build", "name": "release-gcc" },
         { "type": "test", "name": "release-gcc" }
+      ]
+    },
+    {
+      "name": "debug-msvc",
+      "displayName": "Debug workflow (MSVC)",
+      "steps": [
+        { "type": "configure", "name": "debug-msvc" },
+        { "type": "build", "name": "debug-msvc" },
+        { "type": "test", "name": "debug-msvc" }
+      ]
+    },
+    {
+      "name": "release-msvc",
+      "displayName": "Release workflow (MSVC)",
+      "steps": [
+        { "type": "configure", "name": "release-msvc" },
+        { "type": "build", "name": "release-msvc" },
+        { "type": "test", "name": "release-msvc" }
       ]
     }
   ]
