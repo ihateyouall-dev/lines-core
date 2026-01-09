@@ -27,13 +27,15 @@ jobs:
       
       - name: Merge coverage data
         run: |
-          llvm-profdata merge -sparse build/coverage/**/*.profraw \
-            -o coverage.profdata
+          find build/coverage -name '*.profraw' -print \
+            | xargs llvm-profdata merge -sparse -o coverage.profdata
+
       - name: Generate coverage report
         run: |
           llvm-cov export \
             ./build/coverage/tests \
             -instr-profile=coverage.profdata \
+            --ignore-filename-regex='(/usr/|/llvm/|_deps/|gtest)' \
             -format=lcov > coverage.info
 
       - name: Upload coverage to Codecov
