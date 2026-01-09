@@ -16,3 +16,11 @@
 #else
 #error "Unsupported platform"
 #endif
+
+#if defined(__clang__) || defined(__GNUC__)
+#define LINES_UNREACHABLE() __builtin_unreachable()
+#elif defined(_MSC_VER)
+#define LINES_UNREACHABLE() __assume(0)
+#else
+#define LINES_UNREACHABLE() std::abort()
+#endif

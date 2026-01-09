@@ -191,7 +191,7 @@ constexpr auto operator+(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rh
     if constexpr (Lhs::period < Rhs::period) {
         return lhs + duration_cast<Lhs>(rhs);
     }
-    __builtin_unreachable();
+    LINES_UNREACHABLE();
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
@@ -214,7 +214,7 @@ constexpr auto operator-(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rh
     if constexpr (Lhs::period < Rhs::period) {
         return lhs - duration_cast<Lhs>(rhs);
     }
-    __builtin_unreachable();
+    LINES_UNREACHABLE();
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
@@ -241,7 +241,7 @@ constexpr auto operator/(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rh
     if constexpr (Lhs::period < Rhs::period) {
         return lhs / duration_cast<Lhs>(rhs);
     }
-    __builtin_unreachable();
+    LINES_UNREACHABLE();
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
@@ -261,7 +261,7 @@ constexpr auto operator%(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rh
     if constexpr (Lhs::period < Rhs::period) {
         return lhs % duration_cast<Lhs>(rhs);
     }
-    __builtin_unreachable();
+    LINES_UNREACHABLE();
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
