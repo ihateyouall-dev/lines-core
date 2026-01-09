@@ -8,6 +8,7 @@
 #include <vector>
 
 namespace Lines {
+// Meta information about a roadmap node
 struct RoadmapNodeInfo {
     explicit RoadmapNodeInfo(std::string title,
                              std::optional<std::string> description = std::nullopt,
@@ -21,8 +22,10 @@ struct RoadmapNodeInfo {
 class RoadmapNode {
   public:
     using NodeID = std::size_t;
+    enum class State : uint8_t { NotCompleted, Completed, Skipped, InProgress };
 
   private:
+    State _state = State::NotCompleted;
     RoadmapNodeInfo _info;
     std::vector<NodeID> _parents;
     std::vector<NodeID> _next;
@@ -45,6 +48,10 @@ class RoadmapNode {
     [[nodiscard]] auto tags() const -> const std::optional<std::vector<std::string>> & {
         return _info.tags;
     }
+
+    [[nodiscard]] auto state() const -> State { return _state; }
+
+    void set_state(State state) { _state = state; }
 
     void add_parent(NodeID parent) {
         if (std::ranges::find(_parents, parent) == _parents.end()) {
@@ -227,6 +234,11 @@ class Roadmap {
     [[nodiscard]] auto tags(RoadmapNode::NodeID id) const
         -> const std::optional<std::vector<std::string>> & {
         return nodes[id].tags();
+    }
+
+    auto completed() -> bool {
+        return std::ranges::all_of(
+            nodes, [](const auto &node) { return node.state() == RoadmapNode::State::Completed; });
     }
 };
 }; // namespace Lines
