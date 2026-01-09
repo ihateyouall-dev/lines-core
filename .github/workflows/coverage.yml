@@ -11,8 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install libc++
-        run: sudo apt-get update && sudo apt-get install -y libc++-dev libc++abi-dev
+      - name: Install llvm and libc++
+        run: sudo apt-get update && sudo apt-get install -y llvm libc++-dev libc++abi-dev
       
       - name: Configure
         run: cmake --preset coverage
