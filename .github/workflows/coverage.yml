@@ -35,7 +35,7 @@ jobs:
           llvm-cov export \
             ./build/coverage/tests \
             -instr-profile=coverage.profdata \
-            --ignore-filename-regex='(/usr/|/llvm/|_deps/|gtest)' \
+            --ignore-filename-regex='(/usr/|/llvm/|_deps/|gtest|tests)' \
             -format=lcov > coverage.info
 
       - name: Upload coverage to Codecov
