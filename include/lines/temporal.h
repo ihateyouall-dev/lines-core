@@ -890,6 +890,8 @@ class ZonedTime {
     auto get_sys_time() const -> TimePoint { return _tp; }                  // NOLINT
 };
 
+// Depends on reality, cannot be unit tested
+// LCOV_EXCL_START
 struct UTCClock final {
     static auto now() noexcept -> TimePoint {
         auto now = std::chrono::system_clock::now();
@@ -934,4 +936,5 @@ struct LocalClock final {
         return TimeZone(Seconds{local_sec - utc_sec});
     }
 };
+// LCOV_EXCL_STOP
 } // namespace Lines::Temporal

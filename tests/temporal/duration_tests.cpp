@@ -54,14 +54,23 @@ TEST(DurationArithmetic, Division) {
     EXPECT_EQ(Minutes{1} / Seconds{3}, 20); // This is
                                             // another case, at this moment minimal period is
                                             // seconds, then 1m / 3s returns 20
-    EXPECT_THROW(Seconds{30} / 0, std::invalid_argument);
+}
+
+TEST(DurationArithmetic, DivisionByZero) {
+    Seconds s{30};
+    EXPECT_THROW(s / 0, std::invalid_argument);
+    EXPECT_THROW(s /= 0, std::invalid_argument);
+    EXPECT_THROW(s % 0, std::invalid_argument);
+    EXPECT_THROW(s %= 0, std::invalid_argument);
+    EXPECT_THROW(s / Seconds{0}, std::invalid_argument);
+    EXPECT_THROW(s % Seconds{0}, std::invalid_argument);
+    EXPECT_THROW(s %= Seconds{0}, std::invalid_argument);
 }
 
 TEST(DurationArithmetic, Mod) {
     EXPECT_EQ(Seconds{6} % 3, Seconds{0});
     EXPECT_NE(Minutes{1} % 3, Seconds{0});
     EXPECT_EQ(Minutes{1} % Seconds{3}, 0);
-    EXPECT_THROW(Seconds{30} % 0, std::invalid_argument);
 }
 
 TEST(DurationArithmetic, NegativeValues) {
