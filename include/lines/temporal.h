@@ -891,15 +891,19 @@ class ZonedTime {
 };
 
 // Depends on reality, cannot be unit tested
-// LCOV_EXCL_START
 struct UTCClock final {
+    [[clang::no_sanitize("coverage")]]
     static auto now() noexcept -> TimePoint {
         auto now = std::chrono::system_clock::now();
         return TimePoint(Seconds{now.time_since_epoch()});
     }
 
-    static auto since_midnight() -> Timestamp { return Timestamp(now().time_since_epoch()); }
+    [[clang::no_sanitize("coverage")]]
+    static auto since_midnight() -> Timestamp {
+        return Timestamp(now().time_since_epoch());
+    }
 
+    [[clang::no_sanitize("coverage")]]
     static auto today() noexcept -> Date {
         auto days = floor<Days>(now().time_since_epoch());
         return Date(Days{days});
@@ -907,19 +911,24 @@ struct UTCClock final {
 };
 
 struct LocalClock final {
+    [[clang::no_sanitize("coverage")]]
     static auto now() noexcept -> TimePoint {
         auto now = UTCClock::now();
         return ZonedTime(now, current_zone()).get_local_time();
     }
 
-    static auto since_midnight() -> Timestamp { return Timestamp(now().time_since_epoch()); }
+    [[clang::no_sanitize("coverage")]]
+    static auto since_midnight() -> Timestamp {
+        return Timestamp(now().time_since_epoch());
+    }
 
+    [[clang::no_sanitize("coverage")]]
     static auto today() noexcept -> Date {
         auto days = floor<Days>(now().time_since_epoch());
         return Date(days);
     }
 
-    [[nodiscard]] static auto current_zone() -> TimeZone {
+    [[clang::no_sanitize("coverage")]] [[nodiscard]] static auto current_zone() -> TimeZone {
         std::time_t now = std::time(nullptr);
         std::tm local{};
         std::tm utc{};
@@ -936,5 +945,4 @@ struct LocalClock final {
         return TimeZone(Seconds{local_sec - utc_sec});
     }
 };
-// LCOV_EXCL_STOP
 } // namespace Lines::Temporal
