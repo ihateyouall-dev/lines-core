@@ -20,6 +20,7 @@ add_library(temporal)
 target_sources(temporal
     PRIVATE
     src/temporal/timestamp.cpp
+    src/temporal/timepoint.cpp
 )
 
 target_include_directories(temporal
