@@ -15,10 +15,22 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_library(lines INTERFACE)
+add_library(temporal)
+
+target_sources(temporal
+    PRIVATE
+    src/temporal/timestamp.cpp
+)
+
+target_include_directories(temporal
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
 target_include_directories(lines INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 add_library(Lines::Lines ALIAS lines)
+add_library(Lines::Temporal ALIAS temporal)
 
 enable_testing()
 
