@@ -1,5 +1,5 @@
-#include "lines/temporal.h"
 #include <gtest/gtest.h>
+#include <lines/temporal/date.hpp>
 
 using namespace Lines::Temporal;
 

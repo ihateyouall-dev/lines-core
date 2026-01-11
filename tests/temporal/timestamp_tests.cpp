@@ -1,5 +1,6 @@
-#include "lines/temporal.h"
 #include <gtest/gtest.h>
+#include <lines/temporal/duration.hpp>
+#include <lines/temporal/timestamp.hpp>
 
 using namespace Lines::Temporal;
 

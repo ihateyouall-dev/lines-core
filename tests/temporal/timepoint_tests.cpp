@@ -1,5 +1,7 @@
-#include "lines/temporal.h"
 #include <gtest/gtest.h>
+#include <lines/temporal/datetime.hpp>
+#include <lines/temporal/timepoint.hpp>
+#include <lines/temporal/timezone.hpp>
 
 using namespace Lines::Temporal;
 

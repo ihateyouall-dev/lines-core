@@ -21,6 +21,8 @@ target_sources(temporal
     PRIVATE
     src/temporal/timestamp.cpp
     src/temporal/timepoint.cpp
+    src/temporal/ymd.cpp
+    src/temporal/date.cpp
 )
 
 target_include_directories(temporal
@@ -44,6 +46,6 @@ add_executable(tests
     tests/temporal/timepoint_tests.cpp
 )
 
-target_link_libraries(tests PRIVATE GTest::gtest_main Lines::Lines)
+target_link_libraries(tests PRIVATE GTest::gtest_main Lines::Lines Lines::Temporal)
 
 add_test(NAME tests COMMAND tests)

@@ -16,7 +16,7 @@ class Year {
     explicit Year(int rep) : _rep(rep) {}
     ~Year() = default;
 
-    constexpr explicit operator int() const noexcept;
+    constexpr explicit operator int() const noexcept { return _rep; };
 
     auto operator<=>(const Year &) const = default;
 
@@ -63,7 +63,7 @@ class Month {
 
     auto operator<=>(const Month &) const = default;
 
-    explicit constexpr operator unsigned() const;
+    constexpr explicit operator unsigned() const { return _rep; }
 
     auto operator++() -> Month &;
 
@@ -102,7 +102,7 @@ class Day {
 
     auto operator<=>(const Day &) const = default;
 
-    explicit constexpr operator unsigned() const;
+    explicit constexpr operator unsigned() const { return _rep; };
 
     auto operator++() -> Day &;
 

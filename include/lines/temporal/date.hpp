@@ -15,7 +15,7 @@ class Date {
     explicit Date(Days rep);
     Date(const Year &year, const Month &month, const Day &day);
 
-    auto operator<=>(const Date &date) const;
+    auto operator<=>(const Date &date) const -> std::strong_ordering;
 
     auto operator==(const Date &date) const -> bool;
 

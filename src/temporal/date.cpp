@@ -15,7 +15,9 @@ auto Lines::Temporal::Date::update_ymd() const -> std::chrono::year_month_day {
 }
 
 Lines::Temporal::Date::Date(Days rep) : _rep(rep), _ymd(update_ymd()) {}
-auto Lines::Temporal::Date::operator<=>(const Date &date) const { return _rep <=> date._rep; }
+auto Lines::Temporal::Date::operator<=>(const Date &date) const -> std::strong_ordering {
+    return _rep <=> date._rep;
+}
 
 auto Lines::Temporal::Date::operator==(const Date &date) const -> bool {
     return (*this <=> date) == 0;

@@ -1,18 +1,18 @@
 #pragma once
 
 #include "detail/macro.h"
-#include "temporal.h"
 #include <algorithm> // std::ranges::all_of
 #include <cassert>
 #include <cstddef>          // std::size_t, std::ptrdiff_t
 #include <functional>       // std::function
 #include <initializer_list> // std::initializer_list
-#include <memory>           // std::unique_ptr, std::make_unique
-#include <optional>         // std::optional
-#include <stdexcept>        // std::out_of_range, std::invalid_argument
-#include <string>           // std::string
-#include <utility>          // std::move
-#include <vector>           // std::vector
+#include <lines/temporal/date.hpp>
+#include <memory>    // std::unique_ptr, std::make_unique
+#include <optional>  // std::optional
+#include <stdexcept> // std::out_of_range, std::invalid_argument
+#include <string>    // std::string
+#include <utility>   // std::move
+#include <vector>    // std::vector
 
 using uint = unsigned int;
 

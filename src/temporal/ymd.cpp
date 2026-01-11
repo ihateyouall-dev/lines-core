@@ -1,8 +1,6 @@
 #include <lines/temporal/ymd.hpp>
 
 // Year
-constexpr Lines::Temporal::Year::operator int() const noexcept { return _rep; }
-
 auto Lines::Temporal::Year::operator+() const noexcept -> Year { return *this; }
 
 auto Lines::Temporal::Year::operator-() const noexcept -> Year { return Year{-_rep}; }
@@ -74,8 +72,6 @@ auto Lines::Temporal::operator+(const Years &lhs, const Year &rhs) -> Year { ret
 // Month
 Lines::Temporal::Month::Month(uint32_t rep) : _rep(rep) {}
 
-constexpr Lines::Temporal::Month::operator unsigned() const { return _rep; }
-
 auto Lines::Temporal::Month::operator++() -> Month & {
     ++_rep;
     return *this;
@@ -132,8 +128,6 @@ auto Lines::Temporal::operator+(const Months &lhs, const Month &rhs) -> Month { 
 
 // Day
 Lines::Temporal::Day::Day(uint32_t rep) : _rep(rep) {}
-
-constexpr Lines::Temporal::Day::operator unsigned() const { return _rep; }
 
 auto Lines::Temporal::Day::operator++() -> Day & {
     ++_rep;

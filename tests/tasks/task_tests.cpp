@@ -1,6 +1,6 @@
-#include "lines/tasks.h"
-#include "lines/temporal.h"
 #include <gtest/gtest.h>
+#include <lines/tasks.h>
+#include <lines/temporal/date.hpp>
 
 using namespace Lines;
 
