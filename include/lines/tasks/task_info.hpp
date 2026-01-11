@@ -1,0 +1,26 @@
+#pragma once
+
+#include <optional>
+#include <string>
+#include <vector>
+
+namespace Lines {
+struct TaskInfo {
+    TaskInfo() = default;
+    TaskInfo(const TaskInfo &) = default;
+    TaskInfo(TaskInfo &&) = default;
+    auto operator=(const TaskInfo &) -> TaskInfo & = default;
+    auto operator=(TaskInfo &&) -> TaskInfo & = default;
+    explicit TaskInfo(std::string title, std::optional<std::string> desc = std::nullopt,
+                      std::vector<std::string> tags = {})
+        : title(std::move(title)), description(std::move(desc)), tags(std::move(tags)) {
+        if (this->title.empty()) {
+            throw std::invalid_argument("TaskInfo: title must not be empty");
+        }
+    }
+    ~TaskInfo() = default;
+    std::string title;
+    std::optional<std::string> description;
+    std::vector<std::string> tags;
+};
+} // namespace Lines

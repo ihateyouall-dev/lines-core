@@ -16,6 +16,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_library(lines INTERFACE)
 add_library(temporal)
+add_library(tasks)
 
 target_sources(temporal
     PRIVATE
@@ -25,7 +26,18 @@ target_sources(temporal
     src/temporal/date.cpp
 )
 
+target_sources(tasks
+    PRIVATE
+    src/tasks/task.cpp
+    src/tasks/task_completion.cpp
+)
+
 target_include_directories(temporal
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_include_directories(tasks
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
@@ -34,6 +46,7 @@ target_include_directories(lines INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOU
 
 add_library(Lines::Lines ALIAS lines)
 add_library(Lines::Temporal ALIAS temporal)
+add_library(Lines::Tasks ALIAS tasks)
 
 enable_testing()
 
@@ -46,6 +59,6 @@ add_executable(tests
     tests/temporal/timepoint_tests.cpp
 )
 
-target_link_libraries(tests PRIVATE GTest::gtest_main Lines::Lines Lines::Temporal)
+target_link_libraries(tests PRIVATE GTest::gtest_main Lines::Temporal Lines::Tasks)
 
 add_test(NAME tests COMMAND tests)
