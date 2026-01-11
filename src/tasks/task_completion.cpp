@@ -1,5 +1,7 @@
 #include <lines/tasks/task_completion.hpp>
 
+#include <stdexcept>
+
 void Lines::TaskCompletion::set_state(State state) noexcept { _state = state; }
 void Lines::TaskCompletion::complete() noexcept { set_state(State::Completed); };
 auto Lines::TaskCompletion::completed() const noexcept -> bool {
