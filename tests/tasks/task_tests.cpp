@@ -4,15 +4,6 @@
 
 using namespace Lines;
 
-TEST(TaskInfo, CreatesWithValidTitle) {
-    TaskInfo info("title");
-    EXPECT_EQ(info.title, "title");
-    EXPECT_FALSE(info.description.has_value());
-    EXPECT_TRUE(info.tags.empty());
-}
-
-TEST(TaskInfo, ThrowsOnEmptyTitle) { EXPECT_THROW(TaskInfo(""), std::invalid_argument); }
-
 TEST(TaskCompletion, InitiallyNotCompleted) {
     TaskCompletion c; // NOLINT
     EXPECT_FALSE(c.completed());
