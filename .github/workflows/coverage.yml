@@ -21,11 +21,11 @@ jobs:
         run: cmake --build --preset coverage
       
       - name: Test
-      	run: ctest --preset coverage
-	
+        run: ctest --preset coverage
+
       - name: Generate coverage report
         run: bash coverage.sh
-	
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de
         with:
