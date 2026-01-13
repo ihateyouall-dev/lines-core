@@ -1,2 +1,5 @@
 build/
 .cache/
+coverage.info
+coverage.profdata
+coverage.html/

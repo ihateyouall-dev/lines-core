@@ -11,8 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install llvm and libc++
-        run: sudo apt-get update && sudo apt-get install -y llvm libc++-dev libc++abi-dev
+      - name: Install lcov
+        run: sudo apt-get update && sudo apt-get install -y lcov
       
       - name: Configure
         run: cmake --preset coverage
@@ -21,23 +21,11 @@ jobs:
         run: cmake --build --preset coverage
       
       - name: Test
-        run: |
-          LLVM_PROFILE_FILE="coverage-%p.profraw" \
-          ctest --preset coverage
-      
-      - name: Merge coverage data
-        run: |
-          find build/coverage -name '*.profraw' -print \
-            | xargs llvm-profdata merge -sparse -o coverage.profdata
-
+      	run: ctest --preset coverage
+	
       - name: Generate coverage report
-        run: |
-          llvm-cov export \
-            ./build/coverage/tests \
-            -instr-profile=coverage.profdata \
-            --ignore-filename-regex='(/usr/|/llvm/|_deps/|gtest|tests|clocks)' \
-            -format=lcov > coverage.info
-
+        run: bash coverage.sh
+	
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de
         with:

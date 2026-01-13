@@ -14,7 +14,7 @@ concept TaskVisibilityRule = requires(const R &r, const Lines::Temporal::Date &d
 class ITaskVisibilityRule {
   public:
     ITaskVisibilityRule() = default;
-    ITaskVisibilityRule(const ITaskVisibilityRule &) = default;
+    ITaskVisibilityRule(const ITaskVisibilityRule &) = default; // LCOV_EXCL_LINE
     ITaskVisibilityRule(ITaskVisibilityRule &&) = default;
     auto operator=(const ITaskVisibilityRule &) -> ITaskVisibilityRule & = default;
     auto operator=(ITaskVisibilityRule &&) -> ITaskVisibilityRule & = default;

@@ -19,7 +19,7 @@ class TaskCompletion {
 
   public:
     TaskCompletion() = default;
-    TaskCompletion(const TaskCompletion &) = default;
+    TaskCompletion(const TaskCompletion &) = default; // LCOV_EXCL_LINE
     TaskCompletion(TaskCompletion &&) = default;
     auto operator=(const TaskCompletion &) -> TaskCompletion & = default;
     auto operator=(TaskCompletion &&) -> TaskCompletion & = default;
@@ -45,11 +45,11 @@ class ProgressTaskCompletion : public TaskCompletion {
   public:
     ProgressTaskCompletion() = delete;
     ProgressTaskCompletion(uint min, uint max);
-    ProgressTaskCompletion(const ProgressTaskCompletion &) = default;
+    ProgressTaskCompletion(const ProgressTaskCompletion &) = default; // LCOV_EXCL_LINE
     ProgressTaskCompletion(ProgressTaskCompletion &&) = default;
     auto operator=(const ProgressTaskCompletion &) -> ProgressTaskCompletion & = default;
     auto operator=(ProgressTaskCompletion &&) -> ProgressTaskCompletion & = default;
-    ~ProgressTaskCompletion() override = default;
+    ~ProgressTaskCompletion() override = default; // LCOV_EXCL_LINE
 
     void complete() noexcept override;
     void reset() noexcept override;
