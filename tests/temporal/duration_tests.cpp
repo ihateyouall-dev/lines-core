@@ -56,8 +56,9 @@ TEST(DurationArithmetic, Division) {
                                             // seconds, then 1m / 3s returns 20
 }
 
-TEST(DurationArithmetic, DivisionByZero) {
+TEST(DurationArithmetic, DivisionModByZero) {
     Seconds s{30};
+
     EXPECT_THROW(s / 0, std::invalid_argument);
     EXPECT_THROW(s /= 0, std::invalid_argument);
     EXPECT_THROW(s % 0, std::invalid_argument);
@@ -65,10 +66,18 @@ TEST(DurationArithmetic, DivisionByZero) {
     EXPECT_THROW(s / Seconds{0}, std::invalid_argument);
     EXPECT_THROW(s % Seconds{0}, std::invalid_argument);
     EXPECT_THROW(s %= Seconds{0}, std::invalid_argument);
+
+    Minutes dur1{60};
+    Seconds dur2{0};
+
+    EXPECT_THROW(dur1 % dur2, std::invalid_argument);
+    EXPECT_THROW(dur1 / dur2, std::invalid_argument);
 }
 
 TEST(DurationArithmetic, Mod) {
-    EXPECT_EQ(Seconds{6} % 3, Seconds{0});
+    Seconds s{6};
+    EXPECT_EQ(s % 3, Seconds{0});
+    EXPECT_EQ(s %= {Seconds{2}}, Seconds{0});
     EXPECT_NE(Minutes{1} % 3, Seconds{0});
     EXPECT_EQ(Minutes{1} % Seconds{3}, 0);
 }
