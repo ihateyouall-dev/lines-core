@@ -2,15 +2,14 @@
 
 #include <lines/tasks/task_completion.hpp>
 #include <lines/tasks/task_info.hpp>
-#include <lines/tasks/task_visibility.hpp>
+#include <lines/tasks/task_repeat.hpp>
 
 namespace Lines {
 class Task {
     TaskInfo _info;
     std::unique_ptr<TaskCompletion> _completion;
-    std::unique_ptr<ITaskVisibilityRule> _visibility;
-    explicit Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion,
-                  std::unique_ptr<ITaskVisibilityRule> visibility);
+    TaskRepeatRule _rule;
+    explicit Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion, TaskRepeatRule rule);
 
   public:
     friend class TaskFactory;
@@ -30,15 +29,13 @@ class Task {
     [[nodiscard]] auto title() const -> const std::string &;
     [[nodiscard]] auto description() const -> const std::optional<std::string> &;
     [[nodiscard]] auto tags() const -> const std::vector<std::string> &;
-
-    [[nodiscard]] auto visibility() const noexcept -> const ITaskVisibilityRule &;
-    [[nodiscard]] auto visible(const Temporal::Date &date) const -> bool;
 };
 
 class TaskFactory final {
     TaskInfo _info;
     std::unique_ptr<TaskCompletion> _completion = std::make_unique<TaskCompletion>();
-    std::unique_ptr<ITaskVisibilityRule> _visibility = std::make_unique<TaskVisibility::Always>();
+    TaskRepeatRule _rule =
+        TaskRepeatRule(EveryUnit{duration_cast<Temporal::Minutes>(Temporal::Days{1})});
 
   public:
     TaskFactory() = default;
@@ -51,7 +48,7 @@ class TaskFactory final {
 
     auto completion(const TaskCompletion &completion) && -> TaskFactory;
 
-    auto visibility(const ITaskVisibilityRule &visibility) && -> TaskFactory;
+    auto repeat(const TaskRepeatRule &rule) && -> TaskFactory;
 
     auto task() && -> Task;
 };

@@ -1,9 +1,9 @@
+#include "lines/tasks/task_repeat.hpp"
 #include <lines/tasks/task.hpp>
+#include <utility>
 
-Lines::Task::Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion,
-                  std::unique_ptr<ITaskVisibilityRule> visibility)
-    : _info(std::move(info)), _completion(std::move(completion)),
-      _visibility(std::move(visibility)) {
+Lines::Task::Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion, TaskRepeatRule rule)
+    : _info(std::move(info)), _completion(std::move(completion)), _rule(std::move(rule)) {
     if (_info.title.empty()) {
         throw std::invalid_argument("Task: title must not be empty");
     }
@@ -12,7 +12,7 @@ Lines::Task::Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion,
     }
 }
 
-Lines::Task::Task(const Task &task) : _info(task._info), _visibility(task._visibility->clone()) {
+Lines::Task::Task(const Task &task) : _info(task._info), _rule(task._rule) {
     _completion = task._completion->clone();
 }
 
@@ -23,7 +23,7 @@ auto Lines::Task::operator=(const Task &task) -> Task & {
     _completion = task._completion->clone();
 
     _info = task._info;
-    _visibility = task._visibility->clone();
+    _rule = task._rule;
     return *this;
 };
 
@@ -52,12 +52,6 @@ auto Lines::Task::description() const -> const std::optional<std::string> & {
 
 auto Lines::Task::tags() const -> const std::vector<std::string> & { return _info.tags; }
 
-auto Lines::Task::visibility() const noexcept -> const ITaskVisibilityRule & {
-    return *_visibility;
-}
-
-auto Lines::Task::visible(const Temporal::Date &date) const -> bool { return visibility()(date); }
-
 auto Lines::TaskFactory::info(const TaskInfo &info) && -> TaskFactory {
     _info = info;
     return std::move(*this);
@@ -68,11 +62,6 @@ auto Lines::TaskFactory::completion(const TaskCompletion &completion) && -> Task
     return std::move(*this);
 }
 
-auto Lines::TaskFactory::visibility(const ITaskVisibilityRule &visibility) && -> TaskFactory {
-    _visibility = visibility.clone();
-    return std::move(*this);
-}
-
 auto Lines::TaskFactory::task() && -> Task {
-    return Task(std::move(_info), std::move(_completion), std::move(_visibility));
+    return Task(std::move(_info), std::move(_completion), std::move(_rule));
 }
