@@ -42,7 +42,15 @@ class Year {
 
     auto operator-(const Year &year) const -> Years;
 
-    [[nodiscard]] constexpr auto is_leap() const noexcept -> bool;
+    [[nodiscard]] constexpr auto is_leap() const noexcept -> bool {
+        if (_rep % 400 == 0) {
+            return true;
+        }
+        if (_rep % 100 == 0) {
+            return false;
+        }
+        return _rep % 4 == 0;
+    }
 
     [[nodiscard]] auto ok() const noexcept -> bool;
 };

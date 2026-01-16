@@ -53,16 +53,6 @@ auto Lines::Temporal::Year::operator-(const Year &year) const -> Years {
     return Years{_rep - year._rep};
 }
 
-constexpr auto Lines::Temporal::Year::is_leap() const noexcept -> bool {
-    if (_rep % 400 == 0) { // NOLINT
-        return true;
-    }
-    if (_rep % 100 == 0) { // NOLINT
-        return false;
-    }
-    return _rep % 4 == 0;
-}
-
 auto Lines::Temporal::Year::ok() const noexcept -> bool {
     return _rep != std::numeric_limits<Rep>::min();
 }
