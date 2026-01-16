@@ -63,6 +63,11 @@ TEST(DateAccessors, WeekdayStable) {
     EXPECT_EQ(d1.weekday(), d2.weekday());
 }
 
+TEST(DateAccessors, TimeSinceEpoch) {
+    Date d{Days{42}};
+    EXPECT_EQ(d.time_since_epoch(), Days{42});
+}
+
 TEST(DateFormatting, YYYYMMDD) {
     Date d{Year{2028}, Month{1}, Day{1}}; // NOLINT
     EXPECT_EQ(d.yyyy_mm_dd(), "2028-01-01");

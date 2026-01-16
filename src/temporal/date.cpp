@@ -1,3 +1,4 @@
+#include <cassert>
 #include <lines/temporal/date.hpp>
 
 Lines::Temporal::Date::Date(const Year &year, const Month &month, const Day &day)
@@ -6,9 +7,7 @@ Lines::Temporal::Date::Date(const Year &year, const Month &month, const Day &day
           std::chrono::day{unsigned(
               day)}}.time_since_epoch()}),
       _ymd(update_ymd()) {
-    if (!_ymd.ok()) {
-        throw std::invalid_argument("Date::Date: invalid arguments for constructor");
-    }
+    assert(_ymd.ok() && "Date: ymd must be valid");
 }
 auto Lines::Temporal::Date::update_ymd() const -> std::chrono::year_month_day {
     return std::chrono::sys_days(std::chrono::days{_rep.count()});
