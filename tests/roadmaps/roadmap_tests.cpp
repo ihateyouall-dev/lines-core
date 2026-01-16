@@ -64,3 +64,16 @@ TEST(RoadmapPaths, BFS) {
     std::vector<RoadmapNode::NodeID> path = roadmap.bfs_path(a, d).value();
     EXPECT_EQ(path, std::vector<RoadmapNode::NodeID>({a, b, c, d}));
 }
+
+TEST(RoadmapPaths, UnreachablePaths) {
+    Roadmap roadmap{RoadmapInfo{"Rmap"}};
+
+    RoadmapNode::NodeID a = roadmap.add_node(RoadmapNodeInfo{"A"});
+    RoadmapNode::NodeID b = roadmap.add_node(RoadmapNodeInfo{"B"});
+
+    EXPECT_FALSE(roadmap.reachable(a, b));
+    EXPECT_EQ(roadmap.dfs_path(a, b), std::nullopt);
+    EXPECT_EQ(roadmap.bfs_path(a, b), std::nullopt);
+    EXPECT_EQ(roadmap.dfs_path(roadmap.size() + 1, roadmap.size() + 2), std::nullopt);
+    EXPECT_EQ(roadmap.bfs_path(roadmap.size() + 1, roadmap.size() + 2), std::nullopt);
+}
