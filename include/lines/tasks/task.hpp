@@ -7,14 +7,13 @@
 namespace Lines {
 class Task {
     TaskInfo _info;
-    std::unique_ptr<TaskCompletion> _completion;
+    TaskCompletion _completion;
     TaskRepeatRule _rule;
-    explicit Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion, TaskRepeatRule rule);
 
   public:
-    friend class TaskFactory;
-    Task(const Task &task);
-    auto operator=(const Task &task) -> Task &;
+    explicit Task(TaskInfo info, TaskCompletion completion = {}, TaskRepeatRule rule = {});
+    Task(const Task &task) = default;
+    auto operator=(const Task &task) -> Task & = default;
     Task(Task &&) = default;
     auto operator=(Task &&) -> Task & = default;
     ~Task() = default;
@@ -25,33 +24,12 @@ class Task {
     void set_title(const std::string &title);
     void set_description(const std::string &description);
     void set_tags(std::vector<std::string> tags);
+    void set_repeat_rule(const TaskRepeatRule &rule);
 
     [[nodiscard]] auto title() const -> const std::string &;
     [[nodiscard]] auto description() const -> const std::optional<std::string> &;
     [[nodiscard]] auto tags() const -> const std::vector<std::string> &;
+    [[nodiscard]] auto next_date(const Temporal::Date &completed_at) const
+        -> std::optional<Temporal::Date>;
 };
-
-class TaskFactory final {
-    TaskInfo _info;
-    std::unique_ptr<TaskCompletion> _completion = std::make_unique<TaskCompletion>();
-    TaskRepeatRule _rule =
-        TaskRepeatRule(EveryUnit{duration_cast<Temporal::Minutes>(Temporal::Days{1})});
-
-  public:
-    TaskFactory() = default;
-    TaskFactory(const TaskFactory &) = delete;
-    TaskFactory(TaskFactory &&) = default;
-    auto operator=(const TaskFactory &) = delete;
-    auto operator=(TaskFactory &&) -> TaskFactory & = default;
-    ~TaskFactory() = default;
-    auto info(const TaskInfo &info) && -> TaskFactory;
-
-    auto completion(const TaskCompletion &completion) && -> TaskFactory;
-
-    auto repeat(const TaskRepeatRule &rule) && -> TaskFactory;
-
-    auto task() && -> Task;
-};
-
-inline auto make_task() -> TaskFactory { return {}; }
 } // namespace Lines

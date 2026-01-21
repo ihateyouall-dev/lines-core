@@ -6,7 +6,7 @@
 using namespace Lines;
 
 TEST(TaskAccessors, Getters) {
-    Task task = make_task().info(TaskInfo{"title", "description", {"tag1", "tag2"}}).task();
+    Task task{TaskInfo{"title", "description", {"tag1", "tag2"}}};
 
     EXPECT_EQ(task.title(), "title");
     EXPECT_EQ(task.description().value(), "description");
@@ -14,7 +14,7 @@ TEST(TaskAccessors, Getters) {
 }
 
 TEST(TaskAccessors, Setters) {
-    Task task = make_task().info(TaskInfo{"title", "description", {"tag1", "tag2"}}).task();
+    Task task{TaskInfo{"title", "description", {"tag1", "tag2"}}};
 
     task.set_title("whatever");
     task.set_description("whatever");
@@ -27,16 +27,16 @@ TEST(TaskAccessors, Setters) {
 
 TEST(TaskInvariants, Title) {
     // Task title cannot be empty, it must have at least 1 character
-    EXPECT_THROW(make_task().info(TaskInfo{""}).task(), std::invalid_argument);
+    EXPECT_THROW(Task{TaskInfo{""}}, std::invalid_argument);
 
-    Task task = make_task().info(TaskInfo{"not empty title"}).task();
+    Task task = Task{TaskInfo{"not empty title"}};
 
     EXPECT_THROW(task.set_title(""), std::invalid_argument);
 }
 
 TEST(TaskSpecialMembers, Copy) {
-    Task task1 = make_task().info(TaskInfo{"first"}).task();
-    Task task2 = make_task().info(TaskInfo{"second"}).task();
+    Task task1 = Task{TaskInfo{"first"}};
+    Task task2 = Task{TaskInfo{"second"}};
 
     task1 = task2;
 
@@ -49,8 +49,8 @@ TEST(TaskSpecialMembers, Copy) {
 }
 
 TEST(TaskCompletion, ConstAndNonConst) {
-    const Task const_task = make_task().info(TaskInfo{"const"}).task();
-    Task task = make_task().info(TaskInfo{"non const"}).task();
+    const Task const_task = Task{TaskInfo{"const"}};
+    Task task = Task{TaskInfo{"non const"}};
 
     EXPECT_FALSE(const_task.completion().completed());
     task.completion().complete();

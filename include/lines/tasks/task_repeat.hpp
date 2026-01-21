@@ -22,7 +22,8 @@ struct TaskRepeatRule {
     RepeatType repeat_type;
     std::optional<Temporal::Date> end;
 
-    auto next_date(const Temporal::Date &completed_at) -> std::optional<Temporal::Date> {
+    [[nodiscard]] auto next_date(const Temporal::Date &completed_at) const
+        -> std::optional<Temporal::Date> {
         return std::visit(
             [&](auto &&v) -> std::optional<Temporal::Date> {
                 using T = std::decay_t<decltype(v)>;

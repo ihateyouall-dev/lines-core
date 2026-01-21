@@ -2,34 +2,16 @@
 #include <lines/tasks/task.hpp>
 #include <utility>
 
-Lines::Task::Task(TaskInfo info, std::unique_ptr<TaskCompletion> completion, TaskRepeatRule rule)
-    : _info(std::move(info)), _completion(std::move(completion)), _rule(std::move(rule)) {
+Lines::Task::Task(TaskInfo info, TaskCompletion completion, TaskRepeatRule rule)
+    : _info(std::move(info)), _completion(completion), _rule(std::move(rule)) {
     if (_info.title.empty()) {
         throw std::invalid_argument("Task: title must not be empty");
     }
-    if (!_completion) {
-        throw std::invalid_argument("Task: completion must not be null");
-    }
 }
 
-Lines::Task::Task(const Task &task) : _info(task._info), _rule(task._rule) {
-    _completion = task._completion->clone();
-}
+auto Lines::Task::completion() -> TaskCompletion & { return _completion; }
 
-auto Lines::Task::operator=(const Task &task) -> Task & {
-    if (this == &task) {
-        return *this;
-    }
-    _completion = task._completion->clone();
-
-    _info = task._info;
-    _rule = task._rule;
-    return *this;
-};
-
-auto Lines::Task::completion() -> TaskCompletion & { return *_completion; }
-
-auto Lines::Task::completion() const -> const TaskCompletion & { return *_completion; }
+auto Lines::Task::completion() const -> const TaskCompletion & { return _completion; }
 
 void Lines::Task::set_title(const std::string &title) {
     if (title.empty()) {
@@ -44,6 +26,8 @@ void Lines::Task::set_description(const std::string &description) {
 
 void Lines::Task::set_tags(std::vector<std::string> tags) { _info.tags = std::move(tags); }
 
+void Lines::Task::set_repeat_rule(const TaskRepeatRule &rule) { _rule = rule; }
+
 auto Lines::Task::title() const -> const std::string & { return _info.title; }
 
 auto Lines::Task::description() const -> const std::optional<std::string> & {
@@ -52,16 +36,7 @@ auto Lines::Task::description() const -> const std::optional<std::string> & {
 
 auto Lines::Task::tags() const -> const std::vector<std::string> & { return _info.tags; }
 
-auto Lines::TaskFactory::info(const TaskInfo &info) && -> TaskFactory {
-    _info = info;
-    return std::move(*this);
-}
-
-auto Lines::TaskFactory::completion(const TaskCompletion &completion) && -> TaskFactory {
-    _completion = completion.clone();
-    return std::move(*this);
-}
-
-auto Lines::TaskFactory::task() && -> Task {
-    return Task(std::move(_info), std::move(_completion), std::move(_rule));
+auto Lines::Task::next_date(const Temporal::Date &completed_at) const
+    -> std::optional<Temporal::Date> {
+    return _rule.next_date(completed_at);
 }
