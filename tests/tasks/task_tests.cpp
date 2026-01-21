@@ -1,4 +1,6 @@
 #include "lines/tasks/task_info.hpp"
+#include "lines/tasks/task_repeat.hpp"
+#include "lines/temporal/duration.hpp"
 #include <gtest/gtest.h>
 #include <lines/tasks/task.hpp>
 #include <lines/temporal/date.hpp>
@@ -57,3 +59,13 @@ TEST(TaskCompletion, ConstAndNonConst) {
 
     EXPECT_TRUE(task.completion().completed());
 }
+
+TEST(TaskRepeat, NextDate) {
+    TaskRepeatRule rule{.repeat_type =
+                            EveryUnit(duration_cast<Temporal::Minutes>(Temporal::Days{1}))};
+    Task task{TaskInfo{"title"}, {}, rule};
+    EXPECT_EQ(task.next_date(Temporal::Date{Temporal::Days{1}}), Temporal::Date{Temporal::Days{2}});
+    task.set_repeat_rule(TaskRepeatRule{
+        .repeat_type = EveryUnit{duration_cast<Temporal::Minutes>(Temporal::Days{2})}});
+    EXPECT_EQ(task.next_date(Temporal::Date{Temporal::Days{1}}), Temporal::Date{Temporal::Days{3}});
+};
