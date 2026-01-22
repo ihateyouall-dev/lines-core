@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <memory>
 
 namespace Lines {
 
@@ -33,7 +32,5 @@ class TaskCompletion {
     void skip() noexcept;
     [[nodiscard]] auto skipped() const noexcept -> bool;
     [[nodiscard]] auto state() const noexcept -> State;
-
-    [[nodiscard]] auto clone() const -> std::unique_ptr<TaskCompletion>;
 };
 } // namespace Lines

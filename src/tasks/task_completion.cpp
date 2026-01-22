@@ -15,7 +15,3 @@ void Lines::TaskCompletion::skip() noexcept { set_state(State::Skipped); }
 auto Lines::TaskCompletion::skipped() const noexcept -> bool { return _state == State::Skipped; }
 
 auto Lines::TaskCompletion::state() const noexcept -> State { return _state; }
-
-auto Lines::TaskCompletion::clone() const -> std::unique_ptr<TaskCompletion> {
-    return std::make_unique<TaskCompletion>(*this);
-};

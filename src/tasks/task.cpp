@@ -3,11 +3,7 @@
 #include <utility>
 
 Lines::Task::Task(TaskInfo info, TaskCompletion completion, TaskRepeatRule rule)
-    : _info(std::move(info)), _completion(completion), _rule(std::move(rule)) {
-    if (_info.title.empty()) {
-        throw std::invalid_argument("Task: title must not be empty");
-    }
-}
+    : _info(std::move(info)), _completion(completion), _rule(std::move(rule)) {}
 
 auto Lines::Task::completion() -> TaskCompletion & { return _completion; }
 

@@ -3,28 +3,21 @@
 
 using namespace Lines;
 
-TEST(TaskCompletion, InitiallyNotCompleted) {
-    TaskCompletion c;
-    EXPECT_FALSE(c.completed());
-}
-
-TEST(TaskCompletion, CompleteSetsCompleted) {
+TEST(TaskCompletion, States) {
     TaskCompletion c;
     c.complete();
     EXPECT_TRUE(c.completed());
-}
-
-TEST(TaskCompletion, ResetWorks) {
-    TaskCompletion c;
-    c.complete();
-    c.reset();
+    EXPECT_FALSE(c.skipped());
+    EXPECT_TRUE(c.finished());
+    EXPECT_EQ(c.state(), TaskCompletion::State::Completed);
+    c.skip();
     EXPECT_FALSE(c.completed());
-}
-
-TEST(TaskCompletion, CloneCopiesState) {
-    TaskCompletion c;
-    c.complete();
-
-    auto clone = c.clone();
-    EXPECT_TRUE(clone->completed());
+    EXPECT_TRUE(c.skipped());
+    EXPECT_TRUE(c.finished());
+    EXPECT_EQ(c.state(), TaskCompletion::State::Skipped);
+    c.reset();
+    EXPECT_FALSE(c.finished());
+    EXPECT_FALSE(c.completed());
+    EXPECT_FALSE(c.skipped());
+    EXPECT_EQ(c.state(), TaskCompletion::State::NotCompleted);
 }
