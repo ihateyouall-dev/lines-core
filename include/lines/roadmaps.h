@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <optional>
-#include <queue>
 #include <string>
 #include <vector>
 
@@ -74,25 +73,6 @@ struct RoadmapInfo {
 class Roadmap {
     RoadmapInfo _info;
     std::vector<RoadmapNode> nodes;
-    auto dfs_impl(RoadmapNode::NodeID current, RoadmapNode::NodeID target, // NOLINT
-                  std::vector<bool> &visited, std::vector<RoadmapNode::NodeID> &parent) const
-        -> bool {
-        visited[current] = true;
-
-        if (current == target) {
-            return true;
-        }
-
-        for (auto next : nodes[current].children()) {
-            if (!visited[next]) {
-                parent[next] = current;
-                if (dfs_impl(next, target, visited, parent)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
   public:
     static constexpr RoadmapNode::NodeID ROOT_ID = 0;
@@ -115,82 +95,6 @@ class Roadmap {
     auto last() -> RoadmapNode & { return nodes[nodes.size() - 1]; }
 
     [[nodiscard]] auto last_id() const -> RoadmapNode::NodeID { return nodes.size() - 1; }
-
-    [[nodiscard]] auto bfs_path(RoadmapNode::NodeID from, RoadmapNode::NodeID to) const
-        -> std::optional<std::vector<RoadmapNode::NodeID>> {
-        if (from >= size() || to >= size()) {
-            return std::nullopt;
-        }
-
-        std::vector<bool> visited(size(), false);
-        std::vector<RoadmapNode::NodeID> parent(size(),
-                                                std::numeric_limits<RoadmapNode::NodeID>::max());
-        std::queue<RoadmapNode::NodeID> q;
-
-        visited[from] = true;
-        q.push(from);
-
-        while (!q.empty()) {
-            auto current = q.front();
-            q.pop();
-
-            if (current == to) {
-                break;
-            }
-
-            for (auto next : nodes[current].children()) {
-                if (!visited[next]) {
-                    visited[next] = true;
-                    parent[next] = current;
-                    q.push(next);
-                }
-            }
-        }
-
-        if (!visited[to]) {
-            return std::nullopt;
-        }
-
-        std::vector<RoadmapNode::NodeID> path;
-        for (auto v = to; v != size(); v = parent[v]) {
-            path.push_back(v);
-            if (v == from) {
-                break;
-            }
-        }
-
-        std::ranges::reverse(path);
-        return path;
-    }
-
-    [[nodiscard]] auto dfs_path(RoadmapNode::NodeID from, RoadmapNode::NodeID to) const
-        -> std::optional<std::vector<RoadmapNode::NodeID>> {
-        std::vector<bool> visited(size(), false);
-        std::vector<RoadmapNode::NodeID> parent(size(),
-                                                std::numeric_limits<RoadmapNode::NodeID>::max());
-
-        bool found = dfs_impl(from, to, visited, parent);
-        if (!found) {
-            return std::nullopt;
-        }
-
-        std::vector<RoadmapNode::NodeID> path;
-        for (auto v = to; v != size(); v = parent[v]) {
-            path.push_back(v);
-            if (v == from) {
-                break;
-            }
-        }
-
-        std::ranges::reverse(path);
-        return path;
-    }
-
-    [[nodiscard]] auto reachable(RoadmapNode::NodeID from, RoadmapNode::NodeID to) const -> bool {
-        std::vector<bool> visited(size(), false);
-        std::vector<RoadmapNode::NodeID> parent(size(), size());
-        return dfs_impl(from, to, visited, parent);
-    }
 
     auto add_node(RoadmapNode::NodeID parent, const RoadmapNodeInfo &info) -> RoadmapNode::NodeID {
         nodes.emplace_back(info, parent);
