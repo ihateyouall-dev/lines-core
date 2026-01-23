@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <optional>
 #include <queue>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -27,14 +26,13 @@ class RoadmapNode {
   private:
     State _state = State::NotCompleted;
     RoadmapNodeInfo _info;
-    std::vector<NodeID> _parents;
-    std::vector<NodeID> _next;
+    NodeID _parent;
+    std::vector<NodeID> _children;
 
   public:
     RoadmapNode() = delete;
-    explicit RoadmapNode(RoadmapNodeInfo info, std::vector<NodeID> parents = {},
-                         std::vector<NodeID> next = {})
-        : _info(std::move(info)), _parents(std::move(parents)), _next(std::move(next)) {}
+    explicit RoadmapNode(RoadmapNodeInfo info, NodeID parent)
+        : _info(std::move(info)), _parent(parent) {}
     RoadmapNode(const RoadmapNode &) = default;
     RoadmapNode(RoadmapNode &&) = default;
     auto operator=(const RoadmapNode &) -> RoadmapNode & = default;
@@ -53,21 +51,15 @@ class RoadmapNode {
 
     void set_state(State state) { _state = state; }
 
-    void add_parent(NodeID parent) {
-        if (std::ranges::find(_parents, parent) == _parents.end()) {
-            _parents.push_back(parent);
+    void add_child(NodeID child) {
+        if (std::ranges::find(_children, child) == _children.end()) {
+            _children.push_back(child);
         }
     }
-    void add_next(NodeID next) {
-        if (std::ranges::find(_next, next) == _next.end()) {
-            _next.push_back(next);
-        }
-    }
-    [[nodiscard]] auto out_degree() const -> std::size_t { return _next.size(); }
-    [[nodiscard]] auto in_degree() const -> std::size_t { return _parents.size(); }
+    [[nodiscard]] auto out_degree() const -> std::size_t { return _children.size(); }
 
-    [[nodiscard]] auto parents() const -> const std::vector<NodeID> & { return _parents; }
-    [[nodiscard]] auto next() const -> const std::vector<NodeID> & { return _next; }
+    [[nodiscard]] auto parent() const -> NodeID { return _parent; }
+    [[nodiscard]] auto children() const -> const std::vector<NodeID> & { return _children; }
 };
 
 struct RoadmapInfo {
@@ -91,7 +83,7 @@ class Roadmap {
             return true;
         }
 
-        for (auto next : nodes[current].next()) {
+        for (auto next : nodes[current].children()) {
             if (!visited[next]) {
                 parent[next] = current;
                 if (dfs_impl(next, target, visited, parent)) {
@@ -104,8 +96,10 @@ class Roadmap {
 
   public:
     static constexpr RoadmapNode::NodeID ROOT_ID = 0;
+    static constexpr RoadmapNode::NodeID NO_PARENT =
+        std::numeric_limits<RoadmapNode::NodeID>::max();
     explicit Roadmap(RoadmapInfo info) : _info(std::move(info)) {
-        nodes.emplace_back(RoadmapNode{RoadmapNodeInfo{"Root", "Root node", {}}, {}, {}});
+        nodes.emplace_back(RoadmapNodeInfo{"Root", "Root node"}, NO_PARENT);
     }
     Roadmap(const Roadmap &) = default;
     Roadmap(Roadmap &&) = default;
@@ -144,7 +138,7 @@ class Roadmap {
                 break;
             }
 
-            for (auto next : nodes[current].next()) {
+            for (auto next : nodes[current].children()) {
                 if (!visited[next]) {
                     visited[next] = true;
                     parent[next] = current;
@@ -198,26 +192,11 @@ class Roadmap {
         return dfs_impl(from, to, visited, parent);
     }
 
-    auto add_node(const RoadmapNodeInfo &info) -> RoadmapNode::NodeID {
-        nodes.emplace_back(RoadmapNode{info, {}, {}});
-        return nodes.size() - 1;
-    }
-
-    void add_edge(RoadmapNode::NodeID from, RoadmapNode::NodeID to) {
-        if (from == to) {
-            return;
-        }
-        if (to == ROOT_ID) {
-            throw std::logic_error("Roadmap::add_edge: root node cannot be child");
-        }
-        if (from >= nodes.size() || to >= nodes.size()) {
-            throw std::out_of_range("Roadmap::add_edge: node id out of range");
-        }
-        if (reachable(to, from)) {
-            throw std::logic_error("Roadmap::add_edge: roadmap cannot be cyclic");
-        }
-        nodes[from].add_next(to);
-        nodes[to].add_parent(from);
+    auto add_node(RoadmapNode::NodeID parent, const RoadmapNodeInfo &info) -> RoadmapNode::NodeID {
+        nodes.emplace_back(info, parent);
+        RoadmapNode::NodeID node_id = nodes.size() - 1;
+        nodes[parent].add_child(node_id);
+        return node_id;
     }
 
     [[nodiscard]] auto size() const -> std::size_t { return nodes.size(); }
