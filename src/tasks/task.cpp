@@ -2,8 +2,8 @@
 #include <lines/tasks/task.hpp>
 #include <utility>
 
-Lines::Task::Task(TaskInfo info, TaskCompletion completion, TaskRepeatRule rule)
-    : _info(std::move(info)), _completion(completion), _rule(std::move(rule)) {}
+Lines::Task::Task(TaskInfo info, TaskRepeatRule rule)
+    : _info(std::move(info)), _rule(std::move(rule)) {}
 
 auto Lines::Task::completion() -> TaskCompletion & { return _completion; }
 

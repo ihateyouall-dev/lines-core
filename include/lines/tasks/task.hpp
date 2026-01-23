@@ -11,7 +11,7 @@ class Task {
     TaskRepeatRule _rule;
 
   public:
-    explicit Task(TaskInfo info, TaskCompletion completion = {}, TaskRepeatRule rule = {});
+    explicit Task(TaskInfo info, TaskRepeatRule rule = {});
     Task(const Task &task) = default;
     auto operator=(const Task &task) -> Task & = default;
     Task(Task &&) = default;

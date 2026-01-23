@@ -63,7 +63,7 @@ TEST(TaskCompletion, ConstAndNonConst) {
 TEST(TaskRepeat, NextDate) {
     TaskRepeatRule rule{.repeat_type =
                             EveryUnit(duration_cast<Temporal::Minutes>(Temporal::Days{1}))};
-    Task task{TaskInfo{"title"}, {}, rule};
+    Task task{TaskInfo{"title"}, rule};
     EXPECT_EQ(task.next_date(Temporal::Date{Temporal::Days{1}}), Temporal::Date{Temporal::Days{2}});
     task.set_repeat_rule(TaskRepeatRule{
         .repeat_type = EveryUnit{duration_cast<Temporal::Minutes>(Temporal::Days{2})}});
