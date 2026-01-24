@@ -35,7 +35,11 @@ class RoadmapNode {
 
   public:
     explicit RoadmapNode(NodeID id, RoadmapNodeInfo info, RoadmapNode *parent)
-        : _id(id), _info(std::move(info)), _parent(parent) {}
+        : _id(id), _info(std::move(info)), _parent(parent) {
+        if (_info.title.empty()) {
+            throw std::invalid_argument("RoadmapNode: title cannot be empty");
+        }
+    }
     friend class Roadmap;
     RoadmapNode() = delete;
     RoadmapNode(const RoadmapNode &) = delete;
@@ -104,6 +108,9 @@ class Roadmap {
     explicit Roadmap(RoadmapInfo info) : _info(std::move(info)) {
         nodes.emplace_back(
             std::make_unique<RoadmapNode>(ROOT_ID, RoadmapNodeInfo{"Root", "Root node"}, nullptr));
+        if (_info.title.empty()) {
+            throw std::invalid_argument("Roadmapinfo: title cannot be empty");
+        }
     }
     Roadmap(const Roadmap &) = default;
     Roadmap(Roadmap &&) = default;
