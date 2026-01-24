@@ -125,12 +125,13 @@ class Roadmap {
         const RoadmapNode::NodeID id = free_id();
         std::unique_ptr<RoadmapNode> node = std::make_unique<RoadmapNode>(id, info, parent);
         parent->add_child(node.get());
+        RoadmapNode *node_ptr = node.get();
         if (id < nodes.size()) {
             nodes[id] = std::move(node);
         } else {
             nodes.emplace_back(std::move(node));
         }
-        return node.get(); // NOLINT
+        return node_ptr;
     }
 
     void remove_node(RoadmapNode::NodeID id) {
