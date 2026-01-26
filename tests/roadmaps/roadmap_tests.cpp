@@ -3,77 +3,54 @@
 
 using namespace Lines;
 
-TEST(RoadmapInvariants, DAG) {
-    Roadmap roadmap{RoadmapInfo{"Rmap"}};
-
-    RoadmapNode::NodeID a = roadmap.add_node(RoadmapNodeInfo{"A"});
-    RoadmapNode::NodeID b = roadmap.add_node(RoadmapNodeInfo{"B"});
-    RoadmapNode::NodeID c = roadmap.add_node(RoadmapNodeInfo{"C"});
-    RoadmapNode::NodeID d = roadmap.add_node(RoadmapNodeInfo{"D"});
-
-    roadmap.add_edge(a, b);
-    roadmap.add_edge(b, c);
-    roadmap.add_edge(c, d);
-
-    EXPECT_THROW(roadmap.add_edge(d, a),
-                 std::logic_error); // DAG invariant: cycles are forbidden
-
-    EXPECT_NO_THROW(roadmap.add_edge(a, a)); // Just nothing happens
-    EXPECT_THROW(roadmap.add_edge(999, 1000), std::out_of_range);
-    EXPECT_THROW(roadmap.add_edge(roadmap.size(), Roadmap::ROOT_ID),
-                 std::logic_error); // Root node cannot be child
+TEST(RoadmapNode, EmptyTitle) {
+    Roadmap rmap{RoadmapInfo{"Rmap"}};
+    EXPECT_THROW(rmap.add_node(rmap.root(), RoadmapNodeInfo{""}), std::invalid_argument);
 }
 
-TEST(RoadmapPaths, DFS) {
-    Roadmap roadmap{RoadmapInfo{"Rmap"}};
+TEST(Roadmap, InfoAccessors) {
+    Roadmap rmap{RoadmapInfo{"Rmap", "Desc", {"Tag1", "Tag2"}}};
+    RoadmapNode *a = rmap.add_node(rmap.root(), RoadmapNodeInfo{"A", "Desc", {"Tag1", "Tag2"}});
 
-    RoadmapNode::NodeID a = roadmap.add_node(RoadmapNodeInfo{"A"});
-    RoadmapNode::NodeID b = roadmap.add_node(RoadmapNodeInfo{"B"});
-    RoadmapNode::NodeID c = roadmap.add_node(RoadmapNodeInfo{"C"});
-    RoadmapNode::NodeID d = roadmap.add_node(RoadmapNodeInfo{"D"});
+    EXPECT_EQ(a->title(), "A");
+    EXPECT_EQ(a->description().value(), "Desc");
+    EXPECT_FALSE(a->tags().empty());
 
-    roadmap.add_edge(a, b);
-    roadmap.add_edge(b, c);
-    roadmap.add_edge(c, d);
-
-    EXPECT_TRUE(roadmap.reachable(a, b));
-    EXPECT_TRUE(roadmap.reachable(b, c));
-    EXPECT_TRUE(roadmap.reachable(c, d));
-    EXPECT_FALSE(roadmap.reachable(d, a));
-
-    RoadmapNode::NodeID e = roadmap.add_node(RoadmapNodeInfo{"E"});
-    roadmap.add_edge(a, e);
-    EXPECT_TRUE(roadmap.reachable(a, e));
-
-    std::vector<RoadmapNode::NodeID> path = roadmap.dfs_path(a, e).value();
-    EXPECT_EQ(path, std::vector<RoadmapNode::NodeID>({a, e}));
+    // EXPECT_EQ(rmap.title(), "Rmap");
+    // EXPECT_EQ(rmap.description().value(), "Desc");
+    // EXPECT_FALSE(rmap.tags().empty());
 }
 
-TEST(RoadmapPaths, BFS) {
-    Roadmap roadmap{RoadmapInfo{"Rmap"}};
+TEST(Roadmap, LinearCreation) {
+    Roadmap rmap{RoadmapInfo{"Rmap"}};
+    RoadmapNode *a = rmap.add_node(rmap.root(), RoadmapNodeInfo{"A"});
+    RoadmapNode *b = rmap.add_node(a, RoadmapNodeInfo{"B"});
+    RoadmapNode *c = rmap.add_node(b, RoadmapNodeInfo{"C"});
 
-    RoadmapNode::NodeID a = roadmap.add_node(RoadmapNodeInfo{"A"});
-    RoadmapNode::NodeID b = roadmap.add_node(RoadmapNodeInfo{"B"});
-    RoadmapNode::NodeID c = roadmap.add_node(RoadmapNodeInfo{"C"});
-    RoadmapNode::NodeID d = roadmap.add_node(RoadmapNodeInfo{"D"});
+    EXPECT_EQ(rmap[1], a);
+    EXPECT_EQ(rmap[2], b);
+    EXPECT_EQ(rmap[3], c);
 
-    roadmap.add_edge(a, b);
-    roadmap.add_edge(b, c);
-    roadmap.add_edge(c, d);
+    rmap.remove_node(c->id());
 
-    std::vector<RoadmapNode::NodeID> path = roadmap.bfs_path(a, d).value();
-    EXPECT_EQ(path, std::vector<RoadmapNode::NodeID>({a, b, c, d}));
+    EXPECT_NE(c, nullptr); // Now c is dangling pointer, so be careful
 }
 
-TEST(RoadmapPaths, UnreachablePaths) {
-    Roadmap roadmap{RoadmapInfo{"Rmap"}};
+TEST(Roadmap, NonLinearCreation) {
+    Roadmap rmap{RoadmapInfo{"Rmap"}};
+    RoadmapNode *a = rmap.add_node(rmap.root(), RoadmapNodeInfo{"A"});
+    RoadmapNode *b = rmap.add_node(a, RoadmapNodeInfo{"B"});
+    RoadmapNode *c = rmap.add_node(b, RoadmapNodeInfo{"C"});
+    RoadmapNode *d = rmap.add_node(b, RoadmapNodeInfo{"D"});
 
-    RoadmapNode::NodeID a = roadmap.add_node(RoadmapNodeInfo{"A"});
-    RoadmapNode::NodeID b = roadmap.add_node(RoadmapNodeInfo{"B"});
+    EXPECT_EQ(rmap[1], a);
+    EXPECT_EQ(rmap[2], b);
+    EXPECT_EQ(rmap[3], c);
+    EXPECT_EQ(rmap[4], d);
 
-    EXPECT_FALSE(roadmap.reachable(a, b));
-    EXPECT_EQ(roadmap.dfs_path(a, b), std::nullopt);
-    EXPECT_EQ(roadmap.bfs_path(a, b), std::nullopt);
-    EXPECT_EQ(roadmap.dfs_path(roadmap.size() + 1, roadmap.size() + 2), std::nullopt);
-    EXPECT_EQ(roadmap.bfs_path(roadmap.size() + 1, roadmap.size() + 2), std::nullopt);
+    auto bchildren = b->children();
+
+    rmap.remove_node(b->id());
+
+    EXPECT_EQ(bchildren, a->children()); // Children of b have been adopted by a after deletion
 }

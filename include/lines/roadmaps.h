@@ -13,11 +13,11 @@ namespace Lines {
 struct RoadmapNodeInfo {
     explicit RoadmapNodeInfo(std::string title,
                              std::optional<std::string> description = std::nullopt,
-                             std::optional<std::vector<std::string>> tags = std::nullopt)
+                             std::vector<std::string> tags = {})
         : title(std::move(title)), description(std::move(description)), tags(std::move(tags)) {}
     std::string title;
     std::optional<std::string> description;
-    std::optional<std::vector<std::string>> tags;
+    std::vector<std::string> tags;
 };
 
 class RoadmapNode {
@@ -52,9 +52,7 @@ class RoadmapNode {
     [[nodiscard]] auto description() const -> const std::optional<std::string> & {
         return _info.description;
     }
-    [[nodiscard]] auto tags() const -> const std::optional<std::vector<std::string>> & {
-        return _info.tags;
-    }
+    [[nodiscard]] auto tags() const -> std::vector<std::string> { return _info.tags; }
 
     [[nodiscard]] auto state() const -> State { return _state; }
 
@@ -82,11 +80,11 @@ class RoadmapNode {
 
 struct RoadmapInfo {
     explicit RoadmapInfo(std::string title, std::optional<std::string> description = std::nullopt,
-                         std::optional<std::vector<std::string>> tags = std::nullopt)
+                         std::vector<std::string> tags = {})
         : title(std::move(title)), description(std::move(description)), tags(std::move(tags)) {}
     std::string title;
     std::optional<std::string> description;
-    std::optional<std::vector<std::string>> tags;
+    std::vector<std::string> tags;
 };
 
 class Roadmap {
