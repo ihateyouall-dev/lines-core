@@ -10,11 +10,12 @@ TEST(RoadmapNode, EmptyTitle) {
 
 TEST(Roadmap, InfoAccessors) {
     Roadmap rmap{RoadmapInfo{"Rmap", "Desc", {"Tag1", "Tag2"}}};
-    RoadmapNode *a = rmap.add_node(rmap.root(), RoadmapNodeInfo{"A", "Desc", {"Tag1", "Tag2"}});
+    RoadmapNode::NodePtr a =
+        rmap.add_node(rmap.root(), RoadmapNodeInfo{"A", "Desc", {"Tag1", "Tag2"}});
 
-    EXPECT_EQ(a->title(), "A");
-    EXPECT_EQ(a->description().value(), "Desc");
-    EXPECT_FALSE(a->tags().empty());
+    EXPECT_EQ(a.lock()->title(), "A");
+    EXPECT_EQ(a.lock()->description().value(), "Desc");
+    EXPECT_FALSE(a.lock()->tags().empty());
 
     // EXPECT_EQ(rmap.title(), "Rmap");
     // EXPECT_EQ(rmap.description().value(), "Desc");
@@ -23,34 +24,35 @@ TEST(Roadmap, InfoAccessors) {
 
 TEST(Roadmap, LinearCreation) {
     Roadmap rmap{RoadmapInfo{"Rmap"}};
-    RoadmapNode *a = rmap.add_node(rmap.root(), RoadmapNodeInfo{"A"});
-    RoadmapNode *b = rmap.add_node(a, RoadmapNodeInfo{"B"});
-    RoadmapNode *c = rmap.add_node(b, RoadmapNodeInfo{"C"});
+    RoadmapNode::NodePtr a = rmap.add_node(rmap.root(), RoadmapNodeInfo{"A"});
+    RoadmapNode::NodePtr b = rmap.add_node(a, RoadmapNodeInfo{"B"});
+    RoadmapNode::NodePtr c = rmap.add_node(b, RoadmapNodeInfo{"C"});
 
     EXPECT_EQ(rmap[1], a);
     EXPECT_EQ(rmap[2], b);
     EXPECT_EQ(rmap[3], c);
 
-    rmap.remove_node(c->id());
+    rmap.remove_node(c.lock()->id());
 
-    EXPECT_NE(c, nullptr); // Now c is dangling pointer, so be careful
+    EXPECT_TRUE(c.expired());
 }
 
 TEST(Roadmap, NonLinearCreation) {
     Roadmap rmap{RoadmapInfo{"Rmap"}};
-    RoadmapNode *a = rmap.add_node(rmap.root(), RoadmapNodeInfo{"A"});
-    RoadmapNode *b = rmap.add_node(a, RoadmapNodeInfo{"B"});
-    RoadmapNode *c = rmap.add_node(b, RoadmapNodeInfo{"C"});
-    RoadmapNode *d = rmap.add_node(b, RoadmapNodeInfo{"D"});
+    RoadmapNode::NodePtr a = rmap.add_node(rmap.root(), RoadmapNodeInfo{"A"});
+    RoadmapNode::NodePtr b = rmap.add_node(a, RoadmapNodeInfo{"B"});
+    RoadmapNode::NodePtr c = rmap.add_node(b, RoadmapNodeInfo{"C"});
+    RoadmapNode::NodePtr d = rmap.add_node(b, RoadmapNodeInfo{"D"});
 
     EXPECT_EQ(rmap[1], a);
     EXPECT_EQ(rmap[2], b);
     EXPECT_EQ(rmap[3], c);
     EXPECT_EQ(rmap[4], d);
 
-    auto bchildren = b->children();
+    auto bchildren = b.lock()->children();
 
-    rmap.remove_node(b->id());
+    rmap.remove_node(b.lock()->id());
 
-    EXPECT_EQ(bchildren, a->children()); // Children of b have been adopted by a after deletion
+    EXPECT_EQ(bchildren,
+              a.lock()->children()); // Children of b have been adopted by a after deletion
 }

@@ -23,7 +23,7 @@ struct RoadmapNodeInfo {
 class RoadmapNode {
   public:
     using NodeID = std::size_t;
-    using NodePtr = RoadmapNode *;
+    using NodePtr = std::weak_ptr<RoadmapNode>;
     enum class State : uint8_t { NotCompleted, Completed, Skipped, InProgress };
 
   private:
@@ -34,8 +34,8 @@ class RoadmapNode {
     std::vector<NodePtr> _children;
 
   public:
-    explicit RoadmapNode(NodeID id, RoadmapNodeInfo info, RoadmapNode *parent)
-        : _id(id), _info(std::move(info)), _parent(parent) {
+    explicit RoadmapNode(NodeID id, RoadmapNodeInfo info, NodePtr parent)
+        : _id(id), _info(std::move(info)), _parent(std::move(parent)) {
         if (_info.title.empty()) {
             throw std::invalid_argument("RoadmapNode: title cannot be empty");
         }
@@ -58,18 +58,23 @@ class RoadmapNode {
 
     void set_state(State state) { _state = state; }
 
-    void add_child(NodePtr node) {
-        if (std::ranges::find(_children, node) != _children.end()) {
+    void add_child(const NodePtr &node) {
+        if (std::ranges::find_if(_children, [&](const NodePtr &el) {
+                return el.lock() == node.lock();
+            }) != _children.end()) {
             throw std::invalid_argument("RoadmapNode::add_child: attempt to add existing child");
         }
         _children.emplace_back(node);
     }
 
-    void remove_child(NodePtr child) {
-        _children.erase(std::ranges::remove(_children, child).begin(), _children.end());
+    void remove_child(const NodePtr &child) {
+        _children.erase(std::ranges::remove_if(
+                            _children, [&](const NodePtr &el) { return el.lock() == child.lock(); })
+                            .begin(),
+                        _children.end());
     }
 
-    void set_parent(NodePtr parent) { _parent = parent; }
+    void set_parent(NodePtr parent) { _parent = std::move(parent); }
 
     [[nodiscard]] auto out_degree() const -> std::size_t { return _children.size(); }
 
@@ -89,7 +94,7 @@ struct RoadmapInfo {
 
 class Roadmap {
     RoadmapInfo _info;
-    std::vector<std::unique_ptr<RoadmapNode>> nodes;
+    std::vector<std::shared_ptr<RoadmapNode>> nodes;
 
     auto free_id() -> RoadmapNode::NodeID {
         RoadmapNode::NodeID id = nodes.size();
@@ -105,7 +110,7 @@ class Roadmap {
     static constexpr RoadmapNode::NodeID ROOT_ID = 0;
     explicit Roadmap(RoadmapInfo info) : _info(std::move(info)) {
         nodes.emplace_back(
-            std::make_unique<RoadmapNode>(ROOT_ID, RoadmapNodeInfo{"Root", "Root node"}, nullptr));
+            std::make_shared<RoadmapNode>(ROOT_ID, RoadmapNodeInfo{"Root", "Root node"}, nullptr));
         if (_info.title.empty()) {
             throw std::invalid_argument("Roadmapinfo: title cannot be empty");
         }
@@ -115,22 +120,23 @@ class Roadmap {
     auto operator=(const Roadmap &) -> Roadmap & = default;
     auto operator=(Roadmap &&) -> Roadmap & = default;
     ~Roadmap() = default;
-    auto operator[](RoadmapNode::NodeID id) -> RoadmapNode * { return nodes[id].get(); }
-    auto operator[](RoadmapNode::NodeID id) const -> const RoadmapNode * { return nodes[id].get(); }
+    auto operator[](RoadmapNode::NodeID id) -> RoadmapNode::NodePtr { return nodes[id]; }
 
-    auto root() -> RoadmapNode * { return nodes[ROOT_ID].get(); }
+    auto root() -> RoadmapNode::NodePtr { return nodes[ROOT_ID]; }
     [[nodiscard]] static auto is_root(RoadmapNode::NodeID id) -> bool { return id == ROOT_ID; }
 
-    auto last() -> RoadmapNode::NodePtr { return nodes[nodes.size() - 1].get(); }
+    auto last() -> RoadmapNode::NodePtr { return nodes[nodes.size() - 1]; }
 
     [[nodiscard]] auto last_id() const -> RoadmapNode::NodeID { return nodes.size() - 1; }
 
     auto add_node(RoadmapNode::NodePtr parent, const RoadmapNodeInfo &info)
         -> RoadmapNode::NodePtr {
         const RoadmapNode::NodeID id = free_id();
-        std::unique_ptr<RoadmapNode> node = std::make_unique<RoadmapNode>(id, info, parent);
-        parent->add_child(node.get());
-        RoadmapNode *node_ptr = node.get();
+        std::shared_ptr<RoadmapNode> node = std::make_shared<RoadmapNode>(id, info, parent);
+        if (auto p = parent.lock()) {
+            p->add_child(node);
+        }
+        RoadmapNode::NodePtr node_ptr = node;
         if (id < nodes.size()) {
             nodes[id] = std::move(node);
         } else {
@@ -143,13 +149,17 @@ class Roadmap {
         if (id == ROOT_ID) {
             throw std::invalid_argument("Roadmap::delete_node: attempt to delete root");
         }
-        auto *parent = nodes[id]->parent();
-        auto *node = nodes[id].get();
-        for (const auto &child : node->children()) {
-            child->set_parent(parent);
-            parent->add_child(child);
+        auto parent = nodes[id]->parent();
+        RoadmapNode::NodePtr node = nodes[id];
+        if (auto n = node.lock()) {
+            if (auto p = parent.lock()) {
+                for (const auto &child : n->children()) {
+                    child.lock()->set_parent(parent);
+                    parent.lock()->add_child(child);
+                }
+            }
         }
-        parent->remove_child(nodes[id].get());
+        parent.lock()->remove_child(nodes[id]);
         nodes[id] = nullptr;
     }
 
