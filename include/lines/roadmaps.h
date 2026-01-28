@@ -164,5 +164,13 @@ class Roadmap {
     }
 
     [[nodiscard]] auto size() const -> std::size_t { return nodes.size(); }
+
+    [[nodiscard]] auto title() const -> std::string { return _info.title; }
+
+    [[nodiscard]] auto description() const -> std::optional<std::string> {
+        return _info.description;
+    }
+
+    [[nodiscard]] auto tags() const -> std::vector<std::string> { return _info.tags; }
 };
 }; // namespace Lines
