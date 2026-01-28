@@ -109,8 +109,8 @@ class Roadmap {
   public:
     static constexpr RoadmapNode::NodeID ROOT_ID = 0;
     explicit Roadmap(RoadmapInfo info) : _info(std::move(info)) {
-        nodes.emplace_back(
-            std::make_shared<RoadmapNode>(ROOT_ID, RoadmapNodeInfo{"Root", "Root node"}, nullptr));
+        nodes.emplace_back(std::make_shared<RoadmapNode>(
+            ROOT_ID, RoadmapNodeInfo{"Root", "Root node"}, RoadmapNode::NodePtr{}));
         if (_info.title.empty()) {
             throw std::invalid_argument("Roadmapinfo: title cannot be empty");
         }
