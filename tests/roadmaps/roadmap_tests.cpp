@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <lines/roadmaps.h>
+#include <lines/roadmaps/roadmaps.h>
 
 using namespace Lines;
 
