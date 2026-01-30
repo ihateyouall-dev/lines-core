@@ -1,10 +1,11 @@
 #include "roadmaps.h"
 #include <cassert>
+#include <queue>
 #include <ranges>
 #include <stack>
 
 namespace Lines::Roadmaps {
-auto dfs(Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
+auto dfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
     std::vector<RoadmapNode::NodePtr> result;
     auto root = rmap.root();
 
@@ -12,13 +13,45 @@ auto dfs(Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
     stack.push(root);
 
     while (!stack.empty()) {
-        const auto nptr = stack.top().lock();
+        const auto node = stack.top();
+        const auto nptr = node.lock();
         stack.pop();
 
-        result.emplace_back(nptr);
+        result.emplace_back(node);
 
         for (const auto &child : std::ranges::reverse_view(nptr->children())) {
             stack.push(child);
+        }
+    }
+
+    return result;
+}
+
+auto bfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
+    std::vector<RoadmapNode::NodePtr> result;
+    std::vector<bool> visited(rmap.size(), false);
+
+    auto root = rmap.root();
+
+    std::queue<RoadmapNode::NodePtr> queue;
+
+    visited[Roadmap::ROOT_ID] = true;
+    queue.push(root);
+
+    while (!queue.empty()) {
+        const auto node = queue.front();
+        const auto nptr = node.lock();
+
+        queue.pop();
+
+        result.emplace_back(node);
+
+        for (const auto &child : nptr->children()) {
+            const auto cptr = child.lock();
+            if (!visited[cptr->id()]) {
+                visited[cptr->id()] = true;
+                queue.push(child);
+            }
         }
     }
 
