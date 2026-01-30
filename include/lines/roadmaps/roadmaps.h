@@ -126,9 +126,11 @@ class Roadmap {
     auto operator[](RoadmapNode::NodeID id) -> RoadmapNode::NodePtr { return nodes[id]; }
 
     auto root() -> RoadmapNode::NodePtr { return nodes[ROOT_ID]; }
+    [[nodiscard]] auto root() const -> RoadmapNode::NodePtr { return nodes[ROOT_ID]; }
     [[nodiscard]] static auto is_root(RoadmapNode::NodeID id) -> bool { return id == ROOT_ID; }
 
     auto last() -> RoadmapNode::NodePtr { return nodes[nodes.size() - 1]; }
+    [[nodiscard]] auto last() const -> RoadmapNode::NodePtr { return nodes[nodes.size() - 1]; }
 
     [[nodiscard]] auto last_id() const -> RoadmapNode::NodeID { return nodes.size() - 1; }
 
