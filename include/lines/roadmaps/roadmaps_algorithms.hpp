@@ -5,8 +5,8 @@
 #include <stack>
 
 namespace Lines::Roadmaps {
-auto dfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
-    std::vector<RoadmapNode::NodePtr> result;
+namespace detail {
+template <typename Fn> void dfs_impl(const Roadmap &rmap, const Fn &fn) {
     auto root = rmap.root();
 
     std::stack<RoadmapNode::NodePtr> stack;
@@ -17,25 +17,19 @@ auto dfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
         const auto nptr = node.lock();
         stack.pop();
 
-        result.emplace_back(node);
+        fn(node);
 
         for (const auto &child : std::ranges::reverse_view(nptr->children())) {
             stack.push(child);
         }
     }
-
-    return result;
 }
 
-auto bfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
-    std::vector<RoadmapNode::NodePtr> result;
-    std::vector<bool> visited(rmap.size(), false);
-
+template <typename Fn> void bfs_impl(const Roadmap &rmap, const Fn &fn) {
     auto root = rmap.root();
 
     std::queue<RoadmapNode::NodePtr> queue;
 
-    visited[Roadmap::ROOT_ID] = true;
     queue.push(root);
 
     while (!queue.empty()) {
@@ -44,17 +38,32 @@ auto bfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
 
         queue.pop();
 
-        result.emplace_back(node);
-
+        fn(node);
         for (const auto &child : nptr->children()) {
-            const auto cptr = child.lock();
-            if (!visited[cptr->id()]) {
-                visited[cptr->id()] = true;
-                queue.push(child);
-            }
+            queue.push(child);
         }
     }
-
+}
+} // namespace detail
+auto dfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
+    std::vector<RoadmapNode::NodePtr> result;
+    detail::dfs_impl(rmap,
+                     [&result](const RoadmapNode::NodePtr &node) { result.emplace_back(node); });
     return result;
+}
+
+auto bfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
+    std::vector<RoadmapNode::NodePtr> result;
+    detail::bfs_impl(rmap,
+                     [&result](const RoadmapNode::NodePtr &node) { result.emplace_back(node); });
+    return result;
+}
+
+template <typename Fn> void dfs_foreach(const Roadmap &rmap, Fn &&visitor) {
+    dfs_impl(rmap, std::forward<Fn>(visitor));
+}
+
+template <typename Fn> void bfs_foreach(const Roadmap &rmap, Fn &&visitor) {
+    bfs_impl(rmap, std::forward<Fn>(visitor));
 }
 } // namespace Lines::Roadmaps

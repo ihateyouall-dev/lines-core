@@ -33,17 +33,13 @@ class RoadmapNode {
     NodePtr _parent;
     std::vector<NodePtr> _children;
 
+  public:
     explicit RoadmapNode(NodeID id, RoadmapNodeInfo info, NodePtr parent)
         : _id(id), _info(std::move(info)), _parent(std::move(parent)) {
         if (_info.title.empty()) {
             throw std::invalid_argument("RoadmapNode: title cannot be empty");
         }
     }
-
-  public:
-    friend class Roadmap;
-    friend class std::shared_ptr<RoadmapNode>;
-    friend class std::weak_ptr<RoadmapNode>;
     RoadmapNode() = delete;
     RoadmapNode(const RoadmapNode &) = delete;
     RoadmapNode(RoadmapNode &&) = delete;
