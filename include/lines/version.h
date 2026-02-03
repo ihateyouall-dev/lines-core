@@ -13,19 +13,10 @@
 */
 #pragma once
 
-#if defined(_WIN32)
-#define NOMINMAX
-#define LINES_WINDOWSNT
-#elif defined(__APPLE__)
-#define LINES_DARWIN
-#elif defined(__unix__) || defined(__unix)
-#define LINES_UNIX
-#endif
+#define LINES_VERSION_MAJOR 1
+#define LINES_VERSION_MINOR 0
+#define LINES_VERSION_PATCH 0
+#define LINES_VERSION_ALPHA 0
+#define LINES_VERSION_BETA 0
 
-#if defined(__clang__) || defined(__GNUC__)
-#define LINES_UNREACHABLE() __builtin_unreachable()
-#elif defined(_MSC_VER)
-#define LINES_UNREACHABLE() __assume(0)
-#else
-#define LINES_UNREACHABLE() std::abort()
-#endif
+#define LINES_VERSION "1.0"
