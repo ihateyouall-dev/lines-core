@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
 #include <lines/roadmaps/roadmaps.h>
 
 using namespace Lines;
@@ -64,6 +65,23 @@ TEST(Roadmap, Accessors) {
     EXPECT_EQ(rmap.last().lock(), c.lock());
     EXPECT_EQ(rmap.last_id(), 3);
     EXPECT_TRUE(rmap.is_root(Roadmap::ROOT_ID));
+}
+
+TEST(Roadmap, Restrictions) {
+    EXPECT_THROW(Roadmap{RoadmapInfo{""}}, std::invalid_argument);
+    Roadmap rmap{RoadmapInfo{"Rmap"}};
+    EXPECT_THROW(rmap.remove_node(Roadmap::ROOT_ID), std::invalid_argument);
+}
+
+TEST(Roadmap, DeletionFromMiddle) {
+    Roadmap rmap{RoadmapInfo{"Rmap"}};
+    auto a = rmap.add_node(rmap.root(), RoadmapNodeInfo{"A"});
+    auto b = rmap.add_node(a, RoadmapNodeInfo{"B"});
+    auto c = rmap.add_node(b, RoadmapNodeInfo{"C"});
+    auto b_id = b.lock()->id();
+    rmap.remove_node(b_id);
+    auto d = rmap.add_node(c, RoadmapNodeInfo{"D"});
+    EXPECT_EQ(b_id, d.lock()->id()); // ID of node is not topologic
 }
 
 TEST(RoadmapNode, States) {

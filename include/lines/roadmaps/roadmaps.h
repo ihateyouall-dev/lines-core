@@ -9,7 +9,6 @@
 #include <vector>
 
 namespace Lines {
-// Meta information about a roadmap node
 struct RoadmapNodeInfo {
     explicit RoadmapNodeInfo(std::string title,
                              std::optional<std::string> description = std::nullopt,
@@ -57,14 +56,7 @@ class RoadmapNode {
 
     void set_state(State state) { _state = state; }
 
-    void add_child(const NodePtr &node) {
-        if (std::ranges::find_if(_children, [&](const NodePtr &el) {
-                return el.lock() == node.lock();
-            }) != _children.end()) {
-            throw std::invalid_argument("RoadmapNode::add_child: attempt to add existing child");
-        }
-        _children.emplace_back(node);
-    }
+    void add_child(const NodePtr &node) { _children.emplace_back(node); }
 
     void remove_child(const NodePtr &child) {
         _children.erase(std::ranges::remove_if(
