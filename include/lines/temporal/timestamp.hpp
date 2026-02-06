@@ -13,10 +13,11 @@
 */
 #pragma once
 
+#include "lines/detail/macro.h"
 #include <lines/temporal/duration.hpp>
 
 namespace Lines::Temporal {
-class Timestamp {
+class LINES_API Timestamp {
     // 0 <= _rep < 24h
     Seconds _rep{0};
 
@@ -27,7 +28,7 @@ class Timestamp {
     explicit Timestamp(const Seconds &rep);
     Timestamp(const Hours &hours, const Minutes &minutes, const Seconds &seconds);
 
-    [[nodiscard]] auto time_since_midnight() const -> Seconds { return _rep; }
+    LINES_NODISCARD auto time_since_midnight() const -> Seconds { return _rep; }
 
     auto operator<=>(const Timestamp &) const = default;
 
@@ -71,13 +72,13 @@ class Timestamp {
         return *this;
     }
 
-    [[nodiscard]] auto hh_mm_ss() const -> std::string;
+    LINES_NODISCARD auto hh_mm_ss() const -> std::string;
 
-    [[nodiscard]] auto hours() const -> Hours;
+    LINES_NODISCARD auto hours() const -> Hours;
 
-    [[nodiscard]] auto minutes() const -> Minutes;
+    LINES_NODISCARD auto minutes() const -> Minutes;
 
-    [[nodiscard]] auto seconds() const -> Seconds;
+    LINES_NODISCARD auto seconds() const -> Seconds;
 };
 
 template <uint32_t Period, std::integral Rep>

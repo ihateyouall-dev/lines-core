@@ -25,85 +25,86 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     uint32_t _period = Period;
 
   public:
-    constexpr Duration() = default;
-    static constexpr uint32_t period = Period;
+    LINES_CONSTEXPR Duration() = default;
+    static LINES_CONSTEXPR uint32_t period = Period;
     Duration(const Duration &) = default;
     Duration(Duration &&) = default;
     auto operator=(const Duration &) -> Duration & = default;
     auto operator=(Duration &&) -> Duration & = default;
-    explicit constexpr Duration(Rep rep) : _rep(std::move(rep)) {}
+    explicit LINES_CONSTEXPR Duration(Rep rep) : _rep(std::move(rep)) {}
     template <uint32_t P, std::integral R>
-    explicit constexpr Duration(const Duration<P, R> &dur) : _rep(dur.count() * P / period) {}
+    explicit LINES_CONSTEXPR Duration(const Duration<P, R> &dur) : _rep(dur.count() * P / period) {}
     template <class R, class P>
-    explicit constexpr Duration(std::chrono::duration<R, P> const &dur)
+    explicit LINES_CONSTEXPR Duration(std::chrono::duration<R, P> const &dur)
         : _rep(std::chrono::duration_cast<std::chrono::duration<Rep, std::ratio<Period>>>(dur)
                    .count()) {}
     ~Duration() = default;
 
-    constexpr auto operator+() const noexcept -> Duration { return *this; }
+    LINES_CONSTEXPR auto operator+() const LINES_NOEXCEPT->Duration { return *this; }
 
-    constexpr auto operator-() const noexcept -> Duration { return Duration{-_rep}; }
+    LINES_CONSTEXPR auto operator-() const LINES_NOEXCEPT->Duration { return Duration{-_rep}; }
 
-    constexpr auto operator++() -> Duration & {
+    LINES_CONSTEXPR auto operator++() -> Duration & {
         ++_rep;
         return *this;
     }
 
-    constexpr auto operator++(int) -> Duration {
+    LINES_CONSTEXPR auto operator++(int) -> Duration {
         auto temp = *this;
         ++*this;
         return temp;
     }
 
-    constexpr auto operator--() -> Duration & {
+    LINES_CONSTEXPR auto operator--() -> Duration & {
         --_rep;
         return *this;
     }
 
-    constexpr auto operator--(int) -> Duration {
+    LINES_CONSTEXPR auto operator--(int) -> Duration {
         auto temp = *this;
         --*this;
         return temp;
     }
 
-    constexpr auto operator+(const Duration &dur) const -> Duration {
+    LINES_CONSTEXPR auto operator+(const Duration &dur) const -> Duration {
         auto temp = *this;
         temp += dur;
         return temp;
     }
 
-    constexpr auto operator+=(const Duration &dur) -> Duration & {
+    LINES_CONSTEXPR auto operator+=(const Duration &dur) -> Duration & {
         _rep += dur._rep;
         return *this;
     }
 
-    constexpr auto operator-(const Duration &dur) const -> Duration {
+    LINES_CONSTEXPR auto operator-(const Duration &dur) const -> Duration {
         auto temp = *this;
         temp -= dur;
         return temp;
     }
 
-    constexpr auto operator-=(const Duration &dur) -> Duration & {
+    LINES_CONSTEXPR auto operator-=(const Duration &dur) -> Duration & {
         _rep -= dur._rep;
         return *this;
     }
 
-    template <std::integral T> constexpr auto operator*(T num) const -> Duration {
+    template <std::integral T> LINES_CONSTEXPR auto operator*(T num) const -> Duration {
         auto temp = *this;
         temp *= num;
         return temp;
     }
 
-    template <std::integral T> constexpr auto operator*=(T num) -> Duration & {
+    template <std::integral T> LINES_CONSTEXPR auto operator*=(T num) -> Duration & {
         _rep *= num;
         return *this;
     }
 
-    template <std::integral T> constexpr friend auto operator*(T num, Duration dur) -> Duration {
+    template <std::integral T>
+    LINES_CONSTEXPR friend auto operator*(T num, Duration dur) -> Duration {
         return dur * num;
     }
 
-    template <std::integral T> constexpr auto operator/(T num) const -> Duration {
+    template <std::integral T> LINES_CONSTEXPR auto operator/(T num) const -> Duration {
         if (num == 0) {
             throw std::invalid_argument("Duration::operator/: division by zero");
         }
@@ -112,7 +113,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         return temp;
     }
 
-    template <std::integral T> constexpr auto operator/=(T num) -> Duration & {
+    template <std::integral T> LINES_CONSTEXPR auto operator/=(T num) -> Duration & {
         if (num == 0) {
             throw std::invalid_argument("Duration::operator/=: division by zero");
         }
@@ -120,7 +121,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         return *this;
     }
 
-    constexpr auto operator/(const Duration &dur) -> Rep {
+    LINES_CONSTEXPR auto operator/(const Duration &dur) -> Rep {
         if (dur == Duration{0}) {
             throw std::invalid_argument("Duration::operator/: division by zero");
         }
@@ -129,7 +130,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         return temp._rep;
     }
 
-    template <std::integral T> constexpr auto operator%(T num) const -> Duration {
+    template <std::integral T> LINES_CONSTEXPR auto operator%(T num) const -> Duration {
         if (num == 0) {
             throw std::invalid_argument("Duration::operator%: division by zero");
         }
@@ -138,7 +139,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         return temp;
     }
 
-    template <std::integral T> constexpr auto operator%=(T num) -> Duration & {
+    template <std::integral T> LINES_CONSTEXPR auto operator%=(T num) -> Duration & {
         if (num == 0) {
             throw std::invalid_argument("Duration::operator%=: division by zero");
         }
@@ -146,7 +147,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         return *this;
     }
 
-    constexpr auto operator%(const Duration &dur) const -> Rep {
+    LINES_CONSTEXPR auto operator%(const Duration &dur) const -> Rep {
         if (dur == Duration{0}) {
             throw std::invalid_argument("Duration::operator%: division by zero");
         }
@@ -155,7 +156,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         return temp._rep;
     }
 
-    constexpr auto operator%=(const Duration &dur) -> Duration & {
+    LINES_CONSTEXPR auto operator%=(const Duration &dur) -> Duration & {
         if (dur == Duration{0}) {
             throw std::invalid_argument("Duration::operator%=: division by zero");
         }
@@ -163,81 +164,75 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         return *this;
     }
 
-    [[nodiscard]] constexpr auto count() const noexcept -> Rep { return _rep; }
+    LINES_NODISCARD LINES_CONSTEXPR auto count() const LINES_NOEXCEPT -> Rep { return _rep; }
 
-    template <typename ChronoDuration> constexpr auto to_chrono() const -> ChronoDuration {
+    template <typename ChronoDuration> LINES_CONSTEXPR auto to_chrono() const -> ChronoDuration {
         return ChronoDuration{_rep * period / ChronoDuration::period::num};
     }
 };
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
-constexpr auto operator<=>(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+LINES_CONSTEXPR auto operator<=>(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
     using Lhs = Duration<P1, R1>;
     using Rhs = Duration<P2, R2>;
 
-    if constexpr (Lhs::period > Rhs::period) {
+    LINES_CONSTEXPR_IF(Lhs::period > Rhs::period) {
         return duration_cast<Rhs>(lhs).count() <=> rhs.count();
-    } else if constexpr (Lhs::period < Rhs::period) {
+    }
+    else LINES_CONSTEXPR_IF(Lhs::period < Rhs::period) {
         return lhs.count() <=> duration_cast<Lhs>(rhs).count();
-    } else {
+    }
+    else {
         return lhs.count() <=> rhs.count();
     }
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
-constexpr auto operator==(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) -> bool {
+LINES_CONSTEXPR auto operator==(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) -> bool {
     return (lhs <=> rhs) == 0;
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator+(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+LINES_CONSTEXPR auto operator+(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
     using Lhs = Duration<P1, R1>;
     using Rhs = Duration<P2, R2>;
 
-    if constexpr (Lhs::period > Rhs::period) {
-        return duration_cast<Rhs>(lhs) + rhs;
-    }
+    LINES_CONSTEXPR_IF(Lhs::period > Rhs::period) { return duration_cast<Rhs>(lhs) + rhs; }
 
-    if constexpr (Lhs::period < Rhs::period) {
-        return lhs + duration_cast<Lhs>(rhs);
-    }
+    LINES_CONSTEXPR_IF(Lhs::period < Rhs::period) { return lhs + duration_cast<Lhs>(rhs); }
     LINES_UNREACHABLE();
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator+=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+LINES_CONSTEXPR auto operator+=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
     lhs += duration_cast<Duration<P1, R1>>(rhs);
     return lhs;
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator-(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+LINES_CONSTEXPR auto operator-(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
     using Lhs = Duration<P1, R1>;
     using Rhs = Duration<P2, R2>;
 
-    if constexpr (Lhs::period > Rhs::period) {
-        return duration_cast<Rhs>(lhs) - rhs;
-    }
+    LINES_CONSTEXPR_IF(Lhs::period > Rhs::period) { return duration_cast<Rhs>(lhs) - rhs; }
 
-    if constexpr (Lhs::period < Rhs::period) {
-        return lhs - duration_cast<Lhs>(rhs);
-    }
+    LINES_CONSTEXPR_IF(Lhs::period < Rhs::period) { return lhs - duration_cast<Lhs>(rhs); }
     LINES_UNREACHABLE();
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator-=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+LINES_CONSTEXPR auto operator-=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
     lhs -= duration_cast<Duration<P1, R1>>(rhs);
     return lhs;
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator/(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+LINES_CONSTEXPR auto operator/(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
     using Lhs = Duration<P1, R1>;
     using Rhs = Duration<P2, R2>;
 
@@ -245,19 +240,15 @@ constexpr auto operator/(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rh
         throw std::invalid_argument("Duration::operator/: division by zero");
     }
 
-    if constexpr (Lhs::period > Rhs::period) {
-        return duration_cast<Rhs>(lhs) / rhs;
-    }
+    LINES_CONSTEXPR_IF(Lhs::period > Rhs::period) { return duration_cast<Rhs>(lhs) / rhs; }
 
-    if constexpr (Lhs::period < Rhs::period) {
-        return lhs / duration_cast<Lhs>(rhs);
-    }
+    LINES_CONSTEXPR_IF(Lhs::period < Rhs::period) { return lhs / duration_cast<Lhs>(rhs); }
     LINES_UNREACHABLE();
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator%(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+LINES_CONSTEXPR auto operator%(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
     using Lhs = Duration<P1, R1>;
     using Rhs = Duration<P2, R2>;
 
@@ -265,19 +256,15 @@ constexpr auto operator%(const Duration<P1, R1> &lhs, const Duration<P2, R2> &rh
         throw std::invalid_argument("Duration::operator%: division by zero");
     }
 
-    if constexpr (Lhs::period > Rhs::period) {
-        return duration_cast<Rhs>(lhs) % rhs;
-    }
+    LINES_CONSTEXPR_IF(Lhs::period > Rhs::period) { return duration_cast<Rhs>(lhs) % rhs; }
 
-    if constexpr (Lhs::period < Rhs::period) {
-        return lhs % duration_cast<Lhs>(rhs);
-    }
+    LINES_CONSTEXPR_IF(Lhs::period < Rhs::period) { return lhs % duration_cast<Lhs>(rhs); }
     LINES_UNREACHABLE();
 }
 
 template <uint32_t P1, uint32_t P2, std::integral R1, std::integral R2>
     requires(!(P1 == P2))
-constexpr auto operator%=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
+LINES_CONSTEXPR auto operator%=(Duration<P1, R1> &lhs, const Duration<P2, R2> &rhs) {
     if (rhs == Duration<P2, R2>{0}) {
         throw std::invalid_argument("Duration::operator%=: division by zero");
     }
@@ -294,12 +281,12 @@ using Months = Duration<2629746>; // NOLINT
 using Years = Duration<31556952>; // NOLINT
 
 template <typename To, uint32_t Period, std::integral Rep>
-constexpr auto duration_cast(const Duration<Period, Rep> &dur) -> To {
+LINES_CONSTEXPR auto duration_cast(const Duration<Period, Rep> &dur) -> To {
     return To(dur.count() * Period / To::period);
 }
 
 template <typename To, uint32_t Period, std::integral Rep>
-constexpr auto floor(const Duration<Period, Rep> &dur) -> To {
+LINES_CONSTEXPR auto floor(const Duration<Period, Rep> &dur) -> To {
     To to_dur = duration_cast<To>(dur);
     if (to_dur > dur) {
         return to_dur - To{1};
@@ -308,7 +295,7 @@ constexpr auto floor(const Duration<Period, Rep> &dur) -> To {
 }
 
 template <typename To, uint32_t Period, std::integral Rep>
-constexpr auto ceil(const Duration<Period, Rep> &dur) -> To {
+LINES_CONSTEXPR auto ceil(const Duration<Period, Rep> &dur) -> To {
     To to_dur = duration_cast<To>(dur);
     if (to_dur < dur) {
         return to_dur + To{1};
@@ -317,7 +304,7 @@ constexpr auto ceil(const Duration<Period, Rep> &dur) -> To {
 }
 
 template <typename To, uint32_t Period, std::integral Rep>
-constexpr auto round(const Duration<Period, Rep> &dur) -> To {
+LINES_CONSTEXPR auto round(const Duration<Period, Rep> &dur) -> To {
     To to0 = floor<To>(dur);
     To to1 = to0 + To{1};
     auto diff0 = dur - to0;

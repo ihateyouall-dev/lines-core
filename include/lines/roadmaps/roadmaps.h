@@ -21,8 +21,10 @@
 #include <utility>
 #include <vector>
 
+#include <lines/detail/macro.h>
+
 namespace Lines {
-struct RoadmapNodeInfo {
+struct LINES_API RoadmapNodeInfo {
     explicit RoadmapNodeInfo(std::string title,
                              std::optional<std::string> description = std::nullopt,
                              std::vector<std::string> tags = {})
@@ -32,7 +34,7 @@ struct RoadmapNodeInfo {
     std::vector<std::string> tags;
 };
 
-class RoadmapNode {
+class LINES_API RoadmapNode {
   public:
     using NodeID = std::size_t;
     using NodePtr = std::weak_ptr<RoadmapNode>;
@@ -59,13 +61,13 @@ class RoadmapNode {
     auto operator=(RoadmapNode &&) -> RoadmapNode & = delete;
     ~RoadmapNode() = default;
 
-    [[nodiscard]] auto title() const -> const std::string & { return _info.title; }
-    [[nodiscard]] auto description() const -> const std::optional<std::string> & {
+    LINES_NODISCARD auto title() const -> const std::string & { return _info.title; }
+    LINES_NODISCARD auto description() const -> const std::optional<std::string> & {
         return _info.description;
     }
-    [[nodiscard]] auto tags() const -> std::vector<std::string> { return _info.tags; }
+    LINES_NODISCARD auto tags() const -> std::vector<std::string> { return _info.tags; }
 
-    [[nodiscard]] auto state() const -> State { return _state; }
+    LINES_NODISCARD auto state() const -> State { return _state; }
 
     void set_state(State state) { _state = state; }
 
@@ -80,14 +82,14 @@ class RoadmapNode {
 
     void set_parent(NodePtr parent) { _parent = std::move(parent); }
 
-    [[nodiscard]] auto out_degree() const -> std::size_t { return _children.size(); }
+    LINES_NODISCARD auto out_degree() const -> std::size_t { return _children.size(); }
 
-    [[nodiscard]] auto parent() const -> NodePtr { return _parent; }
-    [[nodiscard]] auto children() const -> const std::vector<NodePtr> & { return _children; }
-    [[nodiscard]] auto id() const -> NodeID { return _id; }
+    LINES_NODISCARD auto parent() const -> NodePtr { return _parent; }
+    LINES_NODISCARD auto children() const -> const std::vector<NodePtr> & { return _children; }
+    LINES_NODISCARD auto id() const -> NodeID { return _id; }
 };
 
-struct RoadmapInfo {
+struct LINES_API RoadmapInfo {
     explicit RoadmapInfo(std::string title, std::optional<std::string> description = std::nullopt,
                          std::vector<std::string> tags = {})
         : title(std::move(title)), description(std::move(description)), tags(std::move(tags)) {}
@@ -96,7 +98,7 @@ struct RoadmapInfo {
     std::vector<std::string> tags;
 };
 
-class Roadmap {
+class LINES_API Roadmap {
     RoadmapInfo _info;
     std::vector<std::shared_ptr<RoadmapNode>> nodes;
 
@@ -111,7 +113,7 @@ class Roadmap {
     }
 
   public:
-    static constexpr RoadmapNode::NodeID ROOT_ID = 0;
+    static LINES_CONSTEXPR RoadmapNode::NodeID ROOT_ID = 0;
     explicit Roadmap(RoadmapInfo info) : _info(std::move(info)) {
         nodes.emplace_back(std::make_shared<RoadmapNode>(
             ROOT_ID, RoadmapNodeInfo{"Root", "Root node"}, RoadmapNode::NodePtr{}));
@@ -127,13 +129,13 @@ class Roadmap {
     auto operator[](RoadmapNode::NodeID id) -> RoadmapNode::NodePtr { return nodes[id]; }
 
     auto root() -> RoadmapNode::NodePtr { return nodes[ROOT_ID]; }
-    [[nodiscard]] auto root() const -> RoadmapNode::NodePtr { return nodes[ROOT_ID]; }
-    [[nodiscard]] static auto is_root(RoadmapNode::NodeID id) -> bool { return id == ROOT_ID; }
+    LINES_NODISCARD auto root() const -> RoadmapNode::NodePtr { return nodes[ROOT_ID]; }
+    LINES_NODISCARD static auto is_root(RoadmapNode::NodeID id) -> bool { return id == ROOT_ID; }
 
     auto last() -> RoadmapNode::NodePtr { return nodes[nodes.size() - 1]; }
-    [[nodiscard]] auto last() const -> RoadmapNode::NodePtr { return nodes[nodes.size() - 1]; }
+    LINES_NODISCARD auto last() const -> RoadmapNode::NodePtr { return nodes[nodes.size() - 1]; }
 
-    [[nodiscard]] auto last_id() const -> RoadmapNode::NodeID { return nodes.size() - 1; }
+    LINES_NODISCARD auto last_id() const -> RoadmapNode::NodeID { return nodes.size() - 1; }
 
     auto add_node(RoadmapNode::NodePtr parent, const RoadmapNodeInfo &info)
         -> RoadmapNode::NodePtr {
@@ -169,14 +171,14 @@ class Roadmap {
         nodes[id] = nullptr;
     }
 
-    [[nodiscard]] auto size() const -> std::size_t { return nodes.size(); }
+    LINES_NODISCARD auto size() const -> std::size_t { return nodes.size(); }
 
-    [[nodiscard]] auto title() const -> std::string { return _info.title; }
+    LINES_NODISCARD auto title() const -> std::string { return _info.title; }
 
-    [[nodiscard]] auto description() const -> std::optional<std::string> {
+    LINES_NODISCARD auto description() const -> std::optional<std::string> {
         return _info.description;
     }
 
-    [[nodiscard]] auto tags() const -> std::vector<std::string> { return _info.tags; }
+    LINES_NODISCARD auto tags() const -> std::vector<std::string> { return _info.tags; }
 };
 }; // namespace Lines

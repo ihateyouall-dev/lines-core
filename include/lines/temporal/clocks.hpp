@@ -14,41 +14,45 @@
 #pragma once
 
 #include <chrono>
+#include <lines/detail/macro.h>
 #include <lines/temporal/date.hpp>
 #include <lines/temporal/timepoint.hpp>
 #include <lines/temporal/timestamp.hpp>
 #include <lines/temporal/timezone.hpp>
 
 namespace Lines::Temporal {
-// Depends on reality, cannot be unit tested
-struct UTCClock final {
-    static auto now() noexcept -> TimePoint {
+struct LINES_API UTCClock final {
+    LINES_API static auto now() LINES_NOEXCEPT -> TimePoint {
         auto now = std::chrono::system_clock::now();
         return TimePoint(Seconds{now.time_since_epoch()});
     }
 
-    static auto since_midnight() -> Timestamp { return Timestamp(now().time_since_epoch()); }
+    LINES_API static auto since_midnight() -> Timestamp {
+        return Timestamp(now().time_since_epoch());
+    }
 
-    static auto today() noexcept -> Date {
+    LINES_API static auto today() LINES_NOEXCEPT -> Date {
         auto days = floor<Days>(now().time_since_epoch());
         return Date(Days{days});
     }
 };
 
-struct LocalClock final {
-    static auto now() noexcept -> TimePoint {
+struct LINES_API LocalClock final {
+    LINES_API static auto now() LINES_NOEXCEPT -> TimePoint {
         auto now = UTCClock::now();
         return ZonedTime(now, current_zone()).get_local_time();
     }
 
-    static auto since_midnight() -> Timestamp { return Timestamp(now().time_since_epoch()); }
+    LINES_API static auto since_midnight() -> Timestamp {
+        return Timestamp(now().time_since_epoch());
+    }
 
-    static auto today() noexcept -> Date {
+    LINES_API static auto today() LINES_NOEXCEPT -> Date {
         auto days = floor<Days>(now().time_since_epoch());
         return Date(days);
     }
 
-    [[nodiscard]] static auto current_zone() -> TimeZone {
+    LINES_API LINES_NODISCARD static auto current_zone() -> TimeZone {
         std::time_t now = std::time(nullptr);
         std::tm local{};
         std::tm utc{};

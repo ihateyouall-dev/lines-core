@@ -14,20 +14,18 @@
 #pragma once
 
 #include <cstdint>
+#include <lines/detail/macro.h>
 
 namespace Lines {
 
-using uint = std::uint32_t;
-
-class TaskCompletion {
+class LINES_API TaskCompletion {
   public:
     enum class State : uint8_t { NotCompleted, Completed, Skipped };
 
   private:
     State _state = State::NotCompleted;
 
-  protected:
-    void set_state(State state) noexcept;
+    void set_state(State state) LINES_NOEXCEPT;
 
   public:
     TaskCompletion() = default;
@@ -37,13 +35,13 @@ class TaskCompletion {
     auto operator=(TaskCompletion &&) -> TaskCompletion & = default;
     ~TaskCompletion() = default;
 
-    void complete() noexcept;
-    [[nodiscard]] auto completed() const noexcept -> bool;
-    [[nodiscard]] auto finished() const noexcept -> bool;
+    void complete() LINES_NOEXCEPT;
+    LINES_NODISCARD auto completed() const LINES_NOEXCEPT -> bool;
+    LINES_NODISCARD auto finished() const LINES_NOEXCEPT -> bool;
 
-    void reset() noexcept;
-    void skip() noexcept;
-    [[nodiscard]] auto skipped() const noexcept -> bool;
-    [[nodiscard]] auto state() const noexcept -> State;
+    void reset() LINES_NOEXCEPT;
+    void skip() LINES_NOEXCEPT;
+    LINES_NODISCARD auto skipped() const LINES_NOEXCEPT -> bool;
+    LINES_NODISCARD auto state() const LINES_NOEXCEPT -> State;
 };
 } // namespace Lines

@@ -13,10 +13,11 @@
 */
 #pragma once
 
+#include "lines/detail/macro.h"
 #include <lines/temporal/duration.hpp>
 
 namespace Lines::Temporal {
-class Year {
+class LINES_API Year {
     int _rep;
 
     using Rep = decltype(_rep);
@@ -29,13 +30,13 @@ class Year {
     explicit Year(int rep) : _rep(rep) {}
     ~Year() = default;
 
-    constexpr explicit operator int() const noexcept { return _rep; };
+    LINES_NODISCARD explicit operator int() const LINES_NOEXCEPT { return _rep; };
 
     auto operator<=>(const Year &) const = default;
 
-    auto operator+() const noexcept -> Year;
+    auto operator+() const LINES_NOEXCEPT->Year;
 
-    auto operator-() const noexcept -> Year;
+    auto operator-() const LINES_NOEXCEPT->Year;
 
     auto operator+=(const Years &yrs) -> Year &;
 
@@ -55,7 +56,7 @@ class Year {
 
     auto operator-(const Year &year) const -> Years;
 
-    [[nodiscard]] constexpr auto is_leap() const noexcept -> bool {
+    LINES_NODISCARD LINES_CONSTEXPR auto is_leap() const LINES_NOEXCEPT -> bool {
         if (_rep % 400 == 0) {
             return true;
         }
@@ -65,12 +66,12 @@ class Year {
         return _rep % 4 == 0;
     }
 
-    [[nodiscard]] auto ok() const noexcept -> bool;
+    LINES_NODISCARD auto ok() const LINES_NOEXCEPT -> bool;
 };
 
-auto operator+(const Years &lhs, const Year &rhs) -> Year;
+LINES_API auto operator+(const Years &lhs, const Year &rhs) -> Year;
 
-class Month {
+class LINES_API Month {
     // 1 <= _rep <= 12. Not strong invariant
     uint8_t _rep;
 
@@ -84,7 +85,7 @@ class Month {
 
     auto operator<=>(const Month &) const = default;
 
-    constexpr explicit operator unsigned() const { return _rep; }
+    LINES_CONSTEXPR explicit operator unsigned() const { return _rep; }
 
     auto operator++() -> Month &;
 
@@ -104,12 +105,12 @@ class Month {
 
     auto operator-(const Month &month) const -> Months;
 
-    [[nodiscard]] auto ok() const -> bool;
+    LINES_NODISCARD auto ok() const -> bool;
 };
 
-auto operator+(const Months &lhs, const Month &rhs) -> Month;
+LINES_API auto operator+(const Months &lhs, const Month &rhs) -> Month;
 
-class Day {
+class LINES_API Day {
     // 1 <= _rep <= 31. Not strong invariant
     uint8_t _rep;
 
@@ -123,7 +124,7 @@ class Day {
 
     auto operator<=>(const Day &) const = default;
 
-    explicit constexpr operator unsigned() const { return _rep; };
+    explicit LINES_CONSTEXPR operator unsigned() const { return _rep; };
 
     auto operator++() -> Day &;
 
@@ -143,10 +144,10 @@ class Day {
 
     auto operator-(const Day &day) const -> Days;
 
-    [[nodiscard]] auto ok() const -> bool;
+    LINES_NODISCARD auto ok() const -> bool;
 };
 
-auto operator+(const Days &lhs, const Day &rhs) -> Day;
+LINES_API auto operator+(const Days &lhs, const Day &rhs) -> Day;
 
 enum class Weekday : int8_t {
     Monday = 0,

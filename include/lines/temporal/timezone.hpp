@@ -13,13 +13,14 @@
 */
 #pragma once
 
+#include "lines/detail/macro.h"
 #include <lines/temporal/duration.hpp>
 #include <lines/temporal/timepoint.hpp>
 
 namespace Lines::Temporal {
 // This class represents a fixed offset from UTC.
 // It is NOT equivalent to std::chrono::time_zone.
-class TimeZone {
+class LINES_API TimeZone {
     Seconds _offset;
 
   public:
@@ -31,11 +32,11 @@ class TimeZone {
     explicit TimeZone(Hours hours) : _offset(Seconds{duration_cast<Seconds>(hours)}) {}
     ~TimeZone() = default;
 
-    [[nodiscard]] auto offset() const -> Seconds { return _offset; }
+    LINES_NODISCARD auto offset() const -> Seconds { return _offset; }
 };
 
 // Wraps TimePoint and TimeZone into an object representing a zoned time
-class ZonedTime {
+class LINES_API ZonedTime {
     TimeZone _tz;
     TimePoint _tp;
 

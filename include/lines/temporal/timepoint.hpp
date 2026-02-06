@@ -16,7 +16,7 @@
 #include <lines/temporal/duration.hpp>
 
 namespace Lines::Temporal {
-class TimePoint {
+class LINES_API TimePoint {
     // Unlike Timestamp, this class does not have a strong invariant.
     // It represents absolute time since the epoch.
     Seconds _rep{0};
@@ -68,7 +68,7 @@ class TimePoint {
 
     auto operator-(const TimePoint &tp) const -> Duration; // NOLINT
 
-    [[nodiscard]] auto time_since_epoch() const -> Duration;
+    LINES_NODISCARD auto time_since_epoch() const -> Duration;
 };
 
 template <uint32_t Period, std::integral Rep>

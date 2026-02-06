@@ -13,13 +13,14 @@
 */
 #pragma once
 
+#include "lines/detail/macro.h"
 #include <lines/temporal/date.hpp>
 #include <lines/temporal/timepoint.hpp>
 #include <lines/temporal/timestamp.hpp>
 
 namespace Lines::Temporal {
 // Representation of TimePoint as Date + TimeStamp
-class DateTime {
+class LINES_API DateTime {
     TimePoint _tp;
 
   public:
@@ -30,8 +31,8 @@ class DateTime {
     explicit DateTime(TimePoint tp) : _tp(tp) {}
     ~DateTime() = default;
 
-    [[nodiscard]] auto date() const -> Date { return Date(floor<Days>(_tp.time_since_epoch())); }
+    LINES_NODISCARD auto date() const -> Date { return Date(floor<Days>(_tp.time_since_epoch())); }
 
-    [[nodiscard]] auto time() const -> Timestamp { return Timestamp(_tp.time_since_epoch()); }
+    LINES_NODISCARD auto time() const -> Timestamp { return Timestamp(_tp.time_since_epoch()); }
 };
 } // namespace Lines::Temporal

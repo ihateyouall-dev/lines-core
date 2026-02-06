@@ -18,8 +18,10 @@
 #include <string>
 #include <vector>
 
+#include <lines/detail/macro.h>
+
 namespace Lines {
-struct TaskInfo {
+struct LINES_API TaskInfo {
     TaskInfo() = default;
     TaskInfo(const TaskInfo &) = default; // LCOV_EXCL_LINE
     TaskInfo(TaskInfo &&) = default;

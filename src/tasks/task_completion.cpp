@@ -13,18 +13,20 @@
 */
 #include <lines/tasks/task_completion.hpp>
 
-void Lines::TaskCompletion::set_state(State state) noexcept { _state = state; }
-void Lines::TaskCompletion::complete() noexcept { set_state(State::Completed); };
-auto Lines::TaskCompletion::completed() const noexcept -> bool {
+void Lines::TaskCompletion::set_state(State state) LINES_NOEXCEPT { _state = state; }
+void Lines::TaskCompletion::complete() LINES_NOEXCEPT { set_state(State::Completed); };
+auto Lines::TaskCompletion::completed() const LINES_NOEXCEPT -> bool {
     return _state == State::Completed;
 }
 
-auto Lines::TaskCompletion::finished() const noexcept -> bool {
+auto Lines::TaskCompletion::finished() const LINES_NOEXCEPT -> bool {
     return _state != State::NotCompleted;
 }
 
-void Lines::TaskCompletion::reset() noexcept { set_state(State::NotCompleted); }
-void Lines::TaskCompletion::skip() noexcept { set_state(State::Skipped); }
-auto Lines::TaskCompletion::skipped() const noexcept -> bool { return _state == State::Skipped; }
+void Lines::TaskCompletion::reset() LINES_NOEXCEPT { set_state(State::NotCompleted); }
+void Lines::TaskCompletion::skip() LINES_NOEXCEPT { set_state(State::Skipped); }
+auto Lines::TaskCompletion::skipped() const LINES_NOEXCEPT -> bool {
+    return _state == State::Skipped;
+}
 
-auto Lines::TaskCompletion::state() const noexcept -> State { return _state; }
+auto Lines::TaskCompletion::state() const LINES_NOEXCEPT -> State { return _state; }

@@ -14,9 +14,9 @@
 #include <lines/temporal/ymd.hpp>
 
 // Year
-auto Lines::Temporal::Year::operator+() const noexcept -> Year { return *this; }
+auto Lines::Temporal::Year::operator+() const LINES_NOEXCEPT -> Year { return *this; }
 
-auto Lines::Temporal::Year::operator-() const noexcept -> Year { return Year{-_rep}; }
+auto Lines::Temporal::Year::operator-() const LINES_NOEXCEPT -> Year { return Year{-_rep}; }
 
 auto Lines::Temporal::Year::operator+=(const Years &yrs) -> Year & {
     _rep += static_cast<Rep>(yrs.count());
@@ -66,7 +66,7 @@ auto Lines::Temporal::Year::operator-(const Year &year) const -> Years {
     return Years{_rep - year._rep};
 }
 
-auto Lines::Temporal::Year::ok() const noexcept -> bool {
+auto Lines::Temporal::Year::ok() const LINES_NOEXCEPT -> bool {
     return _rep != std::numeric_limits<Rep>::min();
 }
 

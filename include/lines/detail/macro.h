@@ -108,6 +108,12 @@
 #define LINES_NODISCARD
 #endif
 
+#if LINES_HAS_CPP_ATTRIBUTE(noreturn)
+#define LINES_NORETURN [[noreturn]]
+#else
+#define LINES_NORETURN
+#endif
+
 #if LINES_HAS_CPP_ATTRIBUTE(deprecated)
 #define LINES_DEPRECATED(msg) [[deprecated(msg)]]
 #elif LINES_HAS_ATTRIBUTE(deprecated)
@@ -136,4 +142,10 @@
 #define LINES_NOEXCEPT noexcept
 #else
 #define LINES_NOEXCEPT
+#endif
+
+#if LINES_CPP >= 201703L
+#define LINES_CONSTEXPR_IF if constexpr
+#else
+#define LINES_CONSTEXPR_IF if
 #endif
