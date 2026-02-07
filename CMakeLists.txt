@@ -25,7 +25,7 @@ add_library(lines INTERFACE)
 
 add_subdirectory(src)
 
-target_link_libraries(lines INTERFACE Lines::Tasks Lines::Temporal)
+target_link_libraries(lines INTERFACE Lines::Tasks Lines::Temporal Lines::Roadmaps)
 
 target_include_directories(lines INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 

@@ -60,19 +60,9 @@ template <typename Fn> void bfs_impl(const Roadmap &rmap, const Fn &fn) {
     }
 }
 } // namespace detail
-LINES_API auto dfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
-    std::vector<RoadmapNode::NodePtr> result;
-    detail::dfs_impl(rmap,
-                     [&result](const RoadmapNode::NodePtr &node) { result.emplace_back(node); });
-    return result;
-}
+LINES_API auto dfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr>;
 
-LINES_API auto bfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr> {
-    std::vector<RoadmapNode::NodePtr> result;
-    detail::bfs_impl(rmap,
-                     [&result](const RoadmapNode::NodePtr &node) { result.emplace_back(node); });
-    return result;
-}
+LINES_API auto bfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr>;
 
 template <typename Fn> void dfs_foreach(const Roadmap &rmap, Fn &&visitor) {
     dfs_impl(rmap, std::forward<Fn>(visitor));
