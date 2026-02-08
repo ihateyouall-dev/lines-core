@@ -13,7 +13,7 @@
 */
 #pragma once
 
-#include "roadmaps.h"
+#include "roadmaps.hpp"
 #include <cassert>
 #include <queue>
 #include <ranges>
@@ -65,10 +65,10 @@ LINES_API auto dfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr>;
 LINES_API auto bfs(const Roadmap &rmap) -> std::vector<RoadmapNode::NodePtr>;
 
 template <typename Fn> void dfs_foreach(const Roadmap &rmap, Fn &&visitor) {
-    dfs_impl(rmap, std::forward<Fn>(visitor));
+    detail::dfs_impl(rmap, std::forward<Fn>(visitor));
 }
 
 template <typename Fn> void bfs_foreach(const Roadmap &rmap, Fn &&visitor) {
-    bfs_impl(rmap, std::forward<Fn>(visitor));
+    detail::bfs_impl(rmap, std::forward<Fn>(visitor));
 }
 } // namespace Lines::Roadmaps

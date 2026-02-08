@@ -1,4 +1,4 @@
-#include <lines/roadmaps/roadmaps.h>
+#include <lines/roadmaps/roadmaps.hpp>
 
 #include <algorithm>
 #include <stdexcept>
@@ -78,8 +78,6 @@ auto Lines::Roadmap::root() const -> RoadmapNode::NodePtr { return nodes[ROOT_ID
 auto Lines::Roadmap::is_root(RoadmapNode::NodeID id) -> bool { return id == ROOT_ID; }
 
 auto Lines::Roadmap::last() -> RoadmapNode::NodePtr { return nodes[nodes.size() - 1]; }
-
-auto Lines::Roadmap::last() const -> RoadmapNode::NodePtr { return nodes[nodes.size() - 1]; }
 
 auto Lines::Roadmap::last_id() const -> RoadmapNode::NodeID { return nodes.size() - 1; }
 

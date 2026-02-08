@@ -12,8 +12,7 @@
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
 #include <gtest/gtest.h>
-#include <gtest/gtest_prod.h>
-#include <lines/roadmaps/roadmaps.h>
+#include <lines/roadmaps/roadmaps.hpp>
 
 using namespace Lines;
 

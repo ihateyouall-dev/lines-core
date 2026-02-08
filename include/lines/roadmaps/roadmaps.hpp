@@ -103,7 +103,6 @@ class LINES_API Roadmap {
     LINES_NODISCARD static auto is_root(RoadmapNode::NodeID id) -> bool;
 
     auto last() -> RoadmapNode::NodePtr;
-    LINES_NODISCARD auto last() const -> RoadmapNode::NodePtr;
 
     LINES_NODISCARD auto last_id() const -> RoadmapNode::NodeID;
 
