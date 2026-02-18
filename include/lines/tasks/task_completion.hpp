@@ -25,9 +25,8 @@ class LINES_API TaskCompletion {
   private:
     State _state = State::NotCompleted;
 
-    void set_state(State state) LINES_NOEXCEPT;
-
   public:
+    void set_state(State state) LINES_NOEXCEPT;
     TaskCompletion() = default;
     TaskCompletion(const TaskCompletion &) = default; // LCOV_EXCL_LINE
     TaskCompletion(TaskCompletion &&) = default;
