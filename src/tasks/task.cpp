@@ -13,14 +13,11 @@
 */
 #include "lines/tasks/task_repeat.hpp"
 #include <lines/tasks/task.hpp>
+#include <optional>
 #include <utility>
 
 Lines::Task::Task(TaskInfo info, TaskRepeatRule rule)
     : _info(std::move(info)), _rule(std::move(rule)) {}
-
-auto Lines::Task::completion() -> TaskCompletion & { return _completion; }
-
-auto Lines::Task::completion() const -> const TaskCompletion & { return _completion; }
 
 void Lines::Task::set_title(const std::string &title) {
     if (title.empty()) {
@@ -45,7 +42,35 @@ auto Lines::Task::description() const -> const std::optional<std::string> & {
 
 auto Lines::Task::tags() const -> const std::vector<std::string> & { return _info.tags; }
 
-auto Lines::Task::next_date(const Temporal::Date &completed_at) const
+auto Lines::Task::next_deadline(const Temporal::Date &completed_at) const
     -> std::optional<Temporal::Date> {
     return _rule.next_date(completed_at);
+}
+
+auto Lines::Task::deadline() const -> const std::optional<Temporal::Date> & { return _deadline; };
+
+auto Lines::Task::finished() const -> bool { return _completion.finished(); }
+
+auto Lines::Task::skipped() const -> bool { return _completion.skipped(); }
+
+void Lines::Task::skip() { _completion.skip(); }
+
+auto Lines::Task::completed() const -> bool { return _completion.completed(); }
+
+auto Lines::Task::completion_state() const -> TaskCompletion::State { return _completion.state(); }
+
+void Lines::Task::complete() { _completion.complete(); }
+
+void Lines::Task::set_completion_state(TaskCompletion::State state) {
+    _completion.set_state(state);
+}
+
+void Lines::Task::completion_reset() { _completion.reset(); }
+
+void Lines::Task::advance_deadline(const Temporal::Date &completed_at) {
+    _deadline = _rule.next_date(completed_at);
+}
+
+auto Lines::Task::actual(const Temporal::Date &date) const -> bool {
+    return !finished() && (!_deadline || *_deadline <= date);
 }

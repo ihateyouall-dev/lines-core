@@ -67,18 +67,20 @@ TEST(TaskCompletion, ConstAndNonConst) {
     const Task const_task = Task{TaskInfo{"const"}};
     Task task = Task{TaskInfo{"non const"}};
 
-    EXPECT_FALSE(const_task.completion().completed());
-    task.completion().complete();
+    EXPECT_FALSE(const_task.completed());
+    task.complete();
 
-    EXPECT_TRUE(task.completion().completed());
+    EXPECT_TRUE(task.completed());
 }
 
 TEST(TaskRepeat, NextDate) {
     TaskRepeatRule rule{.repeat_type =
                             EveryUnit(duration_cast<Temporal::Minutes>(Temporal::Days{1}))};
     Task task{TaskInfo{"title"}, rule};
-    EXPECT_EQ(task.next_date(Temporal::Date{Temporal::Days{1}}), Temporal::Date{Temporal::Days{2}});
+    EXPECT_EQ(task.next_deadline(Temporal::Date{Temporal::Days{1}}),
+              Temporal::Date{Temporal::Days{2}});
     task.set_repeat_rule(TaskRepeatRule{
         .repeat_type = EveryUnit{duration_cast<Temporal::Minutes>(Temporal::Days{2})}});
-    EXPECT_EQ(task.next_date(Temporal::Date{Temporal::Days{1}}), Temporal::Date{Temporal::Days{3}});
+    EXPECT_EQ(task.next_deadline(Temporal::Date{Temporal::Days{1}}),
+              Temporal::Date{Temporal::Days{3}});
 };
