@@ -21,7 +21,7 @@ Lines::Task::Task(TaskInfo info, TaskRepeatRule rule)
 
 void Lines::Task::set_title(const std::string &title) {
     if (title.empty()) {
-        throw std::invalid_argument("Task: title must not be empty");
+        throw std::invalid_argument("Lines::Task: title must not be empty");
     }
     _info.title = title;
 }
@@ -49,28 +49,16 @@ auto Lines::Task::next_deadline(const Temporal::Date &completed_at) const
 
 auto Lines::Task::deadline() const -> const std::optional<Temporal::Date> & { return _deadline; };
 
-auto Lines::Task::finished() const -> bool { return _completion.finished(); }
-
-auto Lines::Task::skipped() const -> bool { return _completion.skipped(); }
-
-void Lines::Task::skip() { _completion.skip(); }
-
-auto Lines::Task::completed() const -> bool { return _completion.completed(); }
-
-auto Lines::Task::completion_state() const -> TaskCompletion::State { return _completion.state(); }
-
-void Lines::Task::complete() { _completion.complete(); }
-
-void Lines::Task::set_completion_state(TaskCompletion::State state) {
-    _completion.set_state(state);
-}
-
-void Lines::Task::completion_reset() { _completion.reset(); }
+void Lines::Task::complete() { _completed = true; }
 
 void Lines::Task::advance_deadline(const Temporal::Date &completed_at) {
     _deadline = _rule.next_date(completed_at);
 }
 
 auto Lines::Task::actual(const Temporal::Date &date) const -> bool {
-    return !finished() && (!_deadline || *_deadline <= date);
+    return !_completed && (!_deadline || *_deadline <= date);
 }
+
+void Lines::Task::uncomplete() { _completed = false; };
+
+LINES_NODISCARD auto Lines::Task::completed() const -> bool { return _completed; };

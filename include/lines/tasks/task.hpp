@@ -14,7 +14,6 @@
 #pragma once
 
 #include "lines/detail/macro.h"
-#include <lines/tasks/task_completion.hpp>
 #include <lines/tasks/task_info.hpp>
 #include <lines/tasks/task_repeat.hpp>
 #include <lines/temporal/date.hpp>
@@ -22,9 +21,9 @@
 namespace Lines {
 class LINES_API Task {
     TaskInfo _info;
-    TaskCompletion _completion;
     TaskRepeatRule _rule;
     std::optional<Temporal::Date> _deadline;
+    bool _completed{};
 
   public:
     explicit Task(TaskInfo info, TaskRepeatRule rule = {});
@@ -34,19 +33,9 @@ class LINES_API Task {
     auto operator=(Task &&) -> Task & = default;
     ~Task() = default;
 
-    LINES_NODISCARD auto finished() const -> bool;
-
-    LINES_NODISCARD auto skipped() const -> bool;
-    void skip();
-
     LINES_NODISCARD auto completed() const -> bool;
     void complete();
-
-    LINES_NODISCARD auto completion_state() const -> TaskCompletion::State;
-
-    void set_completion_state(TaskCompletion::State state);
-
-    void completion_reset();
+    void uncomplete();
 
     void set_title(const std::string &title);
     void set_description(const std::string &description);
