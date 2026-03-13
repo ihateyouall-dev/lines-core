@@ -73,7 +73,14 @@ TEST(TaskCompletion, ConstAndNonConst) {
     EXPECT_TRUE(task.completed());
 }
 
-TEST(TaskRepeat, NextDate) {
+TEST(Task, Deadline) {
+    TaskRepeatRule rule{.repeat_type = Once{Temporal::Date{Temporal::Days{2}}}};
+    Task task{TaskInfo{"task"}};
+    EXPECT_EQ(*task.next_deadline(Temporal::Date{Temporal::Days{1}}),
+              Temporal::Date{Temporal::Days{2}});
+}
+
+TEST(Task, NextDeadline) {
     TaskRepeatRule rule{.repeat_type =
                             EveryUnit(duration_cast<Temporal::Minutes>(Temporal::Days{1}))};
     Task task{TaskInfo{"title"}, rule};

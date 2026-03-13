@@ -16,7 +16,7 @@
 #include <optional>
 #include <utility>
 
-Lines::Task::Task(TaskInfo info, TaskRepeatRule rule)
+Lines::Task::Task(TaskInfo info, std::optional<TaskRepeatRule> rule)
     : _info(std::move(info)), _rule(std::move(rule)) {}
 
 void Lines::Task::set_title(const std::string &title) {

@@ -21,12 +21,12 @@
 namespace Lines {
 class LINES_API Task {
     TaskInfo _info;
-    TaskRepeatRule _rule;
+    std::optional<TaskRepeatRule> _rule;
     std::optional<Temporal::Date> _deadline;
     bool _completed{};
 
   public:
-    explicit Task(TaskInfo info, TaskRepeatRule rule = {});
+    explicit Task(TaskInfo info, std::optional<TaskRepeatRule> rule = std::nullopt);
     Task(const Task &task) = default;
     auto operator=(const Task &task) -> Task & = default;
     Task(Task &&) = default;
