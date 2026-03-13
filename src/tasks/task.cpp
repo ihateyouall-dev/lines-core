@@ -17,7 +17,7 @@
 #include <utility>
 
 Lines::Task::Task(TaskInfo info, std::optional<TaskRepeatRule> rule)
-    : _info(std::move(info)), _rule(std::move(rule)) {}
+    : _info(std::move(info)), _repeat_rule(std::move(rule)) {}
 
 void Lines::Task::set_title(const std::string &title) {
     if (title.empty()) {
@@ -32,7 +32,9 @@ void Lines::Task::set_description(const std::string &description) {
 
 void Lines::Task::set_tags(std::vector<std::string> tags) { _info.tags = std::move(tags); }
 
-void Lines::Task::set_repeat_rule(const TaskRepeatRule &rule) { _rule = rule; }
+void Lines::Task::set_repeat_rule(const std::optional<TaskRepeatRule> &rule) {
+    _repeat_rule = rule;
+}
 
 auto Lines::Task::title() const -> const std::string & { return _info.title; }
 
@@ -44,7 +46,19 @@ auto Lines::Task::tags() const -> const std::vector<std::string> & { return _inf
 
 auto Lines::Task::next_deadline(const Temporal::Date &completed_at) const
     -> std::optional<Temporal::Date> {
-    return _rule.next_date(completed_at);
+    // Returns the next deadline for the task after completion.
+    // Non-repeating tasks keep their current deadline if it has not passed.
+    // Repeating tasks compute the next deadline using the repeat rule.
+    if (!_repeat_rule) {
+        if (_deadline) {
+            if (completed_at >= *_deadline) {
+                return std::nullopt;
+            }
+            return _deadline;
+        }
+        return std::nullopt;
+    }
+    return _repeat_rule->next_date(completed_at);
 }
 
 auto Lines::Task::deadline() const -> const std::optional<Temporal::Date> & { return _deadline; };
@@ -52,13 +66,25 @@ auto Lines::Task::deadline() const -> const std::optional<Temporal::Date> & { re
 void Lines::Task::complete() { _completed = true; }
 
 void Lines::Task::advance_deadline(const Temporal::Date &completed_at) {
-    _deadline = _rule.next_date(completed_at);
+    _deadline = next_deadline(completed_at);
 }
 
-auto Lines::Task::actual(const Temporal::Date &date) const -> bool {
-    return !_completed && (!_deadline || *_deadline <= date);
+auto Lines::Task::is_active(const Temporal::Date &date) const -> bool {
+    // A task is active on a given date if it isn't completed
+    // and its deadline has not yet passed. Tasks without deadlines
+    // remain active until completed.
+    return !_completed && (!_deadline || date <= *_deadline);
 }
 
 void Lines::Task::uncomplete() { _completed = false; };
 
 LINES_NODISCARD auto Lines::Task::completed() const -> bool { return _completed; };
+
+void Lines::Task::set_deadline(const std::optional<Temporal::Date> &deadline) {
+    _deadline = deadline;
+}
+LINES_NODISCARD auto Lines::Task::next_deadline() const -> std::optional<Temporal::Date> {
+    return next_deadline(*_deadline);
+}
+
+void Lines::Task::advance_deadline() { _deadline = next_deadline(); }

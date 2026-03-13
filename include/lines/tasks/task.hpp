@@ -13,7 +13,7 @@
 */
 #pragma once
 
-#include "lines/detail/macro.h"
+#include <lines/detail/macro.h>
 #include <lines/tasks/task_info.hpp>
 #include <lines/tasks/task_repeat.hpp>
 #include <lines/temporal/date.hpp>
@@ -21,7 +21,7 @@
 namespace Lines {
 class LINES_API Task {
     TaskInfo _info;
-    std::optional<TaskRepeatRule> _rule;
+    std::optional<TaskRepeatRule> _repeat_rule;
     std::optional<Temporal::Date> _deadline;
     bool _completed{};
 
@@ -40,7 +40,7 @@ class LINES_API Task {
     void set_title(const std::string &title);
     void set_description(const std::string &description);
     void set_tags(std::vector<std::string> tags);
-    void set_repeat_rule(const TaskRepeatRule &rule);
+    void set_repeat_rule(const std::optional<TaskRepeatRule> &rule);
 
     LINES_NODISCARD auto deadline() const -> const std::optional<Temporal::Date> &;
 
@@ -51,6 +51,9 @@ class LINES_API Task {
     LINES_NODISCARD auto next_deadline(const Temporal::Date &completed_at) const
         -> std::optional<Temporal::Date>;
     void advance_deadline(const Temporal::Date &completed_at);
-    LINES_NODISCARD auto actual(const Temporal::Date &date) const -> bool;
+    LINES_NODISCARD auto next_deadline() const -> std::optional<Temporal::Date>;
+    void advance_deadline();
+    void set_deadline(const std::optional<Temporal::Date> &deadline);
+    LINES_NODISCARD auto is_active(const Temporal::Date &date) const -> bool;
 };
 } // namespace Lines

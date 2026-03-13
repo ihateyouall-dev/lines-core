@@ -27,12 +27,8 @@ struct LINES_API EveryWeekday {
     std::vector<Temporal::Weekday> weekdays;
 };
 
-struct LINES_API Once {
-    Temporal::Date date;
-};
-
 struct LINES_API TaskRepeatRule {
-    using RepeatType = std::variant<EveryUnit, EveryWeekday, Once>;
+    using RepeatType = std::variant<EveryUnit, EveryWeekday>;
     RepeatType repeat_type;
     std::optional<Temporal::Date> end;
 
@@ -53,16 +49,10 @@ struct LINES_API TaskRepeatRule {
                     while (std::ranges::find(v.weekdays, tomorrow.weekday()) == v.weekdays.end()) {
                         tomorrow += Temporal::Days{1};
                     }
-                    if (!end.has_value() || tomorrow <= end.value()) {
+                    if (!end || tomorrow <= *end) {
                         return tomorrow;
                     }
                     return std::nullopt;
-                }
-                LINES_CONSTEXPR_IF(std::is_same_v<T, Once>) {
-                    if (v.date <= completed_at) {
-                        return std::nullopt;
-                    }
-                    return v.date;
                 }
                 return std::nullopt;
             },

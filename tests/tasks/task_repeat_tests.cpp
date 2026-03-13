@@ -58,10 +58,3 @@ TEST(TaskRepeat, EveryWeekdayWithEnd) {
 
     EXPECT_EQ(rule.next_date(Temporal::Date{Temporal::Days{4}}), std::nullopt);
 }
-
-TEST(TaskRepeat, Once) {
-    TaskRepeatRule rule{.repeat_type = Once{.date = Temporal::Date{Temporal::Days{42}}}};
-    EXPECT_EQ(rule.next_date(Temporal::Date{Temporal::Days{1}}),
-              Temporal::Date{Temporal::Days{42}});
-    EXPECT_EQ(rule.next_date(Temporal::Date{Temporal::Days{42}}), std::nullopt);
-}
