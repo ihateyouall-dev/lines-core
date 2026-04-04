@@ -19,16 +19,16 @@
 #include <variant>
 
 namespace Lines {
-struct LINES_API EveryUnit {
-    Temporal::Minutes interval;
+template <typename Unit> struct LINES_API EveryUnit {
+    Unit interval;
 };
 
 struct LINES_API EveryWeekday {
     std::vector<Temporal::Weekday> weekdays;
 };
 
-struct LINES_API TaskRepeatRule {
-    using RepeatType = std::variant<EveryUnit, EveryWeekday>;
+template <typename Unit = Lines::Temporal::Days> struct LINES_API TaskRepeatRule {
+    using RepeatType = std::variant<EveryUnit<Unit>, EveryWeekday>;
     RepeatType repeat_type;
     std::optional<Temporal::Date> end;
 
@@ -37,7 +37,7 @@ struct LINES_API TaskRepeatRule {
         return std::visit(
             [&](auto &&v) -> std::optional<Temporal::Date> {
                 using T = std::decay_t<decltype(v)>;
-                LINES_CONSTEXPR_IF(std::is_same_v<T, EveryUnit>) {
+                LINES_CONSTEXPR_IF(std::is_same_v<T, EveryUnit<Unit>>) {
                     const Temporal::Date date = completed_at + v.interval;
                     if (!end.has_value() || date <= end.value()) {
                         return date;

@@ -21,12 +21,12 @@
 namespace Lines {
 class LINES_API Task {
     TaskInfo _info;
-    std::optional<TaskRepeatRule> _repeat_rule;
+    std::optional<TaskRepeatRule<>> _repeat_rule;
     std::optional<Temporal::Date> _deadline;
     bool _completed{};
 
   public:
-    explicit Task(TaskInfo info, std::optional<TaskRepeatRule> rule = std::nullopt);
+    explicit Task(TaskInfo info, std::optional<TaskRepeatRule<>> rule = std::nullopt);
     Task(const Task &task) = default;
     auto operator=(const Task &task) -> Task & = default;
     Task(Task &&) = default;
@@ -40,7 +40,7 @@ class LINES_API Task {
     void set_title(const std::string &title);
     void set_description(const std::string &description);
     void set_tags(std::vector<std::string> tags);
-    void set_repeat_rule(const std::optional<TaskRepeatRule> &rule);
+    void set_repeat_rule(const std::optional<TaskRepeatRule<>> &rule);
 
     LINES_NODISCARD auto deadline() const -> const std::optional<Temporal::Date> &;
 

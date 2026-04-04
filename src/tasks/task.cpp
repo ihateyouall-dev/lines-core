@@ -16,7 +16,7 @@
 #include <optional>
 #include <utility>
 
-Lines::Task::Task(TaskInfo info, std::optional<TaskRepeatRule> rule)
+Lines::Task::Task(TaskInfo info, std::optional<TaskRepeatRule<>> rule)
     : _info(std::move(info)), _repeat_rule(std::move(rule)) {}
 
 void Lines::Task::set_title(const std::string &title) {
@@ -32,7 +32,7 @@ void Lines::Task::set_description(const std::string &description) {
 
 void Lines::Task::set_tags(std::vector<std::string> tags) { _info.tags = std::move(tags); }
 
-void Lines::Task::set_repeat_rule(const std::optional<TaskRepeatRule> &rule) {
+void Lines::Task::set_repeat_rule(const std::optional<TaskRepeatRule<>> &rule) {
     _repeat_rule = rule;
 }
 
