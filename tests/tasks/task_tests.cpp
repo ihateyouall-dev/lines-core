@@ -101,7 +101,9 @@ TEST(Task, NextDeadline) {
     EXPECT_FALSE(task.next_deadline());
     EXPECT_FALSE(task.next_deadline(*task.deadline() + Temporal::Days{1}));
 
-    TaskRepeatRule<> rule{.repeat_type = EveryUnit{.interval = Temporal::Days{1}}};
+    TaskRepeatRule rule{
+        .repeat_type =
+            EveryUnit{.interval = Temporal::duration_cast<Temporal::Minutes>(Temporal::Days{1})}};
     task.set_repeat_rule(rule);
 
     EXPECT_EQ(*task.next_deadline(*task.deadline()), *task.deadline() + Temporal::Days{1});
@@ -111,7 +113,9 @@ TEST(Task, AdvanceDeadline) {
     Task task{TaskInfo{"task"}};
     task.set_deadline(Temporal::Date{Temporal::Days{7}});
 
-    TaskRepeatRule<> rule{.repeat_type = EveryUnit{.interval = Temporal::Days{1}}};
+    TaskRepeatRule rule{
+        .repeat_type =
+            EveryUnit{.interval = Temporal::duration_cast<Temporal::Minutes>(Temporal::Days{1})}};
     task.set_repeat_rule(rule);
 
     task.advance_deadline();
