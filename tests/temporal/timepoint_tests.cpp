@@ -23,6 +23,11 @@ TEST(TimePointConstruction, TimeSinceEpoch) {
     EXPECT_EQ(TimePoint(Seconds{42}).time_since_epoch(), Seconds{42});
 }
 
+TEST(TimePointConstruction, ImplicitDurationConversion) {
+    EXPECT_EQ(TimePoint(Days{2}).time_since_epoch(), Days{2});
+    EXPECT_EQ(TimePoint(Duration<42>{2}).time_since_epoch(), Duration<42>{2});
+}
+
 TEST(TimePointComparison, Ordering) {
     EXPECT_LT(TimePoint(Seconds{10}), TimePoint(Seconds{20}));
     EXPECT_GT(TimePoint(Seconds{20}), TimePoint(Seconds{10}));

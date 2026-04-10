@@ -12,6 +12,7 @@
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
 #include "lines/tasks/task_repeat.hpp"
+#include "lines/temporal/timepoint.hpp"
 #include <lines/tasks/task.hpp>
 #include <optional>
 #include <utility>
@@ -44,8 +45,8 @@ auto Lines::Task::description() const -> const std::optional<std::string> & {
 
 auto Lines::Task::tags() const -> const std::vector<std::string> & { return _info.tags; }
 
-auto Lines::Task::next_deadline(const Temporal::Date &completed_at) const
-    -> std::optional<Temporal::Date> {
+auto Lines::Task::next_deadline(const Temporal::TimePoint &completed_at) const
+    -> std::optional<Temporal::TimePoint> {
     // Returns the next deadline for the task after completion.
     // Non-repeating tasks keep their current deadline if it has not passed.
     // Repeating tasks compute the next deadline using the repeat rule.
@@ -58,18 +59,18 @@ auto Lines::Task::next_deadline(const Temporal::Date &completed_at) const
         }
         return std::nullopt;
     }
-    return _repeat_rule->next_date(completed_at);
+    return _repeat_rule->next_deadline(completed_at);
 }
 
-auto Lines::Task::deadline() const -> const std::optional<Temporal::Date> & { return _deadline; };
+auto Lines::Task::deadline() const -> const std::optional<Temporal::TimePoint> & { return _deadline; };
 
 void Lines::Task::complete() { _completed = true; }
 
-void Lines::Task::advance_deadline(const Temporal::Date &completed_at) {
+void Lines::Task::advance_deadline(const Temporal::TimePoint &completed_at) {
     _deadline = next_deadline(completed_at);
 }
 
-auto Lines::Task::is_active(const Temporal::Date &date) const -> bool {
+auto Lines::Task::is_active(const Temporal::TimePoint &date) const -> bool {
     // A task is active on a given date if it isn't completed
     // and its deadline has not yet passed. Tasks without deadlines
     // remain active until completed.
@@ -80,10 +81,10 @@ void Lines::Task::uncomplete() { _completed = false; };
 
 LINES_NODISCARD auto Lines::Task::completed() const -> bool { return _completed; };
 
-void Lines::Task::set_deadline(const std::optional<Temporal::Date> &deadline) {
+void Lines::Task::set_deadline(const std::optional<Temporal::TimePoint> &deadline) {
     _deadline = deadline;
 }
-LINES_NODISCARD auto Lines::Task::next_deadline() const -> std::optional<Temporal::Date> {
+LINES_NODISCARD auto Lines::Task::next_deadline() const -> std::optional<Temporal::TimePoint> {
     return next_deadline(*_deadline);
 }
 

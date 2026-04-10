@@ -14,6 +14,8 @@
 #pragma once
 
 #include "lines/detail/macro.h"
+#include "lines/temporal/datetime.hpp"
+#include "lines/temporal/timepoint.hpp"
 #include <lines/temporal/date.hpp>
 #include <optional>
 #include <variant>
@@ -21,7 +23,7 @@
 namespace Lines {
 namespace TaskRepeat {
 struct LINES_API EveryUnit {
-    Temporal::Minutes interval;
+    Temporal::Seconds interval;
     std::string unit_str;
 };
 
@@ -33,27 +35,29 @@ struct LINES_API EveryWeekday {
 struct LINES_API TaskRepeatRule {
     using RepeatType = std::variant<TaskRepeat::EveryUnit, TaskRepeat::EveryWeekday>;
     RepeatType repeat_type;
-    std::optional<Temporal::Date> end;
+    std::optional<Temporal::TimePoint> end;
 
-    LINES_NODISCARD auto next_date(const Temporal::Date &completed_at) const
-        -> std::optional<Temporal::Date> {
+    LINES_NODISCARD auto next_deadline(const Temporal::TimePoint &completed_at) const
+        -> std::optional<Temporal::TimePoint> {
         return std::visit(
-            [&](auto &&v) -> std::optional<Temporal::Date> {
+            [&](auto &&v) -> std::optional<Temporal::TimePoint> {
                 using T = std::decay_t<decltype(v)>;
                 LINES_CONSTEXPR_IF(std::is_same_v<T, TaskRepeat::EveryUnit>) {
-                    const Temporal::Date date = completed_at + v.interval;
-                    if (!end.has_value() || date <= end.value()) {
-                        return date;
+                    const Temporal::TimePoint res = completed_at + v.interval;
+                    if (!end || res <= *end) {
+                        return res;
                     }
                     return std::nullopt;
                 }
                 LINES_CONSTEXPR_IF(std::is_same_v<T, TaskRepeat::EveryWeekday>) {
-                    Temporal::Date tomorrow = completed_at + Temporal::Days{1};
-                    while (std::ranges::find(v.weekdays, tomorrow.weekday()) == v.weekdays.end()) {
-                        tomorrow += Temporal::Days{1};
+                    Temporal::TimePoint res = completed_at + Temporal::Days{1};
+                    while (
+                        std::ranges::find(v.weekdays, Temporal::DateTime(res).date().weekday()) ==
+                        v.weekdays.end()) {
+                        res += Temporal::Days{1};
                     }
-                    if (!end || tomorrow <= *end) {
-                        return tomorrow;
+                    if (!end || res <= *end) {
+                        return res;
                     }
                     return std::nullopt;
                 }

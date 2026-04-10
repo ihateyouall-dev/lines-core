@@ -13,6 +13,7 @@
 */
 #pragma once
 
+#include "lines/temporal/timepoint.hpp"
 #include <lines/detail/macro.h>
 #include <lines/tasks/task_info.hpp>
 #include <lines/tasks/task_repeat.hpp>
@@ -22,7 +23,7 @@ namespace Lines {
 class LINES_API Task {
     TaskInfo _info;
     std::optional<TaskRepeatRule> _repeat_rule;
-    std::optional<Temporal::Date> _deadline;
+    std::optional<Temporal::TimePoint> _deadline;
     bool _completed{};
 
   public:
@@ -42,18 +43,18 @@ class LINES_API Task {
     void set_tags(std::vector<std::string> tags);
     void set_repeat_rule(const std::optional<TaskRepeatRule> &rule);
 
-    LINES_NODISCARD auto deadline() const -> const std::optional<Temporal::Date> &;
+    LINES_NODISCARD auto deadline() const -> const std::optional<Temporal::TimePoint> &;
 
     LINES_NODISCARD auto title() const -> const std::string &;
     LINES_NODISCARD auto description() const -> const std::optional<std::string> &;
     LINES_NODISCARD auto tags() const -> const std::vector<std::string> &;
 
-    LINES_NODISCARD auto next_deadline(const Temporal::Date &completed_at) const
-        -> std::optional<Temporal::Date>;
-    void advance_deadline(const Temporal::Date &completed_at);
-    LINES_NODISCARD auto next_deadline() const -> std::optional<Temporal::Date>;
+    LINES_NODISCARD auto next_deadline(const Temporal::TimePoint &completed_at) const
+        -> std::optional<Temporal::TimePoint>;
+    void advance_deadline(const Temporal::TimePoint &completed_at);
+    LINES_NODISCARD auto next_deadline() const -> std::optional<Temporal::TimePoint>;
     void advance_deadline();
-    void set_deadline(const std::optional<Temporal::Date> &deadline);
-    LINES_NODISCARD auto is_active(const Temporal::Date &date) const -> bool;
+    void set_deadline(const std::optional<Temporal::TimePoint> &deadline);
+    LINES_NODISCARD auto is_active(const Temporal::TimePoint &date) const -> bool;
 };
 } // namespace Lines

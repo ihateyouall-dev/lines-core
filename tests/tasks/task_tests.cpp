@@ -79,23 +79,22 @@ TEST(TaskCompletion, Completion) {
 TEST(Task, IsActive) {
     Task task{TaskInfo{"task"}};
 
-    task.set_deadline(Temporal::Date{Temporal::Days{7}});
+    task.set_deadline(Temporal::TimePoint{Temporal::Days{7}});
     EXPECT_TRUE(task.is_active(*task.deadline() - Temporal::Days{1}));
     EXPECT_TRUE(task.is_active(*task.deadline()));
     EXPECT_FALSE(task.is_active(*task.deadline() + Temporal::Days{1}));
 
     task.set_deadline(std::nullopt);
-    EXPECT_TRUE(task.is_active(Temporal::Date{Temporal::Days{8}}));
+    EXPECT_TRUE(task.is_active(Temporal::TimePoint{Temporal::Days{8}}));
 
     task.complete();
-    EXPECT_FALSE(task.is_active(Temporal::Date{Temporal::Days{8}}));
+    EXPECT_FALSE(task.is_active(Temporal::TimePoint{Temporal::Days{8}}));
 };
 
 TEST(Task, NextDeadline) {
     Task task{TaskInfo{"task"}};
-    EXPECT_FALSE(task.next_deadline());
 
-    task.set_deadline(Temporal::Date{Temporal::Days{7}});
+    task.set_deadline(Temporal::TimePoint{Temporal::Days{7}});
 
     EXPECT_EQ(task.next_deadline(*task.deadline() - Temporal::Days{1}), *task.deadline());
     EXPECT_FALSE(task.next_deadline());
@@ -103,7 +102,7 @@ TEST(Task, NextDeadline) {
 
     TaskRepeatRule rule{
         .repeat_type = TaskRepeat::EveryUnit{
-            .interval = Temporal::duration_cast<Temporal::Minutes>(Temporal::Days{1})}};
+            .interval = Temporal::duration_cast<Temporal::Seconds>(Temporal::Days{1})}};
     task.set_repeat_rule(rule);
 
     EXPECT_EQ(*task.next_deadline(*task.deadline()), *task.deadline() + Temporal::Days{1});
@@ -111,16 +110,16 @@ TEST(Task, NextDeadline) {
 
 TEST(Task, AdvanceDeadline) {
     Task task{TaskInfo{"task"}};
-    task.set_deadline(Temporal::Date{Temporal::Days{7}});
+    task.set_deadline(Temporal::TimePoint{Temporal::Days{7}});
 
     TaskRepeatRule rule{
         .repeat_type = TaskRepeat::EveryUnit{
-            .interval = Temporal::duration_cast<Temporal::Minutes>(Temporal::Days{1})}};
+            .interval = Temporal::duration_cast<Temporal::Seconds>(Temporal::Days{1})}};
     task.set_repeat_rule(rule);
 
     task.advance_deadline();
-    EXPECT_EQ(*task.deadline(), Temporal::Date{Temporal::Days{8}});
+    EXPECT_EQ(*task.deadline(), Temporal::TimePoint{Temporal::Days{8}});
 
-    task.advance_deadline(Temporal::Date{Temporal::Days{14}});
-    EXPECT_EQ(*task.deadline(), Temporal::Date{Temporal::Days{15}});
+    task.advance_deadline(Temporal::TimePoint{Temporal::Days{14}});
+    EXPECT_EQ(*task.deadline(), Temporal::TimePoint{Temporal::Days{15}});
 }

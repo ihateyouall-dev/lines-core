@@ -13,6 +13,7 @@
 */
 #pragma once
 
+#include <cstdint>
 #include <lines/temporal/duration.hpp>
 
 namespace Lines::Temporal {
@@ -24,6 +25,8 @@ class LINES_API TimePoint {
   public:
     using Duration = decltype(_rep);
     explicit TimePoint(const Duration &rep);
+    template<typename Dur>
+    explicit TimePoint(const Dur &rep) : _rep(duration_cast<Duration>(rep)) {}
     TimePoint(const TimePoint &) = default;
     TimePoint(TimePoint &&) = default;
     auto operator=(const TimePoint &) -> TimePoint & = default;
