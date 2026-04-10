@@ -19,6 +19,7 @@
 #include <variant>
 
 namespace Lines {
+namespace TaskRepeat {
 struct LINES_API EveryUnit {
     Temporal::Minutes interval;
     std::string unit_str;
@@ -27,9 +28,10 @@ struct LINES_API EveryUnit {
 struct LINES_API EveryWeekday {
     std::vector<Temporal::Weekday> weekdays;
 };
+} // namespace TaskRepeat
 
 struct LINES_API TaskRepeatRule {
-    using RepeatType = std::variant<EveryUnit, EveryWeekday>;
+    using RepeatType = std::variant<TaskRepeat::EveryUnit, TaskRepeat::EveryWeekday>;
     RepeatType repeat_type;
     std::optional<Temporal::Date> end;
 
@@ -38,14 +40,14 @@ struct LINES_API TaskRepeatRule {
         return std::visit(
             [&](auto &&v) -> std::optional<Temporal::Date> {
                 using T = std::decay_t<decltype(v)>;
-                LINES_CONSTEXPR_IF(std::is_same_v<T, EveryUnit>) {
+                LINES_CONSTEXPR_IF(std::is_same_v<T, TaskRepeat::EveryUnit>) {
                     const Temporal::Date date = completed_at + v.interval;
                     if (!end.has_value() || date <= end.value()) {
                         return date;
                     }
                     return std::nullopt;
                 }
-                LINES_CONSTEXPR_IF(std::is_same_v<T, EveryWeekday>) {
+                LINES_CONSTEXPR_IF(std::is_same_v<T, TaskRepeat::EveryWeekday>) {
                     Temporal::Date tomorrow = completed_at + Temporal::Days{1};
                     while (std::ranges::find(v.weekdays, tomorrow.weekday()) == v.weekdays.end()) {
                         tomorrow += Temporal::Days{1};
