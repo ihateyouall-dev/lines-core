@@ -21,6 +21,7 @@
 namespace Lines {
 struct LINES_API EveryUnit {
     Temporal::Minutes interval;
+    std::string unit_str;
 };
 
 struct LINES_API EveryWeekday {
