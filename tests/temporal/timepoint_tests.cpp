@@ -11,6 +11,8 @@
   See LICENSE for more information.
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
+#include "lines/temporal/duration.hpp"
+#include "lines/temporal/timestamp.hpp"
 #include <gtest/gtest.h>
 #include <lines/temporal/datetime.hpp>
 #include <lines/temporal/timepoint.hpp>
@@ -60,6 +62,11 @@ TEST(TimePointArithmetic, Difference) {
 TEST(TimePointWrapping, DateTime) {
     EXPECT_EQ(DateTime{TimePoint{Seconds{86401}}}.date(), Date{Days{1}});
     EXPECT_EQ(DateTime{TimePoint{Seconds{86401}}}.time(), Timestamp{Seconds{1}});
+    EXPECT_EQ(DateTime{TimePoint{Seconds{86401}}}.time_point(), TimePoint{Seconds{86401}});
+
+    DateTime dt{Date{Days{1}}, Timestamp{Seconds{1}}};
+
+    EXPECT_EQ(dt.time_point(), TimePoint{Seconds{86401}});
 }
 
 TEST(TimePointWrapping, ZonedTime) {

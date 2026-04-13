@@ -28,11 +28,15 @@ class LINES_API DateTime {
     DateTime(DateTime &&) = default;
     auto operator=(const DateTime &) -> DateTime & = default;
     auto operator=(DateTime &&) -> DateTime & = default;
-    explicit DateTime(TimePoint tp) : _tp(tp) {}
+    explicit DateTime(const TimePoint &tp) : _tp(tp) {}
+    DateTime(const Date &date, const Timestamp &ts)
+        : _tp(date.time_since_epoch() + ts.time_since_midnight()) {}
     ~DateTime() = default;
 
     LINES_NODISCARD auto date() const -> Date { return Date(floor<Days>(_tp.time_since_epoch())); }
 
     LINES_NODISCARD auto time() const -> Timestamp { return Timestamp(_tp.time_since_epoch()); }
+
+    LINES_NODISCARD auto time_point() const -> TimePoint { return _tp; }
 };
 } // namespace Lines::Temporal
