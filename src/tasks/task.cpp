@@ -62,7 +62,9 @@ auto Lines::Task::next_deadline(const Temporal::TimePoint &completed_at) const
     return _repeat_rule->next_deadline(completed_at);
 }
 
-auto Lines::Task::deadline() const -> const std::optional<Temporal::TimePoint> & { return _deadline; };
+auto Lines::Task::deadline() const -> const std::optional<Temporal::TimePoint> & {
+    return _deadline;
+};
 
 void Lines::Task::complete() { _completed = true; }
 
@@ -70,11 +72,11 @@ void Lines::Task::advance_deadline(const Temporal::TimePoint &completed_at) {
     _deadline = next_deadline(completed_at);
 }
 
-auto Lines::Task::is_active(const Temporal::TimePoint &date) const -> bool {
-    // A task is active on a given date if it isn't completed
+auto Lines::Task::is_active(const Temporal::TimePoint &tp) const -> bool {
+    // A task is active on a given timepoint if it isn't completed
     // and its deadline has not yet passed. Tasks without deadlines
     // remain active until completed.
-    return !_completed && (!_deadline || date <= *_deadline);
+    return !_completed && (!_deadline || tp <= *_deadline);
 }
 
 void Lines::Task::uncomplete() { _completed = false; };

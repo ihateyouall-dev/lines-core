@@ -55,6 +55,6 @@ class LINES_API Task {
     LINES_NODISCARD auto next_deadline() const -> std::optional<Temporal::TimePoint>;
     void advance_deadline();
     void set_deadline(const std::optional<Temporal::TimePoint> &deadline);
-    LINES_NODISCARD auto is_active(const Temporal::TimePoint &date) const -> bool;
+    LINES_NODISCARD auto is_active(const Temporal::TimePoint &tp) const -> bool;
 };
 } // namespace Lines
