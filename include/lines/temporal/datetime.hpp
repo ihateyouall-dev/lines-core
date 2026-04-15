@@ -29,7 +29,7 @@ class LINES_API DateTime {
     auto operator=(const DateTime &) -> DateTime & = default;
     auto operator=(DateTime &&) -> DateTime & = default;
     explicit DateTime(const TimePoint &tp) : _tp(tp) {}
-    DateTime(const Date &date, const Timestamp &ts)
+    explicit DateTime(const Date &date, const Timestamp &ts = {})
         : _tp(date.time_since_epoch() + ts.time_since_midnight()) {}
     ~DateTime() = default;
 
