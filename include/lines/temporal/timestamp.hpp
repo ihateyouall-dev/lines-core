@@ -50,7 +50,7 @@ class LINES_API Timestamp {
 
     template <uint32_t Period, std::integral Rep>
     auto operator+=(const Duration<Period, Rep> &dur) -> Timestamp & {
-        _rep += dur.count();
+        _rep += dur;
         normalize();
         return *this;
     }

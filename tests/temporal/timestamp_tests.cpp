@@ -53,6 +53,11 @@ TEST(TimestampArithmetic, Difference) {
     EXPECT_EQ(Timestamp(Seconds{40}) - Timestamp(Seconds{100}), Seconds{-60});
 }
 
+TEST(TimestampArithmetic, DifferentDurations) {
+    EXPECT_EQ(Timestamp(Seconds{0}) + Minutes{1}, Timestamp{Seconds{60}});
+    EXPECT_EQ(Timestamp(Seconds{0}) + Hours{1}, Timestamp{Seconds{3600}});
+}
+
 TEST(TimestampAccessors, HMS) {
     Timestamp t{Hours{1}, Minutes{2}, Seconds{3}}; // NOLINT
 
