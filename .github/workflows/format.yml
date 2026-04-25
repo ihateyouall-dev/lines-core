@@ -18,6 +18,6 @@ jobs:
             
       - name: Run clang-format
         run: |
-          cd $GITHUB_WORKFLOW
+          cd $GITHUB_WORKSPACE
           files=$(git ls-files '*.cpp' '*.hpp' '*.h')
           clang-format --dry-run --Werror $files
