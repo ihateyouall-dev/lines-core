@@ -52,14 +52,14 @@ auto Lines::Task::next_deadline(const Temporal::TimePoint &completed_at) const
     // Returns the next deadline for the task after completion.
     // Non-repeating tasks keep their current deadline if it has not passed.
     // Repeating tasks compute the next deadline using the repeat rule.
-    if (!_repeat_rule) {
-        if (_deadline) {
-            if (completed_at >= *_deadline) {
-                return std::nullopt;
-            }
-            return _deadline;
-        }
+    if (!_deadline) {
         return std::nullopt;
+    }
+    if (!_repeat_rule) {
+        if (completed_at >= *_deadline) {
+            return std::nullopt;
+        }
+        return _deadline;
     }
     return _repeat_rule->next_deadline(completed_at);
 }

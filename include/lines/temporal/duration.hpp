@@ -27,8 +27,8 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
   public:
     LINES_CONSTEXPR Duration() = default;
     static LINES_CONSTEXPR uint32_t period = Period;
-    Duration(const Duration &) = default;
-    Duration(Duration &&) = default;
+    Duration(const Duration &) = default; // LCOV_EXCL_LINE
+    Duration(Duration &&) = default; // LCOV_EXCL_LINE
     auto operator=(const Duration &) -> Duration & = default;
     auto operator=(Duration &&) -> Duration & = default;
     explicit LINES_CONSTEXPR Duration(Rep rep) : _rep(std::move(rep)) {}

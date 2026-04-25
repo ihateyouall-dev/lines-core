@@ -15,6 +15,7 @@
 #include "lines/tasks/task_info.hpp"
 #include "lines/tasks/task_repeat.hpp"
 #include "lines/temporal/duration.hpp"
+#include "lines/temporal/timepoint.hpp"
 
 #include "gtest/gtest.h"
 
@@ -106,6 +107,10 @@ TEST(Task, NextDeadline) {
     task.set_repeat_rule(rule);
 
     EXPECT_EQ(*task.next_deadline(*task.deadline()), *task.deadline() + Temporal::Days{1});
+
+    task.set_deadline(std::nullopt);
+
+    EXPECT_FALSE(task.next_deadline());
 }
 
 TEST(Task, AdvanceDeadline) {
