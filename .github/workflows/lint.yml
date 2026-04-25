@@ -14,11 +14,11 @@ jobs:
       - name: Install cmake & configuration dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang clang-tidy cmake ninja-build libc++-dev libc++abi-dev
+          sudo apt-get install -y clang clang-tidy cmake ninja-build
 
       - name: Configure
         run: |
-          cmake --preset debug-clang \
+          cmake -S . -B build -G Ninja \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Run clang-tidy
