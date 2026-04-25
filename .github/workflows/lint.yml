@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  tidy:
+  Lint:
     runs-on: ubuntu-latest
 
     steps:
