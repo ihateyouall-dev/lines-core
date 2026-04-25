@@ -13,12 +13,13 @@
 */
 #pragma once
 
+#include "lines/detail/macro.h"
+#include "lines/temporal/date.hpp"
+#include "lines/temporal/timepoint.hpp"
+#include "lines/temporal/timestamp.hpp"
+#include "lines/temporal/timezone.hpp"
+
 #include <chrono>
-#include <lines/detail/macro.h>
-#include <lines/temporal/date.hpp>
-#include <lines/temporal/timepoint.hpp>
-#include <lines/temporal/timestamp.hpp>
-#include <lines/temporal/timezone.hpp>
 
 namespace Lines::Temporal {
 struct LINES_API UTCClock final {

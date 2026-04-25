@@ -14,8 +14,8 @@
 #pragma once
 
 #include "lines/detail/macro.h"
-#include <lines/temporal/duration.hpp>
-#include <lines/temporal/timepoint.hpp>
+#include "lines/temporal/duration.hpp"
+#include "lines/temporal/timepoint.hpp"
 
 namespace Lines::Temporal {
 // This class represents a fixed offset from UTC.

@@ -13,12 +13,12 @@
 */
 #pragma once
 
+#include "lines/detail/macro.h"
+
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-#include <lines/detail/macro.h>
 
 namespace Lines {
 struct LINES_API TaskInfo {

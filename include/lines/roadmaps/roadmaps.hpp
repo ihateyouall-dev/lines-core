@@ -13,13 +13,13 @@
 */
 #pragma once
 
+#include "lines/detail/macro.h"
+
 #include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
-
-#include <lines/detail/macro.h>
 
 namespace Lines {
 struct LINES_API RoadmapNodeInfo {
@@ -106,7 +106,8 @@ class LINES_API Roadmap {
 
     LINES_NODISCARD auto last_id() const -> RoadmapNode::NodeID;
 
-    auto add_node(RoadmapNode::NodePtr parent, const RoadmapNodeInfo &info) -> RoadmapNode::NodePtr;
+    auto add_node(const RoadmapNode::NodePtr &parent, const RoadmapNodeInfo &info)
+        -> RoadmapNode::NodePtr;
 
     void remove_node(RoadmapNode::NodeID id);
 

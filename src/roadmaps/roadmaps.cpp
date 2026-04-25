@@ -1,4 +1,4 @@
-#include <lines/roadmaps/roadmaps.hpp>
+#include "lines/roadmaps/roadmaps.hpp"
 
 #include <algorithm>
 #include <stdexcept>
@@ -81,7 +81,7 @@ auto Lines::Roadmap::last() -> RoadmapNode::NodePtr { return nodes[nodes.size() 
 
 auto Lines::Roadmap::last_id() const -> RoadmapNode::NodeID { return nodes.size() - 1; }
 
-auto Lines::Roadmap::add_node(RoadmapNode::NodePtr parent, const RoadmapNodeInfo &info)
+auto Lines::Roadmap::add_node(const RoadmapNode::NodePtr &parent, const RoadmapNodeInfo &info)
     -> RoadmapNode::NodePtr {
     const RoadmapNode::NodeID id = free_id();
     std::shared_ptr<RoadmapNode> node = std::make_shared<RoadmapNode>(id, info, parent);

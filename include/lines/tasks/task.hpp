@@ -13,11 +13,10 @@
 */
 #pragma once
 
+#include "lines/detail/macro.h"
+#include "lines/tasks/task_info.hpp"
+#include "lines/tasks/task_repeat.hpp"
 #include "lines/temporal/timepoint.hpp"
-#include <lines/detail/macro.h>
-#include <lines/tasks/task_info.hpp>
-#include <lines/tasks/task_repeat.hpp>
-#include <lines/temporal/date.hpp>
 
 namespace Lines {
 class LINES_API Task {

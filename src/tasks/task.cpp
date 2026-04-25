@@ -11,9 +11,11 @@
   See LICENSE for more information.
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
+#include "lines/tasks/task.hpp"
+
 #include "lines/tasks/task_repeat.hpp"
 #include "lines/temporal/timepoint.hpp"
-#include <lines/tasks/task.hpp>
+
 #include <optional>
 #include <utility>
 

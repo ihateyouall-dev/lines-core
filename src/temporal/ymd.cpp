@@ -11,7 +11,7 @@
   See LICENSE for more information.
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
-#include <lines/temporal/ymd.hpp>
+#include "lines/temporal/ymd.hpp"
 
 // Year
 auto Lines::Temporal::Year::operator+() const LINES_NOEXCEPT -> Year { return *this; }

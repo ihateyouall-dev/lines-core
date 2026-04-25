@@ -11,8 +11,9 @@
   See LICENSE for more information.
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
+#include "lines/temporal/date.hpp"
+
 #include <cassert>
-#include <lines/temporal/date.hpp>
 
 Lines::Temporal::Date::Date(const Year &year, const Month &month, const Day &day)
     : _rep(Days{std::chrono::sys_days{

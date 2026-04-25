@@ -14,9 +14,10 @@
 #pragma once
 
 #include "lines/detail/macro.h"
+#include "lines/temporal/date.hpp"
 #include "lines/temporal/datetime.hpp"
 #include "lines/temporal/timepoint.hpp"
-#include <lines/temporal/date.hpp>
+
 #include <optional>
 #include <variant>
 

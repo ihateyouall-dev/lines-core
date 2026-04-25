@@ -11,7 +11,7 @@
   See LICENSE for more information.
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
-#include <lines/temporal/timepoint.hpp>
+#include "lines/temporal/timepoint.hpp"
 
 Lines::Temporal::TimePoint::TimePoint(const Duration &rep) : _rep(rep) {}
 

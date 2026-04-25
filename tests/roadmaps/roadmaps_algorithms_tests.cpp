@@ -1,5 +1,6 @@
-#include <gtest/gtest.h>
-#include <lines/roadmaps/roadmaps_algorithms.hpp>
+#include "lines/roadmaps/roadmaps_algorithms.hpp"
+
+#include "gtest/gtest.h"
 
 using namespace Lines;
 

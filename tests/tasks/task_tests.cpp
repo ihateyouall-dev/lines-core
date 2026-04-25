@@ -11,12 +11,12 @@
   See LICENSE for more information.
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
+#include "lines/tasks/task.hpp"
 #include "lines/tasks/task_info.hpp"
 #include "lines/tasks/task_repeat.hpp"
 #include "lines/temporal/duration.hpp"
-#include <gtest/gtest.h>
-#include <lines/tasks/task.hpp>
-#include <lines/temporal/date.hpp>
+
+#include "gtest/gtest.h"
 
 using namespace Lines;
 

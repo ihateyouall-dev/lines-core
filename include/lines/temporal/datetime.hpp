@@ -14,9 +14,9 @@
 #pragma once
 
 #include "lines/detail/macro.h"
-#include <lines/temporal/date.hpp>
-#include <lines/temporal/timepoint.hpp>
-#include <lines/temporal/timestamp.hpp>
+#include "lines/temporal/date.hpp"
+#include "lines/temporal/timepoint.hpp"
+#include "lines/temporal/timestamp.hpp"
 
 namespace Lines::Temporal {
 // Representation of TimePoint as Date + TimeStamp

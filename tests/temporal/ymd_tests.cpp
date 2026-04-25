@@ -12,9 +12,10 @@
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
 #include "lines/temporal/duration.hpp"
+#include "lines/temporal/ymd.hpp"
+
+#include "gtest/gtest.h"
 #include <climits>
-#include <gtest/gtest.h>
-#include <lines/temporal/ymd.hpp>
 
 using namespace Lines::Temporal;
 

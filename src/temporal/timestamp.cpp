@@ -11,8 +11,9 @@
   See LICENSE for more information.
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
+#include "lines/temporal/timestamp.hpp"
+
 #include <iomanip>
-#include <lines/temporal/timestamp.hpp>
 
 void Lines::Temporal::Timestamp::normalize() {
     _rep %= Days::period;

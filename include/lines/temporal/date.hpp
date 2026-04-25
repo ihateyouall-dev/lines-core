@@ -14,8 +14,8 @@
 #pragma once
 
 #include "lines/detail/macro.h"
-#include <lines/temporal/duration.hpp>
-#include <lines/temporal/ymd.hpp>
+#include "lines/temporal/duration.hpp"
+#include "lines/temporal/ymd.hpp"
 
 namespace Lines::Temporal {
 class LINES_API Date {

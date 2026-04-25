@@ -11,8 +11,9 @@
   See LICENSE for more information.
   SPDX-License-Identifier: LGPL-3.0-or-later.
 */
-#include <gtest/gtest.h>
-#include <lines/temporal/date.hpp>
+#include "lines/temporal/date.hpp"
+
+#include "gtest/gtest.h"
 
 using namespace Lines::Temporal;
 
