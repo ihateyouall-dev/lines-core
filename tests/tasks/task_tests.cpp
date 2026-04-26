@@ -106,7 +106,7 @@ TEST(Task, NextDeadline) {
             .interval = Temporal::duration_cast<Temporal::Seconds>(Temporal::Days{1})}};
     task.set_repeat_rule(rule);
 
-    EXPECT_EQ(*task.next_deadline(*task.deadline()), *task.deadline() + Temporal::Days{1});
+    EXPECT_EQ(task.next_deadline(), *task.deadline() + Temporal::Days{1});
 
     task.set_deadline(std::nullopt);
 
