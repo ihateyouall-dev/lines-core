@@ -89,7 +89,7 @@ void Lines::Task::set_deadline(const std::optional<Temporal::TimePoint> &deadlin
     _deadline = deadline;
 }
 LINES_NODISCARD auto Lines::Task::next_deadline() const -> std::optional<Temporal::TimePoint> {
-    return next_deadline(*_deadline);
+    return _deadline ? next_deadline(*_deadline) : std::nullopt;
 }
 
 void Lines::Task::advance_deadline() { _deadline = next_deadline(); }
