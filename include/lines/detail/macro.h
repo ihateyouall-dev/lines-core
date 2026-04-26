@@ -135,7 +135,7 @@
 #if LINES_CPP >= 201103L
 #define LINES_CONSTEXPR constexpr
 #else
-#define LINES_CONSTEXPR
+#define LINES_CONSTEXPR const
 #endif
 
 #if LINES_CPP >= 201103L
