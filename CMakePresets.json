@@ -21,8 +21,7 @@
 	    "cacheVariables": {
 		"CMAKE_BUILD_TYPE": "Release",
 		"CMAKE_CXX_COMPILER": "clang++",
-		"CMAKE_CXX_FLAGS_INIT": "-stdlib=libc++",
-		"LINES_ENABLE_TESTING" : "ON"
+		"CMAKE_CXX_FLAGS_INIT": "-stdlib=libc++"
 	    }
 	},
 	{
@@ -43,8 +42,7 @@
 	    "binaryDir": "build/release/gcc",
 	    "cacheVariables": {
 		"CMAKE_BUILD_TYPE": "Release",
-		"CMAKE_CXX_COMPILER": "g++",
-		"LINES_ENABLE_TESTING" : "ON"
+		"CMAKE_CXX_COMPILER": "g++"
 	    }
 	},
 	{
@@ -65,8 +63,7 @@
 	    "binaryDir": "build/release/msvc",
 	    "cacheVariables": {
 		"CMAKE_BUILD_TYPE": "Release",
-		"CMAKE_CXX_COMPILER": "cl",
-		"LINES_ENABLE_TESTING" : "ON"
+		"CMAKE_CXX_COMPILER": "cl"
 	    }
 	},
 	{
@@ -137,14 +134,6 @@
 	    }
 	},
 	{
-	    "name": "release-clang",
-	    "displayName": "Release test (Clang libc++)",
-	    "configurePreset": "release-clang",
-	    "output": {
-		"outputOnFailure": true
-	    }
-	},
-	{
 	    "name": "debug-gcc",
 	    "displayName": "Debug test (GCC libstdc++)",
 	    "configurePreset": "debug-gcc",
@@ -153,25 +142,9 @@
 	    }
 	},
 	{
-	    "name": "release-gcc",
-	    "displayName": "Release test (GCC libstdc++)",
-	    "configurePreset": "release-gcc",
-	    "output": {
-		"outputOnFailure": true
-	    }
-	},
-	{
 	    "name": "debug-msvc",
 	    "displayName": "Debug test (MSVC)",
 	    "configurePreset": "debug-msvc",
-	    "output": {
-		"outputOnFailure": true
-	    }
-	},
-	{
-	    "name": "release-msvc",
-	    "displayName": "Release test (MSVC)",
-	    "configurePreset": "release-msvc",
 	    "output": {
 		"outputOnFailure": true
 	    }
@@ -200,8 +173,7 @@
 	    "displayName": "Release workflow (Clang libc++)",
 	    "steps": [
 		{ "type": "configure", "name": "release-clang" },
-		{ "type": "build", "name": "release-clang" },
-		{ "type": "test", "name": "release-clang" }
+		{ "type": "build", "name": "release-clang" }
 	    ]
 	},
 	{
@@ -218,8 +190,7 @@
 	    "displayName": "Release workflow (GCC libstdc++)",
 	    "steps": [
 		{ "type": "configure", "name": "release-gcc" },
-		{ "type": "build", "name": "release-gcc" },
-		{ "type": "test", "name": "release-gcc" }
+		{ "type": "build", "name": "release-gcc" }
 	    ]
 	},
 	{
@@ -236,8 +207,7 @@
 	    "displayName": "Release workflow (MSVC)",
 	    "steps": [
 		{ "type": "configure", "name": "release-msvc" },
-		{ "type": "build", "name": "release-msvc" },
-		{ "type": "test", "name": "release-msvc" }
+		{ "type": "build", "name": "release-msvc" }
 	    ]
 	},
 	{
