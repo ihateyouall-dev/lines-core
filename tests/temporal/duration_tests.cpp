@@ -461,3 +461,15 @@ TEST(DurationCompatibility, FromDifferentPeriod) {
     EXPECT_EQ(Seconds{Minutes{1}}, Seconds{60});
     EXPECT_EQ(Hours{Days{1}}, Hours{24});
 }
+
+TEST(Duration, Literals) {
+    using namespace Literals;
+
+    EXPECT_EQ(3_s, Seconds{3});
+    EXPECT_EQ(3_m, Minutes{3});
+    EXPECT_EQ(3_h, Hours{3});
+    EXPECT_EQ(3_d, Days{3});
+    EXPECT_EQ(3_w, Weeks{3});
+    EXPECT_EQ(3_M, Months{3});
+    EXPECT_EQ(3_y, Years{3});
+}

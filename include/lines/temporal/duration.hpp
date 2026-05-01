@@ -164,7 +164,7 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
         return *this;
     }
 
-    LINES_NODISCARD LINES_CONSTEXPR auto count() const LINES_NOEXCEPT -> Rep { return _rep; }
+    LINES_NODISCARD LINES_CONSTEXPR auto count() const LINES_NOEXCEPT->Rep { return _rep; }
 
     template <typename ChronoDuration> LINES_CONSTEXPR auto to_chrono() const -> ChronoDuration {
         return ChronoDuration{_rep * period / ChronoDuration::period::num};
@@ -321,4 +321,34 @@ LINES_CONSTEXPR auto round(const Duration<Period, Rep> &dur) -> To {
     }
     return to1;
 }
+
+namespace Literals {
+constexpr auto operator""_s(unsigned long long val) -> Seconds {
+    return Seconds(static_cast<int64_t>(val));
+}
+
+constexpr auto operator""_m(unsigned long long val) -> Minutes {
+    return Minutes(static_cast<int64_t>(val));
+}
+
+constexpr auto operator""_h(unsigned long long val) -> Hours {
+    return Hours(static_cast<int64_t>(val));
+}
+
+constexpr auto operator""_d(unsigned long long val) -> Days {
+    return Days(static_cast<int64_t>(val));
+}
+
+constexpr auto operator""_w(unsigned long long val) -> Weeks {
+    return Weeks(static_cast<int64_t>(val));
+}
+
+constexpr auto operator""_M(unsigned long long val) -> Months {
+    return Months(static_cast<int64_t>(val));
+}
+
+constexpr auto operator""_y(unsigned long long val) -> Years {
+    return Years(static_cast<int64_t>(val));
+}
+} // namespace Literals
 } // namespace Lines::Temporal
