@@ -32,12 +32,24 @@ template <uint32_t Period, std::integral Rep = int64_t> class Duration {
     auto operator=(const Duration &) -> Duration & = default; // LCOV_EXCL_LINE
     auto operator=(Duration &&) -> Duration & = default;      // LCOV_EXCL_LINE
     explicit LINES_CONSTEXPR Duration(Rep rep) : _rep(std::move(rep)) {}
+    // Constructor & operator= for durations with different periods & representations
     template <uint32_t P, std::integral R>
     explicit LINES_CONSTEXPR Duration(const Duration<P, R> &dur) : _rep(dur.count() * P / period) {}
+    template <uint32_t P, std::integral R> auto operator=(const Duration<P, R> &dur) -> Duration & {
+        _rep = dur.count() * P / period;
+        return *this;
+    }
+    // Constructor & operator= for std::chrono::duration
     template <class R, class P>
-    explicit LINES_CONSTEXPR Duration(std::chrono::duration<R, P> const &dur)
+    explicit LINES_CONSTEXPR Duration(const std::chrono::duration<R, P> &dur)
         : _rep(std::chrono::duration_cast<std::chrono::duration<Rep, std::ratio<Period>>>(dur)
                    .count()) {}
+    template <class R, class P>
+    auto operator=(const std::chrono::duration<R, P> &dur) -> Duration & {
+        _rep =
+            std::chrono::duration_cast<std::chrono::duration<Rep, std::ratio<Period>>>(dur).count();
+        return *this;
+    }
     ~Duration() = default;
 
     LINES_CONSTEXPR auto operator+() const LINES_NOEXCEPT->Duration { return *this; }

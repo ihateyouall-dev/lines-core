@@ -455,11 +455,25 @@ TEST(DurationCompatibility, FromChrono) {
     EXPECT_EQ(Weeks{std::chrono::weeks{10}}, Weeks{10});
     EXPECT_EQ(Months{std::chrono::months{10}}, Months{10});
     EXPECT_EQ(Years{std::chrono::years{10}}, Years{10});
+
+    using namespace Literals;
+    Minutes m{0};
+
+    m = std::chrono::seconds{120};
+
+    EXPECT_EQ(m, 2_m);
 }
 
 TEST(DurationCompatibility, FromDifferentPeriod) {
     EXPECT_EQ(Seconds{Minutes{1}}, Seconds{60});
     EXPECT_EQ(Hours{Days{1}}, Hours{24});
+
+    using namespace Literals;
+    Minutes m{0};
+
+    m = 120_s;
+
+    EXPECT_EQ(m, 2_m);
 }
 
 TEST(Duration, Literals) {
