@@ -27,6 +27,15 @@ TEST(TaskAccessors, Getters) {
     EXPECT_EQ(task.title(), "title");
     EXPECT_EQ(task.description().value(), "description");
     EXPECT_FALSE(task.tags().empty());
+
+    using namespace Temporal::Literals;
+    TaskRepeatRule repeat_rule{.repeat_type = Lines::TaskRepeat::EveryUnit{.interval = 3600_s}};
+
+    task.set_repeat_rule(repeat_rule);
+
+    auto rr = *task.repeat_rule();
+
+    EXPECT_EQ(std::get<Lines::TaskRepeat::EveryUnit>(rr.repeat_type).interval, 1_h);
 }
 
 TEST(TaskAccessors, Setters) {

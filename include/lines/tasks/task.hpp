@@ -48,6 +48,8 @@ class LINES_API Task {
     LINES_NODISCARD auto description() const -> const std::optional<std::string> &;
     LINES_NODISCARD auto tags() const -> const std::vector<std::string> &;
 
+    LINES_NODISCARD auto repeat_rule() const -> const std::optional<Lines::TaskRepeatRule> &;
+
     LINES_NODISCARD auto next_deadline(const Temporal::TimePoint &completed_at) const
         -> std::optional<Temporal::TimePoint>;
     void advance_deadline(const Temporal::TimePoint &completed_at);

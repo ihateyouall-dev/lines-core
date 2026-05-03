@@ -93,3 +93,8 @@ LINES_NODISCARD auto Lines::Task::next_deadline() const -> std::optional<Tempora
 }
 
 void Lines::Task::advance_deadline() { _deadline = next_deadline(); }
+
+LINES_NODISCARD auto Lines::Task::repeat_rule() const
+    -> const std::optional<Lines::TaskRepeatRule> & {
+    return _repeat_rule;
+}
