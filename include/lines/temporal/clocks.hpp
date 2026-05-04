@@ -23,7 +23,7 @@
 
 namespace Lines::Temporal {
 struct LINES_API UTCClock final {
-    LINES_API static auto now() LINES_NOEXCEPT -> TimePoint {
+    LINES_API static auto now() LINES_NOEXCEPT->TimePoint {
         auto now = std::chrono::system_clock::now();
         return TimePoint(Seconds{now.time_since_epoch()});
     }
@@ -32,14 +32,14 @@ struct LINES_API UTCClock final {
         return Timestamp(now().time_since_epoch());
     }
 
-    LINES_API static auto today() LINES_NOEXCEPT -> Date {
+    LINES_API static auto today() LINES_NOEXCEPT->Date {
         auto days = floor<Days>(now().time_since_epoch());
         return Date(Days{days});
     }
 };
 
 struct LINES_API LocalClock final {
-    LINES_API static auto now() LINES_NOEXCEPT -> TimePoint {
+    LINES_API static auto now() LINES_NOEXCEPT->TimePoint {
         auto now = UTCClock::now();
         return ZonedTime(now, current_zone()).get_local_time();
     }
@@ -48,7 +48,7 @@ struct LINES_API LocalClock final {
         return Timestamp(now().time_since_epoch());
     }
 
-    LINES_API static auto today() LINES_NOEXCEPT -> Date {
+    LINES_API static auto today() LINES_NOEXCEPT->Date {
         auto days = floor<Days>(now().time_since_epoch());
         return Date(days);
     }
@@ -56,18 +56,18 @@ struct LINES_API LocalClock final {
     LINES_API LINES_NODISCARD static auto current_zone() -> TimeZone {
         std::time_t now = std::time(nullptr);
         std::tm local{};
-        std::tm utc{};
+
 #if defined(LINES_WINDOWSNT)
         localtime_s(&local, &now);
-        gmtime_s(&utc, &now);
+        long offset = _timezone;
+        if (local.tm_isdst) {
+            offset -= 3600;
+        }
+        return TimeZone(Seconds{-offset});
 #else
         localtime_r(&now, &local);
-        gmtime_r(&now, &utc);
+        return TimeZone(Seconds{local.tm_gmtoff});
 #endif
-
-        auto local_sec = std::mktime(&local);
-        auto utc_sec = std::mktime(&utc);
-        return TimeZone(Seconds{local_sec - utc_sec});
     }
 };
 } // namespace Lines::Temporal
