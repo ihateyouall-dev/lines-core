@@ -18,7 +18,20 @@
 #include "lines/tasks/task_repeat.hpp"
 #include "lines/temporal/timepoint.hpp"
 
+#include <exception>
+#include <optional>
+#include <string>
+
 namespace Lines {
+class TaskError : public std::exception {
+    std::string _what;
+
+  public:
+    explicit TaskError(std::string_view what);
+
+    [[nodiscard]] auto what() const noexcept -> const char * override;
+};
+
 class LINES_API Task {
     TaskInfo _info;
     std::optional<TaskRepeatRule> _repeat_rule;
@@ -41,6 +54,7 @@ class LINES_API Task {
     void set_description(const std::string &description);
     void set_tags(std::vector<std::string> tags);
     void set_repeat_rule(const std::optional<TaskRepeatRule> &rule);
+    void set_repeat_end(const std::optional<Temporal::TimePoint> &end);
 
     LINES_NODISCARD auto due() const -> const std::optional<Temporal::TimePoint> &;
 
@@ -49,6 +63,7 @@ class LINES_API Task {
     LINES_NODISCARD auto tags() const -> const std::vector<std::string> &;
 
     LINES_NODISCARD auto repeat_rule() const -> const std::optional<Lines::TaskRepeatRule> &;
+    LINES_NODISCARD auto repeat_end() const -> const std::optional<Lines::Temporal::TimePoint> &;
 
     LINES_NODISCARD auto next_due(const Temporal::TimePoint &completed_at) const
         -> std::optional<Temporal::TimePoint>;

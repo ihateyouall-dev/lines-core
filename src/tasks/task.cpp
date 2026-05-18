@@ -14,6 +14,7 @@
 #include "lines/tasks/task.hpp"
 
 #include "lines/tasks/task_repeat.hpp"
+#include "lines/temporal/clocks.hpp"
 #include "lines/temporal/timepoint.hpp"
 
 #include <optional>
@@ -24,7 +25,7 @@ Lines::Task::Task(TaskInfo info, std::optional<TaskRepeatRule> rule)
 
 void Lines::Task::set_title(const std::string &title) {
     if (title.empty()) {
-        throw std::invalid_argument("Lines::Task: title must not be empty");
+        throw TaskError("Title must not be empty");
     }
     _info.title = title;
 }
@@ -36,7 +37,11 @@ void Lines::Task::set_description(const std::string &description) {
 void Lines::Task::set_tags(std::vector<std::string> tags) { _info.tags = std::move(tags); }
 
 void Lines::Task::set_repeat_rule(const std::optional<TaskRepeatRule> &rule) {
+    if (!_due) {
+        set_due(Temporal::LocalClock::now());
+    }
     _repeat_rule = rule;
+    advance_due();
 }
 
 auto Lines::Task::title() const -> const std::string & { return _info.title; }
@@ -84,6 +89,7 @@ void Lines::Task::uncomplete() { _completed = false; };
 LINES_NODISCARD auto Lines::Task::completed() const -> bool { return _completed; };
 
 void Lines::Task::set_due(const std::optional<Temporal::TimePoint> &due) { _due = due; }
+
 LINES_NODISCARD auto Lines::Task::next_due() const -> std::optional<Temporal::TimePoint> {
     return _due ? next_due(*_due) : std::nullopt;
 }
@@ -93,4 +99,20 @@ void Lines::Task::advance_due() { _due = next_due(); }
 LINES_NODISCARD auto Lines::Task::repeat_rule() const
     -> const std::optional<Lines::TaskRepeatRule> & {
     return _repeat_rule;
+}
+
+Lines::TaskError::TaskError(std::string_view what) : _what(what) {}
+
+[[nodiscard]] auto Lines::TaskError::what() const noexcept -> const char * { return _what.c_str(); }
+
+void Lines::Task::set_repeat_end(const std::optional<Temporal::TimePoint> &end) {
+    if (!_repeat_rule) {
+        throw TaskError("Cannot give repeat end to task without repeat rule");
+    }
+    _repeat_rule->end = end;
+}
+
+LINES_NODISCARD auto Lines::Task::repeat_end() const
+    -> const std::optional<Lines::Temporal::TimePoint> & {
+    return _repeat_rule->end;
 }

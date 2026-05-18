@@ -31,4 +31,4 @@ TEST(TaskInfo, Construction) {
     EXPECT_FALSE(copy.tags.empty());
 }
 
-TEST(TaskInfo, ThrowsOnEmptyTitle) { EXPECT_THROW(TaskInfo(""), std::invalid_argument); }
+TEST(TaskInfo, ThrowsOnEmptyTitle) { EXPECT_THROW(TaskInfo(""), TaskInfoError); }

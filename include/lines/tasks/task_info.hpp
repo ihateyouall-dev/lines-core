@@ -15,12 +15,20 @@
 
 #include "lines/detail/macro.h"
 
+#include <exception>
 #include <optional>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace Lines {
+class TaskInfoError : std::exception {
+    std::string _what;
+
+  public:
+    explicit TaskInfoError(std::string_view what) : _what(what) {}
+    [[nodiscard]] auto what() const noexcept -> const char * override { return _what.c_str(); }
+};
+
 struct LINES_API TaskInfo {
     TaskInfo() = default;
     TaskInfo(const TaskInfo &) = default; // LCOV_EXCL_LINE
@@ -31,7 +39,7 @@ struct LINES_API TaskInfo {
                       std::vector<std::string> tags = {})
         : title(std::move(title)), description(std::move(desc)), tags(std::move(tags)) {
         if (this->title.empty()) {
-            throw std::invalid_argument("TaskInfo: title must not be empty"); // LCOV_EXCL_LINE
+            throw TaskInfoError("Title must not be empty"); // LCOV_EXCL_LINE
         }
     }
     ~TaskInfo() = default;

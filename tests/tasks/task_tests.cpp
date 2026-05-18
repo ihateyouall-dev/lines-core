@@ -14,6 +14,7 @@
 #include "lines/tasks/task.hpp"
 #include "lines/tasks/task_info.hpp"
 #include "lines/tasks/task_repeat.hpp"
+#include "lines/temporal/clocks.hpp"
 #include "lines/temporal/duration.hpp"
 #include "lines/temporal/timepoint.hpp"
 
@@ -52,11 +53,24 @@ TEST(TaskAccessors, Setters) {
 
 TEST(TaskInvariants, Title) {
     // Task title cannot be empty, it must have at least 1 character
-    EXPECT_THROW(Task{TaskInfo{""}}, std::invalid_argument);
+    EXPECT_THROW(Task{TaskInfo{""}}, TaskInfoError);
 
     Task task = Task{TaskInfo{"not empty title"}};
 
-    EXPECT_THROW(task.set_title(""), std::invalid_argument);
+    EXPECT_THROW(task.set_title(""), TaskError);
+}
+
+TEST(TaskInvariants, Repeat) {
+    Task task{TaskInfo{"task"}};
+    TaskRepeatRule rr{
+        .repeat_type = TaskRepeat::EveryUnit{
+            .interval = Temporal::duration_cast<Temporal::Seconds>(Temporal::Days{1})}};
+    task.set_repeat_rule(rr);
+    EXPECT_EQ(*task.due(), Temporal::LocalClock::now() + Temporal::Days{1});
+
+    task.set_repeat_rule(std::nullopt);
+
+    EXPECT_THROW(task.set_repeat_end(Temporal::TimePoint{Temporal::Seconds{1}}), TaskError);
 }
 
 TEST(TaskSpecialMembers, Copy) {
@@ -130,10 +144,11 @@ TEST(Task, AdvanceDue) {
         .repeat_type = TaskRepeat::EveryUnit{
             .interval = Temporal::duration_cast<Temporal::Seconds>(Temporal::Days{1})}};
     task.set_repeat_rule(rule);
+    // One initial advance_due calls in set_repeat_rule
 
     task.advance_due();
-    EXPECT_EQ(*task.due(), Temporal::TimePoint{Temporal::Days{8}});
+    EXPECT_EQ(*task.due(), Temporal::TimePoint{Temporal::Days{9}});
 
-    task.advance_due(Temporal::TimePoint{Temporal::Days{14}});
-    EXPECT_EQ(*task.due(), Temporal::TimePoint{Temporal::Days{15}});
+    task.advance_due(Temporal::TimePoint{Temporal::Days{15}});
+    EXPECT_EQ(*task.due(), Temporal::TimePoint{Temporal::Days{16}});
 }
