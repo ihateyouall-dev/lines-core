@@ -22,7 +22,7 @@ namespace Lines {
 class LINES_API Task {
     TaskInfo _info;
     std::optional<TaskRepeatRule> _repeat_rule;
-    std::optional<Temporal::TimePoint> _deadline;
+    std::optional<Temporal::TimePoint> _due;
     bool _completed{};
 
   public:
@@ -42,7 +42,7 @@ class LINES_API Task {
     void set_tags(std::vector<std::string> tags);
     void set_repeat_rule(const std::optional<TaskRepeatRule> &rule);
 
-    LINES_NODISCARD auto deadline() const -> const std::optional<Temporal::TimePoint> &;
+    LINES_NODISCARD auto due() const -> const std::optional<Temporal::TimePoint> &;
 
     LINES_NODISCARD auto title() const -> const std::string &;
     LINES_NODISCARD auto description() const -> const std::optional<std::string> &;
@@ -50,12 +50,12 @@ class LINES_API Task {
 
     LINES_NODISCARD auto repeat_rule() const -> const std::optional<Lines::TaskRepeatRule> &;
 
-    LINES_NODISCARD auto next_deadline(const Temporal::TimePoint &completed_at) const
+    LINES_NODISCARD auto next_due(const Temporal::TimePoint &completed_at) const
         -> std::optional<Temporal::TimePoint>;
-    void advance_deadline(const Temporal::TimePoint &completed_at);
-    LINES_NODISCARD auto next_deadline() const -> std::optional<Temporal::TimePoint>;
-    void advance_deadline();
-    void set_deadline(const std::optional<Temporal::TimePoint> &deadline);
+    void advance_due(const Temporal::TimePoint &completed_at);
+    LINES_NODISCARD auto next_due() const -> std::optional<Temporal::TimePoint>;
+    void advance_due();
+    void set_due(const std::optional<Temporal::TimePoint> &due);
     LINES_NODISCARD auto is_active(const Temporal::TimePoint &tp) const -> bool;
 };
 } // namespace Lines

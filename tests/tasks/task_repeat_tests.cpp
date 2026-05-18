@@ -25,7 +25,7 @@ TEST(TaskRepeat, EveryUnit) {
         .repeat_type = TaskRepeat::EveryUnit{
             .interval = Temporal::duration_cast<Temporal::Seconds>(Temporal::Days{1})}};
 
-    EXPECT_EQ(rule.next_deadline(Temporal::TimePoint{Temporal::Seconds{Temporal::Days{1}}}),
+    EXPECT_EQ(rule.next_due(Temporal::TimePoint{Temporal::Seconds{Temporal::Days{1}}}),
               Temporal::TimePoint{Temporal::Seconds{Temporal::Days{2}}});
 }
 
@@ -35,27 +35,27 @@ TEST(TaskRepeat, EveryUnitWithEnd) {
                                                  Temporal::Days{1})},
         .end = Temporal::TimePoint(Temporal::Days{5})};
 
-    EXPECT_EQ(rule.next_deadline(Temporal::TimePoint{Temporal::Days{1}}),
+    EXPECT_EQ(rule.next_due(Temporal::TimePoint{Temporal::Days{1}}),
               Temporal::TimePoint{Temporal::Days{2}});
-    EXPECT_EQ(rule.next_deadline(Temporal::TimePoint{Temporal::Days{2}}),
+    EXPECT_EQ(rule.next_due(Temporal::TimePoint{Temporal::Days{2}}),
               Temporal::TimePoint{Temporal::Days{3}});
-    EXPECT_EQ(rule.next_deadline(Temporal::TimePoint{Temporal::Days{5}}), std::nullopt);
+    EXPECT_EQ(rule.next_due(Temporal::TimePoint{Temporal::Days{5}}), std::nullopt);
 }
 
 TEST(TaskRepeat, EveryWeekday) {
     TaskRepeatRule rule{.repeat_type =
                             TaskRepeat::EveryWeekday{.weekdays = {Temporal::Weekday::Monday}}};
 
-    EXPECT_EQ(rule.next_deadline(Temporal::TimePoint{Temporal::Days{1}}),
+    EXPECT_EQ(rule.next_due(Temporal::TimePoint{Temporal::Days{1}}),
               Temporal::TimePoint{Temporal::Days{4}});
 
     TaskRepeatRule rule2{.repeat_type = TaskRepeat::EveryWeekday{
                              .weekdays = {Temporal::Weekday::Monday, Temporal::Weekday::Tuesday}}};
 
-    EXPECT_EQ(rule2.next_deadline(Temporal::TimePoint{Temporal::Days{1}}),
+    EXPECT_EQ(rule2.next_due(Temporal::TimePoint{Temporal::Days{1}}),
               Temporal::TimePoint{Temporal::Days{4}});
 
-    EXPECT_EQ(rule2.next_deadline(Temporal::TimePoint{Temporal::Days{4}}),
+    EXPECT_EQ(rule2.next_due(Temporal::TimePoint{Temporal::Days{4}}),
               Temporal::TimePoint{Temporal::Days{5}});
 }
 
@@ -64,8 +64,8 @@ TEST(TaskRepeat, EveryWeekdayWithEnd) {
                             TaskRepeat::EveryWeekday{.weekdays = {Temporal::Weekday::Monday}},
                         .end = Temporal::TimePoint{Temporal::Days{5}}};
 
-    EXPECT_EQ(rule.next_deadline(Temporal::TimePoint{Temporal::Days{1}}),
+    EXPECT_EQ(rule.next_due(Temporal::TimePoint{Temporal::Days{1}}),
               Temporal::TimePoint{Temporal::Days{4}});
 
-    EXPECT_EQ(rule.next_deadline(Temporal::TimePoint{Temporal::Days{4}}), std::nullopt);
+    EXPECT_EQ(rule.next_due(Temporal::TimePoint{Temporal::Days{4}}), std::nullopt);
 }

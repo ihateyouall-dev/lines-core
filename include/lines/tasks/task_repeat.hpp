@@ -38,7 +38,7 @@ struct LINES_API TaskRepeatRule {
     RepeatType repeat_type;
     std::optional<Temporal::TimePoint> end;
 
-    LINES_NODISCARD auto next_deadline(const Temporal::TimePoint &completed_at) const
+    LINES_NODISCARD auto next_due(const Temporal::TimePoint &completed_at) const
         -> std::optional<Temporal::TimePoint> {
         return std::visit(
             [&](auto &&v) -> std::optional<Temporal::TimePoint> {
