@@ -88,7 +88,12 @@ void Lines::Task::uncomplete() { _completed = false; };
 
 LINES_NODISCARD auto Lines::Task::completed() const -> bool { return _completed; };
 
-void Lines::Task::set_due(const std::optional<Temporal::TimePoint> &due) { _due = due; }
+void Lines::Task::set_due(const std::optional<Temporal::TimePoint> &due) {
+    if (!due && _repeat_rule) {
+        throw TaskError("ERROR: Cannot disable due to repeating task");
+    }
+    _due = due;
+}
 
 LINES_NODISCARD auto Lines::Task::next_due() const -> std::optional<Temporal::TimePoint> {
     return _due ? next_due(*_due) : std::nullopt;

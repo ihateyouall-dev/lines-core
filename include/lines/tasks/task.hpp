@@ -23,7 +23,7 @@
 #include <string>
 
 namespace Lines {
-class TaskError : public std::exception {
+class LINES_API TaskError : public std::exception {
     std::string _what;
 
   public:

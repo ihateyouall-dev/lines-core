@@ -67,6 +67,7 @@ TEST(TaskInvariants, Repeat) {
             .interval = Temporal::duration_cast<Temporal::Seconds>(Temporal::Days{1})}};
     task.set_repeat_rule(rr);
     EXPECT_EQ(*task.due(), Temporal::LocalClock::now() + Temporal::Days{1});
+    EXPECT_THROW(task.set_due(std::nullopt), TaskError);
 
     task.set_repeat_rule(std::nullopt);
 
@@ -130,10 +131,6 @@ TEST(Task, NextDue) {
     task.set_repeat_rule(rule);
 
     EXPECT_EQ(task.next_due(), *task.due() + Temporal::Days{1});
-
-    task.set_due(std::nullopt);
-
-    EXPECT_FALSE(task.next_due());
 }
 
 TEST(Task, AdvanceDue) {

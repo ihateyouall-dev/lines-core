@@ -21,7 +21,7 @@
 #include <vector>
 
 namespace Lines {
-class TaskInfoError : std::exception {
+class LINES_API TaskInfoError : std::exception {
     std::string _what;
 
   public:
