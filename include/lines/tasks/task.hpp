@@ -18,11 +18,24 @@
 #include "lines/tasks/task_repeat.hpp"
 #include "lines/temporal/timepoint.hpp"
 
+#include <exception>
+#include <optional>
+#include <string>
+
 namespace Lines {
+class LINES_API TaskError : public std::exception {
+    std::string _what;
+
+  public:
+    explicit TaskError(std::string_view what);
+
+    [[nodiscard]] auto what() const noexcept -> const char * override;
+};
+
 class LINES_API Task {
     TaskInfo _info;
     std::optional<TaskRepeatRule> _repeat_rule;
-    std::optional<Temporal::TimePoint> _deadline;
+    std::optional<Temporal::TimePoint> _due;
     bool _completed{};
 
   public:
@@ -41,21 +54,23 @@ class LINES_API Task {
     void set_description(const std::string &description);
     void set_tags(std::vector<std::string> tags);
     void set_repeat_rule(const std::optional<TaskRepeatRule> &rule);
+    void set_repeat_end(const std::optional<Temporal::TimePoint> &end);
 
-    LINES_NODISCARD auto deadline() const -> const std::optional<Temporal::TimePoint> &;
+    LINES_NODISCARD auto due() const -> const std::optional<Temporal::TimePoint> &;
 
     LINES_NODISCARD auto title() const -> const std::string &;
     LINES_NODISCARD auto description() const -> const std::optional<std::string> &;
     LINES_NODISCARD auto tags() const -> const std::vector<std::string> &;
 
     LINES_NODISCARD auto repeat_rule() const -> const std::optional<Lines::TaskRepeatRule> &;
+    LINES_NODISCARD auto repeat_end() const -> const std::optional<Lines::Temporal::TimePoint> &;
 
-    LINES_NODISCARD auto next_deadline(const Temporal::TimePoint &completed_at) const
+    LINES_NODISCARD auto next_due(const Temporal::TimePoint &completed_at) const
         -> std::optional<Temporal::TimePoint>;
-    void advance_deadline(const Temporal::TimePoint &completed_at);
-    LINES_NODISCARD auto next_deadline() const -> std::optional<Temporal::TimePoint>;
-    void advance_deadline();
-    void set_deadline(const std::optional<Temporal::TimePoint> &deadline);
+    void advance_due(const Temporal::TimePoint &completed_at);
+    LINES_NODISCARD auto next_due() const -> std::optional<Temporal::TimePoint>;
+    void advance_due();
+    void set_due(const std::optional<Temporal::TimePoint> &due);
     LINES_NODISCARD auto is_active(const Temporal::TimePoint &tp) const -> bool;
 };
 } // namespace Lines

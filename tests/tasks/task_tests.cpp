@@ -14,6 +14,7 @@
 #include "lines/tasks/task.hpp"
 #include "lines/tasks/task_info.hpp"
 #include "lines/tasks/task_repeat.hpp"
+#include "lines/temporal/clocks.hpp"
 #include "lines/temporal/duration.hpp"
 #include "lines/temporal/timepoint.hpp"
 
@@ -52,11 +53,25 @@ TEST(TaskAccessors, Setters) {
 
 TEST(TaskInvariants, Title) {
     // Task title cannot be empty, it must have at least 1 character
-    EXPECT_THROW(Task{TaskInfo{""}}, std::invalid_argument);
+    EXPECT_THROW(Task{TaskInfo{""}}, TaskInfoError);
 
     Task task = Task{TaskInfo{"not empty title"}};
 
-    EXPECT_THROW(task.set_title(""), std::invalid_argument);
+    EXPECT_THROW(task.set_title(""), TaskError);
+}
+
+TEST(TaskInvariants, Repeat) {
+    Task task{TaskInfo{"task"}};
+    TaskRepeatRule rr{
+        .repeat_type = TaskRepeat::EveryUnit{
+            .interval = Temporal::duration_cast<Temporal::Seconds>(Temporal::Days{1})}};
+    task.set_repeat_rule(rr);
+    EXPECT_EQ(*task.due(), Temporal::LocalClock::now() + Temporal::Days{1});
+    EXPECT_THROW(task.set_due(std::nullopt), TaskError);
+
+    task.set_repeat_rule(std::nullopt);
+
+    EXPECT_THROW(task.set_repeat_end(Temporal::TimePoint{Temporal::Seconds{1}}), TaskError);
 }
 
 TEST(TaskSpecialMembers, Copy) {
@@ -89,51 +104,48 @@ TEST(TaskCompletion, Completion) {
 TEST(Task, IsActive) {
     Task task{TaskInfo{"task"}};
 
-    task.set_deadline(Temporal::TimePoint{Temporal::Days{7}});
-    EXPECT_TRUE(task.is_active(*task.deadline() - Temporal::Days{1}));
-    EXPECT_TRUE(task.is_active(*task.deadline()));
-    EXPECT_FALSE(task.is_active(*task.deadline() + Temporal::Days{1}));
+    task.set_due(Temporal::TimePoint{Temporal::Days{7}});
+    EXPECT_TRUE(task.is_active(*task.due() - Temporal::Days{1}));
+    EXPECT_TRUE(task.is_active(*task.due()));
+    EXPECT_FALSE(task.is_active(*task.due() + Temporal::Days{1}));
 
-    task.set_deadline(std::nullopt);
+    task.set_due(std::nullopt);
     EXPECT_TRUE(task.is_active(Temporal::TimePoint{Temporal::Days{8}}));
 
     task.complete();
     EXPECT_FALSE(task.is_active(Temporal::TimePoint{Temporal::Days{8}}));
 };
 
-TEST(Task, NextDeadline) {
+TEST(Task, NextDue) {
     Task task{TaskInfo{"task"}};
 
-    task.set_deadline(Temporal::TimePoint{Temporal::Days{7}});
+    task.set_due(Temporal::TimePoint{Temporal::Days{7}});
 
-    EXPECT_EQ(task.next_deadline(*task.deadline() - Temporal::Days{1}), *task.deadline());
-    EXPECT_FALSE(task.next_deadline());
-    EXPECT_FALSE(task.next_deadline(*task.deadline() + Temporal::Days{1}));
+    EXPECT_EQ(task.next_due(*task.due() - Temporal::Days{1}), *task.due());
+    EXPECT_FALSE(task.next_due());
+    EXPECT_FALSE(task.next_due(*task.due() + Temporal::Days{1}));
 
     TaskRepeatRule rule{
         .repeat_type = TaskRepeat::EveryUnit{
             .interval = Temporal::duration_cast<Temporal::Seconds>(Temporal::Days{1})}};
     task.set_repeat_rule(rule);
 
-    EXPECT_EQ(task.next_deadline(), *task.deadline() + Temporal::Days{1});
-
-    task.set_deadline(std::nullopt);
-
-    EXPECT_FALSE(task.next_deadline());
+    EXPECT_EQ(task.next_due(), *task.due() + Temporal::Days{1});
 }
 
-TEST(Task, AdvanceDeadline) {
+TEST(Task, AdvanceDue) {
     Task task{TaskInfo{"task"}};
-    task.set_deadline(Temporal::TimePoint{Temporal::Days{7}});
+    task.set_due(Temporal::TimePoint{Temporal::Days{7}});
 
     TaskRepeatRule rule{
         .repeat_type = TaskRepeat::EveryUnit{
             .interval = Temporal::duration_cast<Temporal::Seconds>(Temporal::Days{1})}};
     task.set_repeat_rule(rule);
+    // One initial advance_due calls in set_repeat_rule
 
-    task.advance_deadline();
-    EXPECT_EQ(*task.deadline(), Temporal::TimePoint{Temporal::Days{8}});
+    task.advance_due();
+    EXPECT_EQ(*task.due(), Temporal::TimePoint{Temporal::Days{9}});
 
-    task.advance_deadline(Temporal::TimePoint{Temporal::Days{14}});
-    EXPECT_EQ(*task.deadline(), Temporal::TimePoint{Temporal::Days{15}});
+    task.advance_due(Temporal::TimePoint{Temporal::Days{15}});
+    EXPECT_EQ(*task.due(), Temporal::TimePoint{Temporal::Days{16}});
 }
