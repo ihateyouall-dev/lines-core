@@ -25,7 +25,7 @@ Lines::Task::Task(TaskInfo info, std::optional<TaskRepeatRule> rule)
 
 void Lines::Task::set_title(const std::string &title) {
     if (title.empty()) {
-        throw TaskError("Title must not be empty");
+        throw TaskError("ERROR: Title must not be empty");
     }
     _info.title = title;
 }
@@ -107,7 +107,7 @@ Lines::TaskError::TaskError(std::string_view what) : _what(what) {}
 
 void Lines::Task::set_repeat_end(const std::optional<Temporal::TimePoint> &end) {
     if (!_repeat_rule) {
-        throw TaskError("Cannot give repeat end to task without repeat rule");
+        throw TaskError("ERROR: Cannot assign repeat end to task without repeat rule");
     }
     _repeat_rule->end = end;
 }
