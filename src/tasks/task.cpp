@@ -71,7 +71,13 @@ auto Lines::Task::next_due(const Temporal::TimePoint &completed_at) const
 
 auto Lines::Task::due() const -> const std::optional<Temporal::TimePoint> & { return _due; };
 
-void Lines::Task::complete() { _completed = true; }
+void Lines::Task::complete() {
+    if (_repeat_rule) {
+        advance_due();
+        return;
+    }
+    _completed = true;
+}
 
 void Lines::Task::advance_due(const Temporal::TimePoint &completed_at) {
     _due = next_due(completed_at);
