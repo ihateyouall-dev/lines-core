@@ -54,6 +54,9 @@ class LINES_API Task {
     void set_description(const std::string &description);
     void set_tags(std::vector<std::string> tags);
     void set_repeat_rule(const std::optional<TaskRepeatRule> &rule);
+
+    // set_repeat_rule without changing due
+    void set_repeat_rule_raw(const std::optional<TaskRepeatRule> &rule);
     void set_repeat_end(const std::optional<Temporal::TimePoint> &end);
 
     LINES_NODISCARD auto due() const -> const std::optional<Temporal::TimePoint> &;

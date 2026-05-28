@@ -69,9 +69,15 @@ TEST(TaskInvariants, Repeat) {
     EXPECT_EQ(*task.due(), Temporal::LocalClock::now() + Temporal::Days{1});
     EXPECT_THROW(task.set_due(std::nullopt), TaskError);
 
+    EXPECT_EQ(*task.due(), Temporal::LocalClock::now() + Temporal::Days{1});
+
     task.set_repeat_rule(std::nullopt);
 
     EXPECT_THROW(task.set_repeat_end(Temporal::TimePoint{Temporal::Seconds{1}}), TaskError);
+
+    task.set_repeat_rule_raw(rr);
+
+    EXPECT_FALSE(task.due()); // due keeps same
 }
 
 TEST(TaskSpecialMembers, Copy) {
