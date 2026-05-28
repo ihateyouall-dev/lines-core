@@ -44,6 +44,10 @@ void Lines::Task::set_repeat_rule(const std::optional<TaskRepeatRule> &rule) {
     advance_due();
 }
 
+void Lines::Task::set_repeat_rule_raw(const std::optional<TaskRepeatRule> &rule) {
+    _repeat_rule = rule;
+}
+
 auto Lines::Task::title() const -> const std::string & { return _info.title; }
 
 auto Lines::Task::description() const -> const std::optional<std::string> & {
